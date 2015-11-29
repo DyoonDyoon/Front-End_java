@@ -3,7 +3,7 @@
  */
 package model;
 
-abstract class User {
+public abstract class User {
 	protected String id;
 	private String name;
 	
