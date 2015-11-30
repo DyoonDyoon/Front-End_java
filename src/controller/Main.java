@@ -1,6 +1,7 @@
 package controller;
 
 import controller.NetworkManager;
+import model.LectureOutLine;
 import model.Student;
 
 public class Main {
