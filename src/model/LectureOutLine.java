@@ -90,31 +90,3 @@ public class LectureOutLine{
 		if(conn != null) try{conn.close();}catch(SQLException sqle){}     // Connection 해제
 	}
 }
-
-	  /*결과 출력해서 보기
-	  ResultSet rs = null;
-	  sql = "select * from topic";
-	  try{
-		  pstmt = conn.prepareStatement(sql);    // prepareStatement에서 해당 쿼리문을 미리 컴파일한다. 
-		  rs = pstmt.executeQuery();    // 쿼리를 실행하고 결과를 ResultSet 객체에 담는다.
-		  
-		  // 결과를 한 행씩 돌아가면서 가져온다.
-		  while (rs.next()) {
-			  int key = rs.getInt("학수번호");
-			  String name = rs.getString("강의명");
-			  String course = rs.getString("교과과정");
-			  int point = rs.getInt("학점");
-	         
-			  // print the results
-			  System.out.format("%d, %s, %s, %s, %s, %d\n", key, name, course, point);
-		  }
-	  }
-	  catch (Exception e)
-	  {
-		  e.printStackTrace();
-	  }finally{
-		  if(rs != null) try{rs.close();}catch(SQLException sqle){}         // Resultset 객체 해제
-		  if(pstmt != null) try{pstmt.close();}catch(SQLException sqle){}   // PreparedStatement 객체 해제
-		  if(conn != null) try{conn.close();}catch(SQLException sqle){}     // Connection 해제 
-	  }*/
-

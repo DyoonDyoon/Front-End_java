@@ -1,5 +1,7 @@
 package controller;
 
+import java.util.Scanner;
+
 import controller.NetworkManager;
 import model.LectureOutLine;
 import model.Student;
@@ -12,6 +14,6 @@ public class Main {
 			System.out.println("id : " + stu.getId());
 			System.out.println("name : " + stu.getName());
 			System.out.println("major : " + stu.getMajor());
-		}
+		}	
 	}
 }
