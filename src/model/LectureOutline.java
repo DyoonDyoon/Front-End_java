@@ -29,6 +29,10 @@ public class LectureOutline{
 		this.point = point;
 	}
 	
+	public void setLectureId(String lectureId){
+		this.lectureId = lectureId;
+	}
+	
 	public String getLectureId(){
 		return this.lectureId;
 	}

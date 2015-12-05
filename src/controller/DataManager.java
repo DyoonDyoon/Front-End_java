@@ -13,20 +13,12 @@ public class DataManager {
 	Connection conn = null; 	
 	PreparedStatement pstmt = null;
 	ResultSet result = null;
-	
-	ArrayList<ResultSet> lecture = new ArrayList<ResultSet>();
-	ArrayList<ResultSet> lecture_outline = new ArrayList<ResultSet>();
-	ArrayList<ResultSet> notification = new ArrayList<ResultSet>();
-	ArrayList<ResultSet> question = new ArrayList<ResultSet>();
-	ArrayList<ResultSet> answer = new ArrayList<ResultSet>();
-	ArrayList<ResultSet> grade = new ArrayList<ResultSet>();
-	ArrayList<ResultSet> assignment = new ArrayList<ResultSet>();
-	ArrayList<ResultSet> submit = new ArrayList<ResultSet>();
-	
+		
+	/*
 	public int getLectureVersion(){
 		
 		
-	}
+	}*/
 	
 	public void openDB(){
 		String myUrl = "jdbc:mysql://localhost:3306/eclass"; // 사용하려는 데이터베이스명을 포함한 URL 기술
@@ -63,23 +55,7 @@ public class DataManager {
 	    }
 		return lecture;
 	}
-	public ArrayList<ResultSet> SelectLectureOutlineDB(){		
-		try{ 
-	        pstmt = conn.prepareStatement("select * from lectureOutline"); //질의를 할 Statement 만들기 
-	        String SQL = "select * from lecture where student_id"; //데이터베이스 eclass의 테이블 lecture에 레코드 조회 
-	        result = pstmt.executeQuery(SQL);
-	        while (result.next())
-	        {
-	            lecture.add(result);
-	        }
-	    }
-	    catch (Exception e)
-	    {            
-	        System.out.println(e.getMessage());
-	        e.printStackTrace();
-	    }
-		return lecture;
-	}
+	
 	
 	
 	public void SelectDB(String table){		
@@ -138,6 +114,30 @@ public class DataManager {
 		}
 	}
 	*/
+	public ResultSet selectLectureOutlineDB(String key){	 //학수번호로 검색	
+		pstmt = null;	//동적 query문		
+		String sql = "select * from lecture_outline where lectureId=?";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        pstmt.setString(1, key);
+	        result = pstmt.executeQuery(sql);
+	       
+	        System.out.println(result.getString(0));
+	        System.out.println(result.getString(1));
+	        System.out.println(result.getString(2));
+	        System.out.println(result.getString(3));
+	        System.out.println(result.getString(4));
+	        System.out.println(result.getInt(5));
+        
+	    }
+	    catch (Exception e)
+	    {            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return result;
+	}
+	
 	public void insertLectureOutlineDB(ArrayList<LectureOutline> lectureOutline){
 		pstmt = null;	//동적 query문
 		String sql = "insert into lecture_outline VALUES (?, ?, ?, ?, ?);";
@@ -158,25 +158,32 @@ public class DataManager {
 			e.printStackTrace();
 		}
 	}
-	
-	public void updateLectureOutlineDB(ArrayList<LectureOutline> lectureOutline) {
+
+	public void updateLectureOutlineDB(LectureOutline lectureOutline, String key) {
+		pstmt = null;	//동적 query문
+		String sql = "update lecture_outline set lectureId=?, professorName=?, title=?, curriculum=?, point=? where lectureId=?";
 		try {
-			pstmt = conn.prepareStatement("update lecture_outline set " + headers.split(",")[0]+" =?, " + headers.split(",")[1]+" = ? where " + target.split("=")[0] + " = ?");
-			pstmt.setString(1, values.split(",")[0]);
-			pstmt.setString(2, values.split(",")[1]);
-			pstmt.setString(3, target.split("=")[1]);
-			pstmt.executeUpdate();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, lectureOutline.getLectureId()); //학수번호
+			pstmt.setString(2, lectureOutline.professorName); //교수명
+			pstmt.setString(3, lectureOutline.title); //강의명
+			pstmt.setString(4, lectureOutline.curriculum); //교과과정
+			pstmt.setString(5, String.valueOf(lectureOutline.getPoint())); //학점
+			pstmt.setString(6, key); //학점
+			int n = pstmt.executeUpdate();   // 쿼리문 실행
+			if(n<=0){
+				System.out.println("insert 실패");
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void deleteLectureOutlineDB(String key) throws Exception {
-		pstmt = conn.prepareStatement("delete from lecture_outline where key=?; ");
-		pstmt.setString(1, key);
+	public void deleteLectureOutlineDB(String lectureId) throws Exception {
+		pstmt = conn.prepareStatement("delete from lecture_outline where lectureId=?;");
+		pstmt.setString(1, lectureId);
 		pstmt.executeUpdate();
 	}
-	
 	
 	public void closeDB(){
 		if(pstmt != null) 

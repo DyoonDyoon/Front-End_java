@@ -1,5 +1,7 @@
 package controller;
 
+import java.util.ArrayList;
+import model.LectureOutline;
 import model.Student;
 
 public class Main {
@@ -7,10 +9,19 @@ public class Main {
 		NetworkManager manager = new NetworkManager();
 		DataManager dataManager = new DataManager();
 		dataManager.openDB();
-		dataManager.insertLectureOutlineDB(manager.getLectureOutline());
+		
+		//dataManager.insertLectureOutlineDB(manager.getLectureOutline());
+		
+		//dataManager.deleteLectureOutlineDB("ACG2008-01");
+		
+		//ArrayList<LectureOutline> lectures = manager.getLectureOutline();
+		//LectureOutline lectureOutline = lectures.get(0);
+		//String key = lectureOutline.getLectureId();
+		//lectureOutline.professorName = "hello";
+		//dataManager.updateLectureOutlineDB(lectureOutline, key);
+		
+		dataManager.selectLectureOutlineDB("ACG4003-02");
 		dataManager.closeDB();
-		
-		
 		
 		Student stu;
 		if ((stu = (Student) manager.login("2014112025", "gjsl")) != null) {
