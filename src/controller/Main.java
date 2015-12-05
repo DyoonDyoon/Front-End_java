@@ -21,7 +21,7 @@ public class Main {
 		//lectureOutline.professorName = "hello";
 		//dataManager.updateLectureOutlineDB(lectureOutline, key);
 		
-		dataManager.selectLectureOutlineDB("ACG4003-02");
+		dataManager.selectLectureOutlineDB("ss");
 		dataManager.closeDB();
 		
 		int version = manager.needsUpdateLectureOutline();

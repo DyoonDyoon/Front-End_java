@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import model.Lecture;
 import model.LectureOutline;
 
 public class DataManager {	
@@ -114,6 +115,79 @@ public class DataManager {
 		}
 	}
 	*/
+	public ArrayList<Lecture> selectLectureDB(String Id, String search){	 
+		ArrayList<Lecture> lectures = new ArrayList<Lecture>();
+		pstmt = null;	//동적 query문		
+		String sql = "select * from lecture where ?=?";
+		if(Id == "lectureId"){
+			Id = "lectureId";
+		}
+		else if(Id == "userId"){
+			Id = "userId";
+		}
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        pstmt.setString(1, Id);
+	        pstmt.setString(2, search);
+	        result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	Lecture lecture = new Lecture();
+                lecture.setLectureId(result.getString(1));
+                lecture.setUserId(result.getString(2));
+        
+                lectures.add(lecture);
+	        }
+	    }
+	    catch (Exception e)
+	    {            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return lectures;
+	}
+		
+	public void insertLectureDB(String lectureId, String userId){
+		pstmt = null;	//동적 query문
+		String sql = "insert into lecture VALUES (?, ?)";
+		try{	  
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, lectureId); //LectureId
+			pstmt.setString(2, userId); //UserId
+			int n = pstmt.executeUpdate();   // 쿼리문 실행
+			if(n<=0){
+				System.out.println("insert 실패");
+			}
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+	}
+/*
+	public void updateLectureDB(String ) {
+		pstmt = null;	//동적 query문
+		String sql = "update lecture set lectureId=?, UserId=? where lectureId=? && userId=?";
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, ); //학수번호
+			pstmt.setString(2, ); //교수명
+			pstmt.setString(3, );
+			
+			int n = pstmt.executeUpdate();   // 쿼리문 실행
+			if(n<=0){
+				System.out.println("insert 실패");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	*/
+	public void deleteLectureDB(String lectureId, String userId) throws Exception {
+		pstmt = conn.prepareStatement("delete from lecture where lectureId=? && userId =?");
+		pstmt.setString(1, lectureId);
+		pstmt.setString(2, userId);
+		pstmt.executeUpdate();
+	}
+	
+	/*아왜오류나ㅏ나ㅏ나나나쿼리문은맞는데ㅡㅡㅡㅡㅡㅡ
 	public ResultSet selectLectureOutlineDB(String key){	 //학수번호로 검색	
 		pstmt = null;	//동적 query문		
 		String sql = "select * from lecture_outline where lectureId=?";
@@ -121,14 +195,6 @@ public class DataManager {
 	        pstmt = conn.prepareStatement(sql);  
 	        pstmt.setString(1, key);
 	        result = pstmt.executeQuery(sql);
-	       
-	        System.out.println(result.getString(0));
-	        System.out.println(result.getString(1));
-	        System.out.println(result.getString(2));
-	        System.out.println(result.getString(3));
-	        System.out.println(result.getString(4));
-	        System.out.println(result.getInt(5));
-        
 	    }
 	    catch (Exception e)
 	    {            
@@ -137,10 +203,10 @@ public class DataManager {
 	    }
 		return result;
 	}
-	
+	*/
 	public void insertLectureOutlineDB(ArrayList<LectureOutline> lectureOutline){
 		pstmt = null;	//동적 query문
-		String sql = "insert into lecture_outline VALUES (?, ?, ?, ?, ?);";
+		String sql = "insert into lecture_outline VALUES (?, ?, ?, ?, ?)";
 		try{	  
 			for (LectureOutline object : lectureOutline) {
 				pstmt = conn.prepareStatement(sql);
@@ -180,7 +246,7 @@ public class DataManager {
 	}
 	
 	public void deleteLectureOutlineDB(String lectureId) throws Exception {
-		pstmt = conn.prepareStatement("delete from lecture_outline where lectureId=?;");
+		pstmt = conn.prepareStatement("delete from lecture_outline where lectureId=?");
 		pstmt.setString(1, lectureId);
 		pstmt.executeUpdate();
 	}
