@@ -25,7 +25,7 @@ public class NetworkManager {
 	
 	public static final String API_HOST = "http://www.feonfun.com:8808";
 	public static final String LOGIN = "/login";
-	public static final String LECTURE_OUTLINE_URL = "https://rawgit.com/DyoonDyoon/Back-End/master/script/2015-2.json";
+	public static final String LECTURE_OUTLINE_URL = "https://raw.githubusercontent.com/DyoonDyoon/Back-End/master/script/2015-2.json";
 
 	private String accessToken;
 	

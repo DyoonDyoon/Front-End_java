@@ -5,13 +5,30 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
+import model.LectureOutline;
 
 public class DataManager {	
 	Connection conn = null; 	
 	PreparedStatement pstmt = null;
 	ResultSet result = null;
 	
-	public void OpenDB(){
+	ArrayList<ResultSet> lecture = new ArrayList<ResultSet>();
+	ArrayList<ResultSet> lecture_outline = new ArrayList<ResultSet>();
+	ArrayList<ResultSet> notification = new ArrayList<ResultSet>();
+	ArrayList<ResultSet> question = new ArrayList<ResultSet>();
+	ArrayList<ResultSet> answer = new ArrayList<ResultSet>();
+	ArrayList<ResultSet> grade = new ArrayList<ResultSet>();
+	ArrayList<ResultSet> assignment = new ArrayList<ResultSet>();
+	ArrayList<ResultSet> submit = new ArrayList<ResultSet>();
+	
+	public int getLectureVersion(){
+		
+		
+	}
+	
+	public void openDB(){
 		String myUrl = "jdbc:mysql://localhost:3306/eclass"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 		String id = "root"; // 사용자 계정
 		String pw = "5721"; //사용자 계정의 패스워드
@@ -28,6 +45,42 @@ public class DataManager {
 			System.out.println("DB 접속 실패");
 		}
 	}
+	/*
+	public ArrayList<ResultSet> SelectLectureDB(){		
+		try{ 
+	        String SQL = "select * from lecture where student_id"; //데이터베이스 eclass의 테이블 lecture에 레코드 조회 
+	        pstmt = conn.prepareStatement(SQL); //질의를 할 Statement 만들기 
+	        result = pstmt.executeQuery(SQL);
+	        while (result.next())
+	        {
+	            lecture.add(result);
+	        }
+	    }
+	    catch (Exception e)
+	    {            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return lecture;
+	}
+	public ArrayList<ResultSet> SelectLectureOutlineDB(){		
+		try{ 
+	        pstmt = conn.prepareStatement("select * from lectureOutline"); //질의를 할 Statement 만들기 
+	        String SQL = "select * from lecture where student_id"; //데이터베이스 eclass의 테이블 lecture에 레코드 조회 
+	        result = pstmt.executeQuery(SQL);
+	        while (result.next())
+	        {
+	            lecture.add(result);
+	        }
+	    }
+	    catch (Exception e)
+	    {            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return lecture;
+	}
+	
 	
 	public void SelectDB(String table){		
 		try{ 
@@ -84,8 +137,48 @@ public class DataManager {
 			e.printStackTrace();
 		}
 	}
+	*/
+	public void insertLectureOutlineDB(ArrayList<LectureOutline> lectureOutline){
+		pstmt = null;	//동적 query문
+		String sql = "insert into lecture_outline VALUES (?, ?, ?, ?, ?);";
+		try{	  
+			for (LectureOutline object : lectureOutline) {
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, object.getLectureId()); //학수번호
+				pstmt.setString(2, object.professorName); //교수명
+				pstmt.setString(3, object.title); //강의명
+				pstmt.setString(4, object.curriculum); //교과과정
+				pstmt.setString(5, String.valueOf(object.getPoint())); //학점
+				int n = pstmt.executeUpdate();   // 쿼리문 실행
+				if(n<=0){
+					System.out.println("insert 실패");
+				}
+			}
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+	}
 	
-	public void CloseDB(){
+	public void updateLectureOutlineDB(ArrayList<LectureOutline> lectureOutline) {
+		try {
+			pstmt = conn.prepareStatement("update lecture_outline set " + headers.split(",")[0]+" =?, " + headers.split(",")[1]+" = ? where " + target.split("=")[0] + " = ?");
+			pstmt.setString(1, values.split(",")[0]);
+			pstmt.setString(2, values.split(",")[1]);
+			pstmt.setString(3, target.split("=")[1]);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void deleteLectureOutlineDB(String key) throws Exception {
+		pstmt = conn.prepareStatement("delete from lecture_outline where key=?; ");
+		pstmt.setString(1, key);
+		pstmt.executeUpdate();
+	}
+	
+	
+	public void closeDB(){
 		if(pstmt != null) 
 			try{pstmt.close();}catch(SQLException sqle){} // PreparedStatement 객체 해제
 		
