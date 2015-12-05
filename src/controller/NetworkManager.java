@@ -4,14 +4,19 @@
 package controller;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import model.LectureOutline;
 import model.Student;
 import model.User;
 
@@ -20,6 +25,7 @@ public class NetworkManager {
 	
 	public static final String API_HOST = "http://www.feonfun.com:8808";
 	public static final String LOGIN = "/login";
+	public static final String LECTURE_OUTLINE_URL = "https://rawgit.com/DyoonDyoon/Back-End/master/script/2015-2.json";
 
 	private String accessToken;
 	
@@ -61,29 +67,28 @@ public class NetworkManager {
 		return stu;
 	}
 	
-	public void getLectureOutline() {
-		/*
-		URL obj = new URL("https://cdn.rawgit.com/MinJunKweon/dbit/master/static/1-v1.json");
+	public ArrayList<LectureOutline> getLectureOutline() throws IOException {
+		URL obj = new URL(LECTURE_OUTLINE_URL);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		// optional default is GET
 		con.setRequestMethod("GET");
 		int responseCode = con.getResponseCode();
-		Student stu = new Student("", "", "");
 		
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(con.getInputStream()));
 		String inputLine = in.readLine();
 		in.close();
 		
+		ArrayList<LectureOutline> lectureOutlines = new ArrayList<LectureOutline>();
+		
 		JsonArray jsonArray = new JsonParser().parse(inputLine).getAsJsonArray();
 
 		System.out.println("Response Code : " + responseCode);
 		for (JsonElement i : jsonArray) {
-			JsonObject o = i.getAsJsonObject();
-			System.out.println(o);
+			JsonObject object = i.getAsJsonObject();
+			LectureOutline lectureOutline = new LectureOutline(object);
+			lectureOutlines.add(lectureOutline);
 		}
-		
-		return stu;
-		*/
+		return lectureOutlines;
 	}
 }
