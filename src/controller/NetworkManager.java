@@ -97,7 +97,7 @@ public class NetworkManager {
 	
 	public User login(String id, String pw) throws Exception {
 		String url = API_HOST + LOGIN;
-		String params = "?id=" + id + "&pw=" + pw;
+		String params = "?userId=" + id + "&password=" + pw;
 		
 		url = url + params;
 		URL obj = new URL(url);

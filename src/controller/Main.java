@@ -6,12 +6,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 import model.Lecture;
 import model.LectureOutline;
 import model.Notification;
 import model.Student;
 import view.LoginPage;
+import view.MainPage;
 
 public class Main {
 	public static String ID;
@@ -35,6 +37,7 @@ public class Main {
 			dataManager.closeDB();
 		}
 		 */
+
 	
 		/*select할때 사용
 		ArrayList<Grade> lec = new ArrayList<Grade>();
@@ -47,11 +50,21 @@ public class Main {
 		*/
 		
 		LoginPage loginpage = new LoginPage();
+
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (Exception e) {
+	          System.err.println("Look and feel not set.");
+	    }
+		
+		LoginPage loginpage = new LoginPage();
+		MainPage mainpage = new MainPage();
 		
 		e = new ActionListener(){
 			@Override
-			public void actionPerformed(ActionEvent e) {//ActionListener�� implements�� �Լ�
-				switch(e.getActionCommand())//�̺�Ʈ���� ������ ActionCommand�� ������
+			public void actionPerformed(ActionEvent event) {//ActionListener�� implements�� �Լ�
+				switch(event.getActionCommand())//�̺�Ʈ���� ������ ActionCommand�� ������
 				{
 					case "login"://������ ActionCommand
 					ID = loginpage.IDField.getText();
@@ -63,11 +76,45 @@ public class Main {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-						if (stu != null) {
-							System.out.println("id : " + stu.getId());
-							System.out.println("name : " + stu.getName());
-							//System.out.println("major : " + stu.getMajor());
-						}
+					if (stu != null) {
+						System.out.println("id : " + stu.getId());
+						System.out.println("name : " + stu.getName());
+						System.out.println("major : " + stu.getMajor());
+						JOptionPane.showMessageDialog(null, stu.getName() + "님 안녕하세요!");
+						loginpage.setVisible(false);
+						mainpage.setStudentObject(stu);
+						mainpage.setActionListener(e);
+						mainpage.setVisible(true);
+					}
+					else{
+						JOptionPane.showMessageDialog(null, "입력하신 아이디와 비밀번호가 일치하지 않습니다");
+					}
+					break;
+					case "CheckAssign":
+						JOptionPane.showMessageDialog(null, "과제확인이요!");
+						mainpage.showAssign();
+						mainpage.setVisible(true);
+						break;
+					case "CheckNoti":
+						JOptionPane.showMessageDialog(null, "공지확인이요!");
+						mainpage.showNoti();
+						mainpage.setVisible(true);
+						break;
+					case "CheckGrade":
+						JOptionPane.showMessageDialog(null, "성적확인이요!");
+						mainpage.showGrade();
+						mainpage.setVisible(true);
+						break;
+					case "EnterSubject":
+						JOptionPane.showMessageDialog(null, "강의실입장이요!");
+						mainpage.setVisible(true);
+						break;
+					case "gotoMain":
+						mainpage.gotoMain(e);
+						mainpage.setVisible(true);
+						break;
+					default:
+						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
 					break;
 				}
 				}
