@@ -5,20 +5,7 @@ public class Notification {
 	private String lectureId;
 	public String title;
 	public String description;
-	
-	public boolean modify(String title, String description){
-		try{
-			this.title = title;
-			this.description = description;
-		}
-		catch(Exception e) {
-	        System.out.println(e.getMessage());
-	        e.printStackTrace();
-	        return false;
-		}
-		return true;
-	}
-	
+		
 	public String getNotification(){
 		return notificationId;
 	}
@@ -33,6 +20,10 @@ public class Notification {
 	
 	public String getLectureId(){
 		return this.lectureId;
+	}
+	
+	public String toString() {
+		return "{\n\t'lectureId' : " + lectureId + ",\n\t'title' : " + title + ",\n\t'description' : " + description +"\n}";
 	}
 }
 

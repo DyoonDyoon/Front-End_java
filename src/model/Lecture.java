@@ -19,4 +19,8 @@ public class Lecture {
 	public void setUserId(String userId){
 		this.userId = userId;
 	}
+	
+	public String toString() {
+		return "{\n\t'lectureId' : " + lectureId + ",\n\t'userId' : " + userId + "\n}";
+	}
 }
