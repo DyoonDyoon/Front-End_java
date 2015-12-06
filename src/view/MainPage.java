@@ -52,6 +52,22 @@ public class MainPage extends JFrame{
 	JScrollPane RecscrollPane; // 위와 동일
 	JTable RecSubjectTable; // 추천 강의를 저장하는 JTable
 	
+	JPanel AssignmentPanel;
+	JTable AssignmentTable;
+	JScrollPane AssignmentscrollPane;
+	JTextArea AssignmentTitle;
+	JTextArea AssignmentContent;
+	
+	JPanel NotificationPanel;
+	JTable NotificationTable;
+	JScrollPane NotificationscrollPane;
+	JTextArea NotificationTitle;
+	JTextArea NotificationContent;
+	
+	JPanel GradePanel;
+	JTable GradeTable;
+	JScrollPane GradescrollPane;
+	
 	public MainPage(){ // 생성자 구현
 		setTitle("Mini E-class"); // 객체의 제목 설정
 		setSize(800,450); // 객체  Size 설정
@@ -128,7 +144,7 @@ public class MainPage extends JFrame{
 	//메뉴를 구현하도록하는 함수
 	public void setMenu(){
 		//Main화면으로 돌아가도록하는 버튼 구현
-		gotoMain = new JButton("메인 화면으로"); // 이름 설정 후 생성
+		gotoMain = new JButton("메인 화면"); // 이름 설정 후 생성
 		gotoMain.setBounds(10, 10, 114, 30); // 위치와 크기 설정 
 		gotoMain.setFont(new Font("맑은 고딕", Font.PLAIN, 14)); // 폰트와 크기 설정
 		gotoMain.setActionCommand("gotoMain"); // 클릭할 경우 ActionListener에 보낼 Command 설정
@@ -223,7 +239,14 @@ public class MainPage extends JFrame{
 				{1,"가나다"},
 		};
 		//Default 테이블을 설정함
-		DefaultTableModel defaulttablemodel = new DefaultTableModel(rowData,columnNames);
+		DefaultTableModel defaulttablemodel = new DefaultTableModel(rowData,columnNames)
+		{
+		    @Override
+		    public boolean isCellEditable(int row, int column){
+		       //all cells false
+		       return false;
+		    }
+		};
 		
 		RecSubjectTable = new JTable(defaulttablemodel); // Default 테이블을 통해 JTable 생성
 		RecSubjectTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
@@ -235,6 +258,8 @@ public class MainPage extends JFrame{
 		TableColumnModel columnmodel = RecSubjectTable.getColumnModel();
 		columnmodel.getColumn(0).setPreferredWidth(50); // 학점 칸은 50픽셀로 설정
 		columnmodel.getColumn(1).setPreferredWidth(170); // 강의 제목 칸은 170픽셀로 설정
+		columnmodel.getColumn(0).setResizable(false);
+		columnmodel.getColumn(1).setResizable(false);
 		
 		RecscrollPane = new JScrollPane(); // 스크롤바 설정을 위함
 		RecscrollPane.setBounds(12, 21, 230, 235); // 위치와 크기 설정
@@ -248,21 +273,212 @@ public class MainPage extends JFrame{
 	
 	//과제 확인 창을 구현하는 함수
 	public void showAssign(){
+		AssignmentPanel = new JPanel();
+		AssignmentPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "과제 확인", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		AssignmentPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
+		AssignmentPanel.setLayout(null); // 레이아웃을 Absolute로 설정
+	
+		String columnNames[] = {"강의","제목"}; // Column을 설명하기 위함
+		//강의 목록 저장
+		Object rowData[][] = { {"시스템 소프트웨어 프로그래밍","씨발 힘들어요"},
+				{"주니어 디자인 프로젝트","뒤질꺼같아요"},
+				{"객체 지향 언어와 실습","다신 하기 싫어요"},
+				{"프로그래밍 언어와 실습","살려주세요"},
+				{"미적분학 및 연습","배고파요"},
+				{"미적분학 및 연습","기술 창조와 특허"},
+				{"미적분학 및 연습","가나다"},
+				{"미적분학 및 연습","가나다"},
+				{"미적분학 및 연습","가나다"},
+				{"미적분학 및 연습","가나다"},
+		};
+
+		DefaultTableModel defaulttablemodel = new DefaultTableModel(rowData,columnNames)
+			{
+			    @Override
+			    public boolean isCellEditable(int row, int column){
+			       //all cells false
+			       return false;
+			    }
+		};
+		
+		AssignmentTable = new JTable(defaulttablemodel);
+		AssignmentTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
+		AssignmentTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		AssignmentTable.setBackground(SystemColor.control); // 생상 설정
+		AssignmentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
+
+		
+		TableColumnModel columnmodel = AssignmentTable.getColumnModel();
+		columnmodel.getColumn(0).setPreferredWidth(150); 
+		columnmodel.getColumn(1).setPreferredWidth(440);
+		columnmodel.getColumn(0).setResizable(false);
+		columnmodel.getColumn(1).setResizable(false);
+		
+		AssignmentscrollPane = new JScrollPane(); // 스크롤바 설정을 위함
+		AssignmentscrollPane.setBounds(10,20, 610, 180); // 위치와 크기 설정
+		AssignmentscrollPane.setViewportView(AssignmentTable);	//JTable 지정
+		AssignmentscrollPane.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		AssignmentscrollPane.setBackground(SystemColor.control); // 배경 색 설정
+		AssignmentPanel.add(AssignmentscrollPane);
+
+		AssignmentTitle = new JTextArea("123");
+		AssignmentTitle.setBounds(10, 210, 400, 20);
+		AssignmentTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		AssignmentTitle.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		AssignmentTitle.setEditable(false);
+		AssignmentTitle.setBackground(SystemColor.control); // 생상 설정
+		AssignmentPanel.add(AssignmentTitle);
+		
+		AssignmentContent = new JTextArea("123");
+		AssignmentContent.setBounds(10, 230, 600, 150);
+		AssignmentContent.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		AssignmentContent.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		AssignmentContent.setEditable(false);
+		AssignmentContent.setBackground(SystemColor.control); // 생상 설정
+		AssignmentPanel.add(AssignmentContent);
+		
 		RightPanel.removeAll();
+		RightPanel.add(AssignmentPanel);
 		contentPane.revalidate();
 		contentPane.repaint();
 	}
 	
 	//공지 확인 창을 구현하는 함수
 	public void showNoti(){
+		NotificationPanel = new JPanel();
+		NotificationPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "공지 확인", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		NotificationPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
+		NotificationPanel.setLayout(null); // 레이아웃을 Absolute로 설정
+	
+
+		String columnNames[] = {"강의","제목"}; // Column을 설명하기 위함
+		//강의 목록 저장
+		Object rowData[][] = { {"시스템 소프트웨어 프로그래밍","과제 없습니다"},
+				{"주니어 디자인 프로젝트","과제 없습니다"},
+				{"객체 지향 언어와 실습","과제 없습니다"},
+				{"프로그래밍 언어와 실습","과제 없습니다"},
+				{"미적분학 및 연습","과제 없습니다"},
+				{"미적분학 및 연습","과제 없습니다"},
+				{"미적분학 및 연습","과제 없습니다"},
+				{"미적분학 및 연습","과제 없습니다"},
+				{"미적분학 및 연습","과제 없습니다"},
+				{"미적분학 및 연습","과제 없습니다"},
+		};
+
+		DefaultTableModel defaulttablemodel = new DefaultTableModel(rowData,columnNames)
+			{
+			    @Override
+			    public boolean isCellEditable(int row, int column){
+			       //all cells false
+			       return false;
+			    }
+		};
+		
+		NotificationTable = new JTable(defaulttablemodel);
+		NotificationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
+		NotificationTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		NotificationTable.setBackground(SystemColor.control); // 생상 설정
+		NotificationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
+
+		
+		TableColumnModel columnmodel = NotificationTable.getColumnModel();
+		columnmodel.getColumn(0).setPreferredWidth(150); 
+		columnmodel.getColumn(1).setPreferredWidth(440);
+		columnmodel.getColumn(0).setResizable(false);
+		columnmodel.getColumn(1).setResizable(false);
+		
+		NotificationscrollPane = new JScrollPane(); // 스크롤바 설정을 위함
+		NotificationscrollPane.setBounds(10,20, 610, 180); // 위치와 크기 설정
+		NotificationscrollPane.setViewportView(NotificationTable);	//JTable 지정
+		NotificationscrollPane.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		NotificationscrollPane.setBackground(SystemColor.control); // 배경 색 설정
+		NotificationPanel.add(NotificationscrollPane);
+
+		NotificationTitle = new JTextArea("123");
+		NotificationTitle.setBounds(10, 210, 400, 20);
+		NotificationTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		NotificationTitle.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		NotificationTitle.setEditable(false);
+		NotificationTitle.setBackground(SystemColor.control); // 생상 설정
+		NotificationPanel.add(NotificationTitle);
+		
+		NotificationContent = new JTextArea("123");
+		NotificationContent.setBounds(10, 230, 600, 150);
+		NotificationContent.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		NotificationContent.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		NotificationContent.setEditable(false);
+		NotificationContent.setBackground(SystemColor.control); // 생상 설정
+		NotificationPanel.add(NotificationContent);
+		
 		RightPanel.removeAll();
+		RightPanel.add(NotificationPanel);
 		contentPane.revalidate();
 		contentPane.repaint();
 	}
 	
 	//성적 확인 창을 구현하는 함수
 	public void showGrade(){
+		GradePanel = new JPanel();
+		GradePanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "성적 확인", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GradePanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
+		GradePanel.setLayout(null); // 레이아웃을 Absolute로 설정
+	
+		String columnNames[] = {"강의","과제 번호","점수"}; // Column을 설명하기 위함
+		//강의 목록 저장
+		Object rowData[][] = { {"시스템 소프트웨어 프로그래밍",0,40},
+				{"주니어 디자인 프로젝트",0,50},
+				{"객체 지향 언어와 실습",40},
+				{"프로그래밍 언어와 실습",60},
+				{"미적분학 및 연습",0,60},
+				{"미적분학 및 연습",2,60},
+				{"미적분학 및 연습",3,60},
+				{"미적분학 및 연습",4,60},
+				{"미적분학 및 연습",5,60},
+				{"미적분학 및 연습",6,60},
+				{"미적분학 및 연습",6,60},
+				{"미적분학 및 연습",6,60},
+				{"미적분학 및 연습",6,60},
+				{"미적분학 및 연습",6,60},
+				{"미적분학 및 연습",6,60},
+				{"미적분학 및 연습",6,60},
+				{"미적분학 및 연습",6,60},
+				{"미적분학 및 연습",6,60},
+		};
+
+		DefaultTableModel defaulttablemodel = new DefaultTableModel(rowData,columnNames)
+			{
+			    @Override
+			    public boolean isCellEditable(int row, int column){
+			       //all cells false
+			       return false;
+			    }
+		};
+		
+		GradeTable = new JTable(defaulttablemodel);
+		GradeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
+		GradeTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		GradeTable.setBackground(SystemColor.control); // 생상 설정
+		GradeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
+
+		
+		TableColumnModel columnmodel = GradeTable.getColumnModel();
+		columnmodel.getColumn(0).setPreferredWidth(150); 
+		columnmodel.getColumn(1).setPreferredWidth(50); 
+		columnmodel.getColumn(2).setPreferredWidth(100);
+		columnmodel.getColumn(0).setResizable(false);
+		columnmodel.getColumn(1).setResizable(false);
+		columnmodel.getColumn(2).setResizable(false);
+		
+		GradescrollPane = new JScrollPane(); // 스크롤바 설정을 위함
+		GradescrollPane.setBounds(150,20, 300, 370); // 위치와 크기 설정
+		GradescrollPane.setViewportView(GradeTable);	//JTable 지정
+		GradescrollPane.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		GradescrollPane.setBackground(SystemColor.control); // 배경 색 설정
+		GradePanel.add(GradescrollPane);
+
+		
 		RightPanel.removeAll();
+		RightPanel.add(GradePanel);
 		contentPane.revalidate();
 		contentPane.repaint();
 	}
