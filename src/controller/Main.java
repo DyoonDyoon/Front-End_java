@@ -40,10 +40,10 @@ public class Main {
 			dataManager.closeDB();
 		}
 		 */
-		
-		dataManager.openDB();
-		dataManager.deleteQuestionDB("1");
-		dataManager.closeDB();
+//		
+//		dataManager.openDB();
+//		dataManager.deleteQuestionDB("1");
+//		dataManager.closeDB();
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -85,15 +85,26 @@ public class Main {
 					break;
 					case "CheckAssign":
 						JOptionPane.showMessageDialog(null, "과제확인이요!");
+						mainpage.showAssign();
+						mainpage.setVisible(true);
 						break;
 					case "CheckNoti":
 						JOptionPane.showMessageDialog(null, "공지확인이요!");
+						mainpage.showNoti();
+						mainpage.setVisible(true);
 						break;
 					case "CheckGrade":
 						JOptionPane.showMessageDialog(null, "성적확인이요!");
+						mainpage.showGrade();
+						mainpage.setVisible(true);
 						break;
 					case "EnterSubject":
 						JOptionPane.showMessageDialog(null, "강의실입장이요!");
+						mainpage.setVisible(true);
+						break;
+					case "gotoMain":
+						mainpage.gotoMain(e);
+						mainpage.setVisible(true);
 						break;
 					default:
 						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
