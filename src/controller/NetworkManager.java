@@ -52,13 +52,23 @@ public class NetworkManager {
 	        config = new JsonParser().parse(fileString).getAsJsonObject();
 		}
 		JsonObject serverConfig = getLectureOutlineConfig();
-		boolean isUpToDate = config.get("version").getAsInt() != serverConfig.get("version").getAsInt();
-        if (serverConfig != null && (!textFile.exists() || isUpToDate)) {
-            FileOutputStream outputStream = new FileOutputStream(CONFIG_FIlE, false);	// if exist
-            String serverConfigStr = serverConfig.toString();
-            outputStream.write(serverConfigStr.getBytes(), 0, serverConfigStr.getBytes().length);
-            outputStream.close();
-        	return serverConfig.get("version").getAsInt();
+		boolean flag = false;
+		if (serverConfig != null) {
+			if(!textFile.exists()) {
+				flag = true;
+	        } else {
+	        	boolean isUpToDate = config.get("version").getAsInt() != serverConfig.get("version").getAsInt();
+		        if (isUpToDate) {
+		        	flag = true;
+		        }
+	        }
+	        if (flag) {
+				FileOutputStream outputStream = new FileOutputStream(CONFIG_FIlE, false);	// if exist
+	            String serverConfigStr = serverConfig.toString();
+	            outputStream.write(serverConfigStr.getBytes(), 0, serverConfigStr.getBytes().length);
+	            outputStream.close();
+	        	return serverConfig.get("version").getAsInt();
+	        }
         }
 		return -1;
 	}

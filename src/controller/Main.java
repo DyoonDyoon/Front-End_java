@@ -2,6 +2,7 @@ package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -14,14 +15,11 @@ public class Main {
 	public static String ID;
 	public static String PW;
 	public static ActionListener e;
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException{
 		NetworkManager manager = new NetworkManager();
 		DataManager dataManager = new DataManager();
-
-		//dataManager.openDB();
 		
 		//dataManager.insertLectureOutlineDB(manager.getLectureOutline());
-		
 		//dataManager.deleteLectureOutlineDB("ACG2008-01");
 		
 		//ArrayList<LectureOutline> lectures = manager.getLectureOutline();
@@ -31,27 +29,22 @@ public class Main {
 		//dataManager.updateLectureOutlineDB(lectureOutline, key);
 
 		//dataManager.selectLectureOutlineDB("ss");
-		dataManager.closeDB();
-		
+
+		/*
 		int version = manager.needsUpdateLectureOutline();
 		if (version != -1) {
 			dataManager.openDB();
 			dataManager.insertLectureOutlineDB(manager.getLectureOutline(version));
 			dataManager.closeDB();
 		}
-
-//		
-//		dataManager.selectLectureOutlineDB("ACG4003-02");
-//		dataManager.closeDB();
-//		
-//		int version = manager.needsUpdateLectureOutline();
-//		if (version != -1) {
-//			dataManager.openDB();
-//			dataManager.insertLectureOutlineDB(manager.getLectureOutline(version));
-//			dataManager.closeDB();
-//		}
+		 */
+		
+		dataManager.openDB();
+		dataManager.deleteQuestionDB("1");
+		dataManager.closeDB();
 
 		LoginPage loginpage = new LoginPage();
+	
 		
 		e = new ActionListener(){
 			@Override
