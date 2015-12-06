@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import model.Grade;
 import model.Lecture;
 import model.LectureOutline;
 import model.Notification;
@@ -38,7 +39,6 @@ public class Main {
 		}
 		 */
 
-	
 		/*select할때 사용
 		ArrayList<Grade> lec = new ArrayList<Grade>();
 		dataManager.openDB();
@@ -49,9 +49,6 @@ public class Main {
 		dataManager.closeDB();
 		*/
 		
-		LoginPage loginpage = new LoginPage();
-
-
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			} catch (Exception e) {

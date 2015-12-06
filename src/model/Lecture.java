@@ -1,3 +1,6 @@
+/**
+ *  Created by ChoiJinYoung on 2015. 12. 06..
+ */
 package model;
 
 public class Lecture {

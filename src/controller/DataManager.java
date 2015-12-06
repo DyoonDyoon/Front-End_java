@@ -10,9 +10,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import model.Answer;
+import model.Assignment;
+import model.Grade;
 import model.Lecture;
 import model.LectureOutline;
 import model.Notification;
+import model.Question;
+import model.Submit;
 
 public class DataManager {	
 	Connection conn = null; 	
