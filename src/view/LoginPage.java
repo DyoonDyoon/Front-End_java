@@ -5,6 +5,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
+import controller.Main;
+
 public class LoginPage{
 	JFrame jframe;				//메인화면
 	JLabel i;
@@ -13,7 +15,7 @@ public class LoginPage{
 	public JPasswordField PWField;		//PW입력칸
 	JButton LoginButton;			//로그인 버튼
 	
-	public LoginPage(ActionListener actionListener){
+	public LoginPage(){
 		
 		jframe = new JFrame("Mini E-class");
 		jframe.setSize(350,170);
@@ -43,7 +45,6 @@ public class LoginPage{
 		PWField.setLocation(150,40);
 		PWField.setSize(PWField.getPreferredSize());
 		PWField.setToolTipText("Input User ID");
-		PWField.addActionListener(actionListener);
 		PWField.setActionCommand("login");
 		jframe.add(PWField);
 		
@@ -52,9 +53,13 @@ public class LoginPage{
 		LoginButton.setSize(LoginButton.getPreferredSize());
 		jframe.add(LoginButton);
 		
-		LoginButton.addActionListener(actionListener);
 		LoginButton.setActionCommand("login");
 		
 		jframe.setVisible(true);
+	}
+	
+	public void setActionListener(ActionListener e){
+		PWField.addActionListener(e);
+		LoginButton.addActionListener(e);
 	}
 }
