@@ -5,10 +5,12 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 import model.LectureOutline;
 import model.Student;
 import view.LoginPage;
+import view.MainPage;
 
 public class Main {
 	public static String ID;
@@ -40,14 +42,21 @@ public class Main {
 //			dataManager.closeDB();
 //		}
 
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (Exception e) {
+	          System.err.println("Look and feel not set.");
+	    }
+		
 		LoginPage loginpage = new LoginPage();
+		MainPage mainpage = new MainPage();
 		
 		e = new ActionListener(){
 			@Override
-			public void actionPerformed(ActionEvent e) {//ActionListener¸¦ implementsÇÑ ÇÔ¼ö
-				switch(e.getActionCommand())//ÀÌº¥Æ®¿¡¼­ ÁöÁ¤µÈ ActionCommand¸¦ °¡Á®¿È
+			public void actionPerformed(ActionEvent event) {//ActionListenerï¿½ï¿½ implementsï¿½ï¿½ ï¿½Ô¼ï¿½
+				switch(event.getActionCommand())//ï¿½Ìºï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ActionCommandï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				{
-					case "login"://ÁöÁ¤ÇÑ ActionCommand
+					case "login"://ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ActionCommand
 					ID = loginpage.IDField.getText();
 					PW = loginpage.PWField.getText();
 					Student stu = null;
@@ -57,11 +66,34 @@ public class Main {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-						if (stu != null) {
-							System.out.println("id : " + stu.getId());
-							System.out.println("name : " + stu.getName());
-							//System.out.println("major : " + stu.getMajor());
-						}
+					if (stu != null) {
+						System.out.println("id : " + stu.getId());
+						System.out.println("name : " + stu.getName());
+						System.out.println("major : " + stu.getMajor());
+						JOptionPane.showMessageDialog(null, stu.getName() + "ë‹˜ ì•ˆë…•í•˜ì„¸ìš”!");
+						loginpage.setVisible(false);
+						mainpage.setStudentObject(stu);
+						mainpage.setActionListener(e);
+						mainpage.setVisible(true);
+					}
+					else{
+						JOptionPane.showMessageDialog(null, "ì…ë ¥í•˜ì‹  ì•„ì´ë””ì™€ ë¹„ë°€ë²ˆí˜¸ê°€ ì¼ì¹˜í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤");
+					}
+					break;
+					case "CheckAssign":
+						JOptionPane.showMessageDialog(null, "ê³¼ì œí™•ì¸ì´ìš”!");
+						break;
+					case "CheckNoti":
+						JOptionPane.showMessageDialog(null, "ê³µì§€í™•ì¸ì´ìš”!");
+						break;
+					case "CheckGrade":
+						JOptionPane.showMessageDialog(null, "ì„±ì í™•ì¸ì´ìš”!");
+						break;
+					case "EnterSubject":
+						JOptionPane.showMessageDialog(null, "ê°•ì˜ì‹¤ì…ì¥ì´ìš”!");
+						break;
+					default:
+						JOptionPane.showMessageDialog(null, "êµ¬í˜„ ã„´ã„´");
 					break;
 				}
 				}
