@@ -1,3 +1,6 @@
+/**
+ *  Created by ChoiJinYoung on 2015. 12. 06..
+ */
 package model;
 
 public class Lecture {
@@ -18,5 +21,9 @@ public class Lecture {
 	
 	public void setUserId(String userId){
 		this.userId = userId;
+	}
+	
+	public String toString() {
+		return "{\n\t'lectureId' : " + lectureId + ",\n\t'userId' : " + userId + "\n}";
 	}
 }

@@ -1,3 +1,6 @@
+/**
+ *  Created by ChoiJinYoung on 2015. 12. 06..
+ */
 package controller;
 
 import java.sql.Connection;
@@ -7,13 +10,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import model.Answer;
+import model.Assignment;
+import model.Grade;
 import model.Lecture;
 import model.LectureOutline;
+import model.Notification;
+import model.Question;
+import model.Submit;
 
 public class DataManager {	
 	Connection conn = null; 	
 	PreparedStatement pstmt = null;
-	ResultSet result = null;
 			
 	public boolean openDB(){
 		String myUrl = "jdbc:mysql://localhost:3306/eclass"; // 사용하려는 데이터베이스명을 포함한 URL 기술
@@ -36,15 +44,40 @@ public class DataManager {
 		return true;
 	}
 	
-	public boolean insertGradeDB(String lectureId, String submitId, String studentId, double score){
+	public ArrayList<Grade> selectGradeDB(String key){	  //submitId로 검색
+		ArrayList<Grade> grades =  new ArrayList<Grade>();
+		pstmt = null;	//동적 query문		
+		String sql = "select * from grade where gradeId=\"" + key + "\"";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	Grade grade = new Grade();
+	        	grade.setGradeId(result.getString(1)); //primary key
+	        	grade.setLectureId(result.getString(2));
+	        	grade.setSubmitId(result.getString(3));
+	        	grade.setStudentId(result.getString(4));
+	        	grade.setScore(Integer.parseInt((result.getString(5))));
+	        	
+	        	grades.add(grade);
+	        }
+	    } catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return grades;
+	}
+	
+	public boolean insertGradeDB(String gradeId, String lectureId, String submitId, String studentId, double score){
 		pstmt = null;	//동적 query문
-		String sql = "insert into grade values (?, ?, ?, ?)";
+		String sql = "insert into grade values (?, ?, ?, ?, ?)";
 		try{	  
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, lectureId); 				// 학수번호
-			pstmt.setString(2, submitId); 				// 제출 Id
-			pstmt.setString(3, studentId);				// 학생 Id
-			pstmt.setString(4, String.valueOf(score));	// 점수
+			pstmt.setString(1, gradeId);				// 학점 Id
+			pstmt.setString(2, lectureId); 				// 학수번호
+			pstmt.setString(3, submitId); 				// 제출 Id
+			pstmt.setString(4, studentId);				// 학생 Id
+			pstmt.setString(5, String.valueOf(score));	// 점수
 			int n = pstmt.executeUpdate();   			// 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
@@ -56,16 +89,13 @@ public class DataManager {
 		return true;
 	}
 	
-	//점수 수정
-	public boolean updateGradeDB(String lectureId,  String submitId, String studentId, double score) {
+	public boolean updateGradeDB(String gradeId, double score) { //점수 수정. grade Id로 검색
 		pstmt = null;	//동적 query문
-		String sql = "update grade set score=? where lectureId=? &&  submitId=? && studentId=?";
+		String sql = "update grade set score=? where gradeId=?";
 		try {
 			pstmt = conn.prepareStatement(sql);			
 			pstmt.setString(1, String.valueOf(score)); 	// 점수
-			pstmt.setString(2, lectureId); 				// 학수번호
-			pstmt.setString(3, submitId);				// 제출 Id
-			pstmt.setString(4, studentId);				// 학생 Id
+			pstmt.setString(2, gradeId); 				// 학점 Id
 			int n = pstmt.executeUpdate(); 				// 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
@@ -77,14 +107,12 @@ public class DataManager {
 		return true;
 	}
 		
-	public boolean deleteGradeDB(String lectureId, String submitId, String studentId){
+	public boolean deleteGradeDB(String gradeId){ //grade Id로 검색
 		pstmt = null;	//동적 query문
-		String sql = "delete from grade where lectureId=? && submitId=? && studentId=?";
+		String sql = "delete from grade where gradeId=?";
 		try {
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, lectureId);
-			pstmt.setString(2, submitId);
-			pstmt.setString(3, studentId);
+			pstmt.setString(1, gradeId);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 	        System.out.println(e.getMessage());
@@ -93,10 +121,33 @@ public class DataManager {
 		}
 		return true;
 	}
-		
+	
+	public ArrayList<Submit> selectSubmitDB(String key){	  //submitId로 검색
+		ArrayList<Submit> submits =  new ArrayList<Submit>();
+		pstmt = null;	//동적 query문		
+		String sql = "select * from submit where submitId=\"" + key + "\"";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	Submit submit = new Submit();
+	        	submit.setSubmitId(result.getString(1)); //primary key
+	        	submit.setAssignId(result.getString(2));
+	        	submit.setStudentId(result.getString(3));
+	        	submit.setFilePath(result.getString(4));
+	        		        	
+	        	submits.add(submit);
+	        }
+	    } catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return submits;
+	}
+	
 	public boolean insertSubmitDB(String submitId, String assignId, String studentId, String filePath){
 		pstmt = null;	//동적 query문
-		String sql = "insert into question values (?, ?, ?, ?)";
+		String sql = "insert into submit values (?, ?, ?, ?)";
 		try{	  
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, submitId); 			// 제출 Id
@@ -114,7 +165,23 @@ public class DataManager {
 		return true;
 	}
 	
-	//submit은 update 없지?! 
+	public boolean updateSubmitDB(String submitId, String filePath) { //filePath 수정
+		pstmt = null;	//동적 query문
+		String sql = "update submit set filePath=? where submitId=?";
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, filePath); 			// 수정할 파일경로
+			pstmt.setString(2, submitId); 		// 제출 Id
+			int n = pstmt.executeUpdate(); 		// 쿼리문 실행
+			if(n<=0){
+				System.out.println("insert 실패");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 	
 	public boolean deleteSubmitDB(String submitId){
 		pstmt = null;	//동적 query문
@@ -131,6 +198,31 @@ public class DataManager {
 		return true;
 	}
 	
+	public ArrayList<Assignment> selectAssignmentDB(String key){	  //assignId로 검색
+		ArrayList<Assignment> assignments =  new ArrayList<Assignment>();
+		pstmt = null;	//동적 query문		
+		String sql = "select * from assignment where assignId=\"" + key + "\"";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	Assignment assignment = new Assignment();
+	        	assignment.setAssignId(result.getString(1)); //primary key
+	        	assignment.setLectureId(result.getString(2));
+	        	assignment.title = result.getString(3);
+	        	assignment.description = result.getString(4);
+	        	assignment.filePath = result.getString(5);
+	        	assignment.startDate = result.getString(6);
+	        	assignment.endDate = result.getString(7);
+	        	
+	        	assignments.add(assignment);
+	        }
+	    } catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return assignments;
+	}
 	
 	public boolean insertAssignmentDB(String assignId, String lectureId, String title, String description, String filePath, String startDate, String endDate){
 		pstmt = null;	//동적 query문
@@ -190,9 +282,31 @@ public class DataManager {
 		return true;
 	}
 	
+	public ArrayList<Answer> selectAnswerDB(String key){	  //answerId로 검색
+		ArrayList<Answer> answers =  new ArrayList<Answer>();
+		pstmt = null;	//동적 query문		
+		String sql = "select * from answer where answerId=\"" + key + "\"";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	Answer answer = new Answer();
+	        	answer.setAnswerId(result.getString(1)); //primary key
+	        	answer.setQuestionId(result.getString(2));
+	        	answer.content = result.getString(3);
+	        	
+	        	answers.add(answer);
+	        }
+	    } catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return answers;
+	}
+	
 	public boolean insertAnswerDB(String answerId, String questionId, String content){
 		pstmt = null;	//동적 query문
-		String sql = "insert into question values (?, ?, ?)";
+		String sql = "insert into answer values (?, ?, ?)";
 		try{	  
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, answerId); 			// 답변Id
@@ -242,8 +356,28 @@ public class DataManager {
 		return true;
 	}
 	
-	//DB내에 LectureID를 통해 QuestionList를 찾음
-	//"SELECT * FROM Question WHERE LectureID == 강의 번호"
+	public ArrayList<Question> selectQuestionDB(String key){	  //학수번호로 검색
+		ArrayList<Question> questions =  new ArrayList<Question>();
+		pstmt = null;	//동적 query문		
+		String sql = "select * from question where lectureId=\"" + key + "\"";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	Question question = new Question();
+	        	question.setQuestionId(result.getString(1));
+	        	question.setLectureId(result.getString(2));
+	        	question.setStudentId(result.getString(3)); 
+	        	question.content = result.getString(4);
+	        	
+	        	questions.add(question);
+	        }
+	    } catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return questions;
+	}
 	
 	public boolean insertQuestionDB(String questionId, String lectureId, String studentId, String content){
 		pstmt = null;	//동적 query문
@@ -296,6 +430,29 @@ public class DataManager {
 			return false;
 		}
 		return true;
+	}
+	
+	public ArrayList<Notification> selectNotificationDB(String key){	  //학수번호로 검색
+		ArrayList<Notification> notifications =  new ArrayList<Notification>();
+		pstmt = null;	//동적 query문		
+		String sql = "select * from notification where lectureId=\"" + key + "\"";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	Notification notification = new Notification();
+	        	//notification.setNotificationId(result.getString(1));는 공지 Id라서 뺌
+	        	notification.setLectureId(result.getString(2));
+	        	notification.title = result.getString(3); 
+	        	notification.description = result.getString(4);
+	        	
+	        	notifications.add(notification);
+	        }
+	    } catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return notifications;
 	}
 	
 	public boolean insertNotificationDB(String notiId, String lectureId, String title, String description){
@@ -353,20 +510,19 @@ public class DataManager {
 		return true;
 	}
 	
-	/*학번으로검색..
-	public ArrayList<Lecture> selectLectureDBForLectureId(String search){	 
+	public ArrayList<Lecture> selectLectureDB(String key){	  //학수번호로 검색
 		ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 		pstmt = null;	//동적 query문		
-		String sql = "select * from lecture where lectureId=?;";
+		String sql = "select * from lecture where lectureId=\"" + key + "\"";
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
-	        pstmt.setString(1, search);
-	        result = pstmt.executeQuery(sql);
+	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
 	        	Lecture lecture = new Lecture();
-                lecture.setLectureId(result.getString(1));
-                lecture.setUserId(result.getString(2));
-        
+	        	//result.getString(1)은 id로 primary key라서 저장안함
+                lecture.setLectureId(result.getString(2)); 
+                lecture.setUserId(result.getString(3));
+     
                 lectures.add(lecture);
 	        }
 	    } catch (Exception e){            
@@ -375,7 +531,6 @@ public class DataManager {
 	    }
 		return lectures;
 	}
-	 */
 	
 	public boolean insertLectureDB(String lectureId, String userId){
 		pstmt = null;	//동적 query문
@@ -395,7 +550,6 @@ public class DataManager {
 		return true;
 	}
 	
-	
 	public boolean deleteLectureDB(String lectureId, String userId){
 		pstmt = null;	//동적 query문		
 		String sql = "delete from lecture where lectureId=? && userId =?";
@@ -412,27 +566,30 @@ public class DataManager {
 		return true;
 	}
 	
-	/*
 	public LectureOutline selectLectureOutlineDB(String key){	 //학수번호로 검색	
+		LectureOutline lectureOutlines = null;
 		pstmt = null;	//동적 query문		
-		String sql = "select * from lecture_outline where lectureId=?";
+		String sql = "select * from lecture_outline where lectureId=\"" + key + "\"";
+		ResultSet result;
 		try{ 
-	        pstmt = conn.prepareStatement(sql);  
-	        pstmt.setString(1, key);
-	        result = pstmt.executeQuery(sql); // execute select SQL statement
+	        pstmt = conn.prepareStatement(sql);
+	        result = pstmt.executeQuery(sql); // execute select SQL statement  
+	        result.next();	// 시작
 	        
-	        System.out.println(result.getString(1));
-	        System.out.println(result.getString(2));
-		
+	        lectureOutlines = new LectureOutline("", "", "", "", 0);
+	        lectureOutlines.setLectureId(result.getString(1));
+	        lectureOutlines.professorName = result.getString(2);
+	        lectureOutlines.title = result.getString(3);
+	        lectureOutlines.curriculum = result.getString(4);
+	        lectureOutlines.setPoint(Integer.parseInt((result.getString(5))));
 		}
 	    catch (Exception e)
 	    {            
 	        System.out.println(e.getMessage());
 	        e.printStackTrace();
 	    }
-		return null;
+		return lectureOutlines;
 	}
-	*/
 	
 	public boolean insertLectureOutlineDB(ArrayList<LectureOutline> lectureOutline){
 		pstmt = null;	//동적 query문

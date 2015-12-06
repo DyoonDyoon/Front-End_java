@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import model.Grade;
+import model.Lecture;
 import model.LectureOutline;
+import model.Notification;
 import model.Student;
 import view.LoginPage;
 import view.MainPage;
@@ -21,16 +24,11 @@ public class Main {
 		NetworkManager manager = new NetworkManager();
 		DataManager dataManager = new DataManager();
 		
-		//dataManager.insertLectureOutlineDB(manager.getLectureOutline());
-		//dataManager.deleteLectureOutlineDB("ACG2008-01");
-		
 		//ArrayList<LectureOutline> lectures = manager.getLectureOutline();
 		//LectureOutline lectureOutline = lectures.get(0);
 		//String key = lectureOutline.getLectureId();
 		//lectureOutline.professorName = "hello";
 		//dataManager.updateLectureOutlineDB(lectureOutline, key);
-
-		//dataManager.selectLectureOutlineDB("ss");
 
 		/*
 		int version = manager.needsUpdateLectureOutline();
@@ -40,11 +38,17 @@ public class Main {
 			dataManager.closeDB();
 		}
 		 */
-//		
-//		dataManager.openDB();
-//		dataManager.deleteQuestionDB("1");
-//		dataManager.closeDB();
 
+		/*select할때 사용
+		ArrayList<Grade> lec = new ArrayList<Grade>();
+		dataManager.openDB();
+		lec = dataManager.selectGradeDB("1");
+		for(int num=0; num<lec.size(); ++num){
+			System.out.println(lec.get(num));
+		}
+		dataManager.closeDB();
+		*/
+		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			} catch (Exception e) {
