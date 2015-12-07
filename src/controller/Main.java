@@ -3,16 +3,11 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import model.Grade;
-import model.Lecture;
-import model.LectureOutline;
-import model.Notification;
-import model.Student;
+import model.User;
 import view.LoginPage;
 import view.MainPage;
 
@@ -66,18 +61,18 @@ public class Main {
 					case "login"://������ ActionCommand
 					ID = loginpage.IDField.getText();
 					PW = loginpage.PWField.getText();
-					Student stu = null;
+					User stu = null;
 					try {
-						stu = (Student) manager.login(ID, PW);
+						stu = manager.login(ID, PW);
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 					if (stu != null) {
 						System.out.println("id : " + stu.getId());
-						System.out.println("name : " + stu.getName());
-						System.out.println("major : " + stu.getMajor());
-						JOptionPane.showMessageDialog(null, stu.getName() + "님 안녕하세요!");
+						System.out.println("name : " + stu.name);
+						System.out.println("major : " + stu.major);
+						JOptionPane.showMessageDialog(null, stu.name + "님 안녕하세요!");
 						loginpage.setVisible(false);
 						mainpage.setStudentObject(stu);
 						mainpage.setActionListener(e);

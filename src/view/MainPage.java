@@ -1,27 +1,34 @@
 package view;
 
-import javax.swing.*;
-import javax.swing.border.Border;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.SystemColor;
+import java.awt.event.ActionListener;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import model.Student;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.SystemColor;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Vector;
+import model.User;
 
 public class MainPage extends JFrame{
 	//메인 화면의 내용을 저장하는 JPanel 선언
 	public JPanel contentPane;
 	
-	Student stu = null; // 학생 정보를 저장하는 Student 객체 선언
+	User stu = null; // 학생 정보를 저장하는 Student 객체 선언
 	
 	//메인 패널의 좌우 정보를 저장하는 JPanel 선언
 	JPanel LeftPanel;
@@ -96,7 +103,7 @@ public class MainPage extends JFrame{
 	}
 	
 	// Main에서 로그인을 할 경우 Student 객체를 저장하고 화면을 구현하도록함
-	public void setStudentObject(Student stu){
+	public void setStudentObject(User stu){
 		this.stu = stu; // Student객체를 방아와 설정
 		setSubjectList(); // 수강중인 강의 목록 구현
 		setInform(); // 학생 정보 표시창을 구현
@@ -122,14 +129,14 @@ public class MainPage extends JFrame{
 		inform.add(StId); // 학생 정보를 저장하는 Panel에 더함
 		
 		//학생 이름을 저장하는 JLabel 구현
-		StName = new JLabel(stu.getName()); // 생성
+		StName = new JLabel(stu.name); // 생성
 		StName.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 크기를 설정
 		StName.setVisible(true); //보이도록 함
 		StName.setBounds(12, 10, 57, 15); // 위치와 사이즈를 설정
 		inform.add(StName); // 학생정보를 저장하는 Panel에 더함
 		
 		//학과를 저장하는 JLabel 구현
-		StMajor = new JLabel(stu.getMajor()); // 생성
+		StMajor = new JLabel(stu.major); // 생성
 		StMajor.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 크기를 설정
 		StMajor.setVisible(true); // 보이도록 함
 		StMajor.setBounds(12, 60, 57, 15); // 위치와 사이즈를 설정

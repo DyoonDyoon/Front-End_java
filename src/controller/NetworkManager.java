@@ -24,7 +24,6 @@ import model.Grade;
 import model.Lecture;
 import model.LectureOutline;
 import model.Question;
-import model.Student;
 import model.Submit;
 import model.User;
 
@@ -135,12 +134,8 @@ public class NetworkManager {
 		}
 		updateAccessToken(response);
 		JsonObject userJson = response.getAsJsonObject("user");
-		
-		String userId = userJson.get("userId").toString();
-		String name = userJson.get("name").toString();
-		String major = userJson.get("major").toString();
-		Student stu = new Student(userId, name, major);
-		return stu;
+		User user = new User(userJson);
+		return user;
 	}
 	
 	public boolean join(String id, String pw, String name, String major, int type) throws IOException {
@@ -248,7 +243,24 @@ public class NetworkManager {
 	
 	// notification
 	public boolean postNotification(String lectureId, String title, String description) {
+		String url = API_HOST + LECTURE;
+		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("DELETE");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
@@ -335,9 +347,7 @@ public class NetworkManager {
 	
 	// question
 	public boolean makeQuestion(String lectureId, String stuId, String content) {
-//		lectureId - 질문할 강의
-//		stuId - 질문자 아이디 (학생)
-//		content - 질문 내용
+
 		return true;
 	}
 	
