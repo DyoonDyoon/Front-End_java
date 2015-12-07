@@ -24,6 +24,161 @@ public class DataManager {
 	Connection conn = null; 	
 	PreparedStatement pstmt = null;
 			
+	public boolean existsRecordAtNotificationDB(String lectureId, String notiId){
+		pstmt = null;
+		String sql = "select lectureId, notificationId from notification";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	String LectureId = result.getString(1); 
+	        	String NotiId = result.getString(2);
+	            	
+	        	if(LectureId == lectureId && NotiId == notiId) //lectureId와 notiId가 이미 존재
+	        		return true;
+	        }
+		} catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return false; //primary key 존재 안함
+	}
+	
+	public boolean existsRecordAtAssignmentDB(String lectureId, String assignId){
+		pstmt = null;
+		String sql = "select lectureId, assignId from assignment";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	String LectureId = result.getString(1); 
+	        	String AssignId = result.getString(2);
+	            	
+	        	if(LectureId == lectureId && AssignId == assignId) //lectureId와 assignId가 이미 존재
+	        		return true;
+	        }
+		} catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return false; //primary key 존재 안함
+	}
+	
+	public boolean existsRecordAtLectureDB(String lectureId, String userId){
+		pstmt = null;
+		String sql = "select lectureId, userId from Lecture";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	String LectureId = result.getString(1); 
+	        	String UserId = result.getString(2);
+	            	
+	        	if(LectureId == lectureId && UserId == userId) //lectureId와 userId가 이미 존재
+	        		return true;
+	        }
+		} catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return false; //primary key 존재 안함
+	}
+	
+	public boolean existsRecordAtLectureOutlineDB(String lectureId){
+		pstmt = null;
+		String sql = "select lectureId from lectureOutline";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	String LectureId = result.getString(1); 
+	        
+	        	if(LectureId == lectureId) //lectureId가 이미 존재
+	        		return true;
+	        }
+		} catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return false; //primary key 존재 안함
+	}
+	
+	public boolean existsRecordAtQuestionDB(String questionId){
+		pstmt = null;
+		String sql = "select questionId from question";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	String QuestionId = result.getString(1); 
+	        
+	        	if(QuestionId == questionId) //questionId가 이미 존재
+	        		return true;
+	        }
+		} catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return false; //primary key 존재 안함
+	}
+	
+	public boolean existsRecordAtAnswerDB(String answerId){
+		pstmt = null;
+		String sql = "select answerId from answer";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	String AnswerId = result.getString(1); 
+	        
+	        	if(AnswerId == answerId) //answerId가 이미 존재
+	        		return true;
+	        }
+		} catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return false; //primary key 존재 안함
+	}
+	
+	public boolean existsRecordAtSubmitDB(String submitId){
+		pstmt = null;
+		String sql = "select submitId from submit";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	String SubmitId = result.getString(1); 
+	        
+	        	if(SubmitId == submitId) //submitId가 이미 존재
+	        		return true;
+	        }
+		} catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return false; //primary key 존재 안함
+	}
+	
+	public boolean existsRecordAtGradeDB(String gradeId){
+		pstmt = null;
+		String sql = "select gradeId from grade";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	String GradeId = result.getString(1); 
+	        
+	        	if(GradeId == gradeId) //gradeId가 이미 존재
+	        		return true;
+	        }
+		} catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return false; //primary key 존재 안함
+	}
+	
 	public boolean openDB(){
 		String myUrl = "jdbc:mysql://localhost:3306/eclass"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 		String id = "root"; // 사용자 계정
@@ -49,10 +204,9 @@ public class DataManager {
 		Version version = new Version("", 0, 0);
 		pstmt = null;	//동적 query문		
 		String sql = "select * from lecture_outline where lectureId=\"" + lectureId + "\"";
-		ResultSet result;
 		try{ 
 	        pstmt = conn.prepareStatement(sql);
-	        result = pstmt.executeQuery(sql); // execute select SQL statement  
+	        ResultSet result = pstmt.executeQuery(sql); // execute select SQL statement  
 	        result.next();	// 시작
 	        
 	        version.setLectureId(result.getString(1));

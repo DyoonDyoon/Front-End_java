@@ -25,6 +25,10 @@ public class Main {
 		//lectureOutline.professorName = "hello";
 		//dataManager.updateLectureOutlineDB(lectureOutline, key);
 
+		dataManager.openDB();
+		if(dataManager.existsRecordAtNotificationDB("1", "CSE2020-01"))
+			System.out.printf("이미 존재");
+		dataManager.closeDB();
 		/*
 		int version = manager.needsUpdateLectureOutline();
 		if (version != -1) {
