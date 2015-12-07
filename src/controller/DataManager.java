@@ -317,12 +317,13 @@ public class DataManager {
 		return true;
 	}
 		
-	public boolean deleteAssignmentDB(int assignId){
+	public boolean deleteAssignmentDB(int assignId, String lectureId){
 		pstmt = null;	//동적 query문
-		String sql = "delete from assignment where assignId=?";
+		String sql = "delete from assignment where assignId=? && lectureId";
 		try {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, assignId);
+			pstmt.setString(2, lectureId);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 	        System.out.println(e.getMessage());

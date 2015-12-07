@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -44,6 +45,7 @@ public class NetworkManager {
 	
 	private static final String CONFIG_FIlE = "./config.json";
 
+	private DataManager dataManager = new DataManager();
 	private String accessToken;
 	
 	private static final String LECTURE_OUTLINE_URL(int version) {
@@ -52,6 +54,7 @@ public class NetworkManager {
 	
 	public NetworkManager() {
 		accessToken = null;
+		dataManager = new DataManager();
 	}
 	
 	private void updateAccessToken(JsonObject response) {
@@ -286,7 +289,6 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
-		DataManager dataManager = new DataManager();
 		int notiVer = response.get("notiVer").getAsInt();
 		JsonArray content = response.get("content").getAsJsonArray();
 		dataManager.openDB();
@@ -404,8 +406,54 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean getAssignment(String lectureId, int version) {
+	public boolean syncAssignment(String lectureId, int version) throws IOException {
+		String url = API_HOST + ASSIGNMENT;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&version="+version;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("GET");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
+		int assignVer = response.get("assignVer").getAsInt();
+		JsonArray content = response.get("content").getAsJsonArray();
+		dataManager.openDB();
+		// notiVer 넣는 구문	
+		for (JsonElement e : content) {
+			JsonObject json = e.getAsJsonObject();
+			int type = json.get("type").getAsInt();
+			int assignId;
+			String title = json.get("title").getAsString();
+			String description = json.get("description").getAsString();
+			String filePath = json.get("filePath").getAsString();
+			String startDate = json.get("startDate").getAsString();
+			String endDate = json.get("endDate").getAsString();
+			if (type == 0) {
+				// insert
+				assignId = json.get("assignId").getAsInt();
+				dataManager.insertAssignmentDB(assignId, lectureId, title, description, filePath, startDate, endDate);
+			} else if (type == 1) {
+				// update
+				assignId = json.get("targetId").getAsInt();
+				dataManager.updateAssignmentDB(assignId, title, description);
+			} else {
+				// delete
+				assignId = json.get("targetId").getAsInt();
+				dataManager.deleteAssignmentDB(assignId, lectureId);
+			}
+		}
+		
+		dataManager.closeDB();
 		return true;
 	}
 	
