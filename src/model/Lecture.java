@@ -3,9 +3,18 @@
  */
 package model;
 
+import com.google.gson.JsonObject;
+
 public class Lecture {
 	private  String lectureId;
 	private  String userId;
+	
+	public Lecture() {}	//default constructor
+	
+	public Lecture(JsonObject json) {	// constructor by json
+		lectureId = json.get("lectureId").getAsString();
+		userId = json.get("userId").getAsString();
+	}
 	
 	public String getLectureId(){
 		return lectureId;
