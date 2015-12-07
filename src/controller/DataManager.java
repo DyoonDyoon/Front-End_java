@@ -297,15 +297,29 @@ public class DataManager {
 		return true;
 	}
 	
-	//파일경로랑 시작일 마감일은 수정안하는 거지?
 	public boolean updateAssignmentDB(int assignId, String title, String description) {
 		pstmt = null;	//동적 query문
-		String sql = "update assignment set title=?, description=? where assignId=?";
+		int index = 1;
+		String sql = "update assignment set ";
+		if(title != null){
+			sql = sql + "title=?";
+		}
+		if(description != null){
+			if(title != null){
+				sql = sql+", ";
+			}
+			sql = sql + "description=?";			
+		}
+		sql = sql + " where assignId=?";
 		try {
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, title); 			// 수정할 제목
-			pstmt.setString(2, description); 	// 수정할 내용
-			pstmt.setInt(3, assignId); 		// 과제 Id
+			if(title != null){
+				pstmt.setString(index++, title);	// 수정할 제목
+			}
+			if(description != null){
+				pstmt.setString(index++, description);	// 수정할 내용
+			}
+			pstmt.setInt(index, assignId); 		// 과제 Id
 			int n = pstmt.executeUpdate(); 		// 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
@@ -526,15 +540,29 @@ public class DataManager {
 		return true;
 	}
 	
-	public boolean updateNotificationDB(int notiId, String lectureId, String title, String description) {
+	public boolean updateNotificationDB(int notiId, String title, String description) {
 		pstmt = null;	//동적 query문
-		String sql = "update notification set title=?, description=? where notificationId=?";
+		int index = 1;
+		String sql = "update notification set ";
+		if(title != null){
+			sql = sql + "title=?";
+		}
+		if(description != null){
+			if(title!=null){
+				sql = sql + ", ";
+			}
+			sql = sql + "description=?";
+		}
+		sql = sql + "  where notificationId=?";
 		try {
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, title); 			// 수정할 제목
-			pstmt.setString(2, description); 	// 수정할 내용
-			pstmt.setInt(3, notiId); 		// 공지Id
-			pstmt.setString(4, lectureId); 		// 학수번호
+			if(title != null){
+				pstmt.setString(index++, title); 		// 수정할 제목
+			}
+			if(description != null){
+				pstmt.setString(index++, description); 	// 수정할 내용
+			}
+			pstmt.setInt(index, notiId); 		// 공지Id
 			int n = pstmt.executeUpdate(); 		// 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
@@ -551,7 +579,6 @@ public class DataManager {
 		String sql = "delete from notification where notificationId=? && lectureId=?";
 		try {
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, notiId);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 	        System.out.println(e.getMessage());
@@ -687,12 +714,11 @@ public class DataManager {
 		return true;
 	}
 	
-	public boolean deleteLectureOutlineDB(String lectureId){
+	public boolean deleteLectureOutlineDB(){
 		pstmt = null;	//동적 query문
-		String sql = "delete from lecture_outline where lectureId=?";
+		String sql = "delete from lecture_outline";
 		try {
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, lectureId);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
