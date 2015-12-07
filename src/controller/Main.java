@@ -3,12 +3,12 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import model.User;
-import model.Version;
 import view.LoginPage;
 import view.MainPage;
 
@@ -16,7 +16,7 @@ public class Main {
 	public static String ID;
 	public static String PW;
 	public static ActionListener e;
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) {
 		NetworkManager manager = new NetworkManager();
 		DataManager dataManager = new DataManager();
 		
@@ -25,16 +25,6 @@ public class Main {
 		//String key = lectureOutline.getLectureId();
 		//lectureOutline.professorName = "hello";
 		//dataManager.updateLectureOutlineDB(lectureOutline, key);
-		
-		/*
-		int version = manager.needsUpdateLectureOutline();
-		if (version != -1) {
-			dataManager.openDB();
-			dataManager.deleteLectureOutlineDB();
-			dataManager.insertLectureOutlineDB(manager.getLectureOutline(version));
-			dataManager.closeDB();
-		}
-		*/
 
 		/*select할때 사용
 		ArrayList<Grade> lec = new ArrayList<Grade>();
@@ -43,8 +33,24 @@ public class Main {
 		for(int num=0; num<lec.size(); ++num){
 			System.out.println(lec.get(num));
 		}
-		dataManager.closeDB();
+git 		dataManager.closeDB();
 		*/
+		
+		Thread downloadThread = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				int version = manager.needsUpdateLectureOutline();
+				if (version != -1) {
+					dataManager.openDB();
+					dataManager.deleteLectureOutlineDB();
+					dataManager.insertLectureOutlineDB(manager.getLectureOutline(version));
+					dataManager.closeDB();
+					System.out.println("complete download lecture outline!");
+				}
+			}
+		});
+		downloadThread.start();
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -63,13 +69,7 @@ public class Main {
 					case "login"://������ ActionCommand
 					ID = loginpage.IDField.getText();
 					PW = loginpage.PWField.getText();
-					User stu = null;
-					try {
-						stu = manager.login(ID, PW);
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					User stu = manager.login(ID, PW);
 					if (stu != null) {
 						System.out.println("id : " + stu.getId());
 						System.out.println("name : " + stu.name);
@@ -115,6 +115,4 @@ public class Main {
 			};
 		loginpage.setActionListener(e);	
 	}
-	
-	
 }

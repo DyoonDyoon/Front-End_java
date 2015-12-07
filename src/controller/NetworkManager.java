@@ -62,18 +62,23 @@ public class NetworkManager {
 		accessToken = response.get("accessToken").getAsJsonObject().get("token").getAsString();
 	}
 	
-	public int needsUpdateLectureOutline() throws IOException{
+	public int needsUpdateLectureOutline() {
 		File textFile = new File(CONFIG_FIlE);
 		JsonObject config = null;
 		if (textFile.exists()) {
-	    	BufferedReader bufferedReader = new BufferedReader(new FileReader(textFile));	// path
-	        String line = "";
-	        String fileString = "";
-	        while((line = bufferedReader.readLine()) != null) {	// 텍스트파일을 모두 읽어서
-	        	// 배열에 저장한다
-	        	fileString += line;
-	        }
-	        bufferedReader.close();
+			String fileString = "";
+			try {
+		    	BufferedReader bufferedReader = new BufferedReader(new FileReader(textFile));	// path
+		        String line = "";
+		        while((line = bufferedReader.readLine()) != null) {	// 텍스트파일을 모두 읽어서
+		        	// 배열에 저장한다
+		        	fileString += line;
+		        }
+		        bufferedReader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return -1;
+			}
 	        config = new JsonParser().parse(fileString).getAsJsonObject();
 		}
 		JsonObject serverConfig = getLectureOutlineConfig();
@@ -88,49 +93,70 @@ public class NetworkManager {
 		        }
 	        }
 	        if (flag) {
-				FileOutputStream outputStream = new FileOutputStream(CONFIG_FIlE, false);	// if exist
-	            String serverConfigStr = serverConfig.toString();
-	            outputStream.write(serverConfigStr.getBytes(), 0, serverConfigStr.getBytes().length);
-	            outputStream.close();
+	        	try {
+					FileOutputStream outputStream = new FileOutputStream(CONFIG_FIlE, false);	// if exist
+		            String serverConfigStr = serverConfig.toString();
+		            outputStream.write(serverConfigStr.getBytes(), 0, serverConfigStr.getBytes().length);
+		            outputStream.close();
+	        	} catch (IOException e) {
+	        		e.printStackTrace();
+	        		return -1;
+	        	}
 	        	return serverConfig.get("version").getAsInt();
 	        }
         }
 		return -1;
 	}
 	
-	private JsonObject getLectureOutlineConfig() throws IOException {
+	private JsonObject getLectureOutlineConfig() {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + LECTURE_OUTLINE;
+		try {
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		// optional default is GET
 		con.setRequestMethod("GET");
-		int responseCode = con.getResponseCode();
-		if (responseCode != 200)
-			return null;
+		responseCode = con.getResponseCode();
 		
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
+		inputLine = in.readLine();
 		in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		if (responseCode != 200)
+			return null;
+		
 		JsonObject config = new JsonParser().parse(inputLine).getAsJsonObject();
 		return config;
 	}
 	
-	public User login(String id, String pw) throws Exception {
+	public User login(String id, String pw) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + LOGIN;
 		String params = "?userId=" + id + "&password=" + pw;
-		
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("POST");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("POST");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -142,20 +168,28 @@ public class NetworkManager {
 		return user;
 	}
 	
-	public boolean join(String id, String pw, String name, String major, int type) throws IOException {
+	public boolean join(String id, String pw, String name, String major, int type) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + JOIN;
 		String params = "?userId="+id+"&password="+pw+"&name="+name+"&major="+major+"&type="+type;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("POST");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("POST");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		if (responseCode != 200) {
 			JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 			System.out.println(response.get("message").toString());
@@ -170,20 +204,28 @@ public class NetworkManager {
 		return false;
 	}
 	
-	public boolean applyLecture(String userId, String lectureId) throws IOException {
+	public boolean applyLecture(String userId, String lectureId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + LECTURE;
 		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("POST");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("POST");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -198,20 +240,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean syncLectures(String userId) throws IOException {
+	public boolean syncLectures(String userId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + LECTURE;
 		String params = "?token="+accessToken+"&userId="+userId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("GET");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -234,20 +284,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean dropLecture(String userId, String lectureId) throws IOException {
+	public boolean dropLecture(String userId, String lectureId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + LECTURE;
 		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("DELETE");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("DELETE");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -260,23 +318,31 @@ public class NetworkManager {
 	}
 	
 	// notification
-	public boolean postNotification(String lectureId, String title, String description) throws IOException {
+	public boolean postNotification(String lectureId, String title, String description) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + NOTIFICATION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&title="+title;
 		if (description != null) {
 			params = params + "&description=" + description;
 		}
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("POST");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("POST");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -289,20 +355,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean syncNotification(String lectureId, int version) throws IOException {
+	public boolean syncNotification(String lectureId, int version) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + NOTIFICATION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&version="+version;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("GET");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -344,7 +418,9 @@ public class NetworkManager {
 		return true;
 	}
 
-	public boolean updateNotification(String lectureId, int notiId, String title, String description) throws IOException {
+	public boolean updateNotification(String lectureId, int notiId, String title, String description) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + NOTIFICATION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&notiId="+notiId;
 		if (title != null) {
@@ -353,18 +429,23 @@ public class NetworkManager {
 		if (description != null) {
 			params = params + "&description=" + description;
 		}
-		
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("PUT");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("PUT");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -377,20 +458,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean cancelNotification(String lectureId, int notiId) throws IOException {
+	public boolean cancelNotification(String lectureId, int notiId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + NOTIFICATION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&notiId="+notiId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("DELETE");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("DELETE");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -405,7 +494,9 @@ public class NetworkManager {
 	
 
 	// asssignment
-	public boolean postAssignment(String lectureId, String title, String description, String filePath, String startDate, String endDate) throws IOException {
+	public boolean postAssignment(String lectureId, String title, String description, String filePath, String startDate, String endDate) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + ASSIGNMENT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&title="+title;
 		if (description != null) {
@@ -421,16 +512,22 @@ public class NetworkManager {
 			params = params + "&endDate=" + endDate;
 		}
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("POST");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("POST");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -444,20 +541,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean syncAssignment(String lectureId, int version) throws IOException {
+	public boolean syncAssignment(String lectureId, int version) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + ASSIGNMENT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&version="+version;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("GET");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -511,7 +616,9 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean updateAssignment(String lectureId, int assignId, String title, String description, String filePath, String startDate, String endDate) throws IOException {
+	public boolean updateAssignment(String lectureId, int assignId, String title, String description, String filePath, String startDate, String endDate) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + ASSIGNMENT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
 		if (title != null) {
@@ -530,16 +637,21 @@ public class NetworkManager {
 			params = params + "&endDate=" + endDate;
 		}
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("PUT");
-		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("PUT");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -553,20 +665,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean cancelAssignment(String lectureId, int assignId) throws IOException {
+	public boolean cancelAssignment(String lectureId, int assignId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + ASSIGNMENT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("DELETE");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("DELETE");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -581,23 +701,31 @@ public class NetworkManager {
 	}
 	
 	// submit
-	public boolean submitReport(String lectureId, int assignId, String stuId, String filePath) throws IOException {
+	public boolean submitReport(String lectureId, int assignId, String stuId, String filePath) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + SUBMIT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
 		if (filePath != null) {
 			params = params + "&filePath=" + filePath;
 		}
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("POST");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("POST");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -608,25 +736,30 @@ public class NetworkManager {
 		return false;
 	}
 	
-	public boolean syncReport(String lectureId, int assignId, String stuId) throws IOException {
+	public boolean syncReport(String lectureId, int assignId, String stuId) {
 //		stuId : (학생용) 학생 아이디 넘겨주어 학생의 것만 받아오기 [optional]
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + SUBMIT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
 		if (stuId != null) {
 			params = params + "&stuId=" + stuId;
 		}
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("GET");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
-		
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
+			responseCode = con.getResponseCode();
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -651,20 +784,26 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean updateReport(int submitId, String filePath) throws IOException {
+	public boolean updateReport(int submitId, String filePath) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + SUBMIT;
 		String params = "?token="+accessToken+"&submitId="+submitId+"&filePath="+filePath;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("PUT");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("PUT");
+			responseCode = con.getResponseCode();	
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -676,20 +815,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean cancelReport(int submitId) throws IOException {
+	public boolean cancelReport(int submitId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + SUBMIT;
 		String params = "?token="+accessToken+"&submitId="+submitId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("DELETE");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("DELETE");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -702,24 +849,31 @@ public class NetworkManager {
 	}
 	
 	// grade
-	public boolean giveGrade(String lectureId, int submitId, String stuId, double score) throws IOException {
+	public boolean giveGrade(String lectureId, int submitId, String stuId, double score) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + GRADE;
-		
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&submitId"+submitId+"&stuId="+stuId;
 		if(score != -1) {
 			params = params + "&score=" + score;
 		}
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("POST");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("POST");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -730,7 +884,7 @@ public class NetworkManager {
 		return false;
 	}
 	
-	public boolean syncGrade(String stuId, String lectureId) throws IOException {
+	public boolean syncGrade(String stuId, String lectureId) {
 //		양자택일
 //		stuId - 성적을 찾는 학생 아이디 [optional]
 //		lectureId - 성적을 가진 강의 아이디 [optional]
@@ -738,6 +892,8 @@ public class NetworkManager {
 			System.out.println("Get Grade : at least ONE parameter");
 			return false;
 		}
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + GRADE;
 		String params = "?token="+accessToken;
 		if (lectureId != null) {
@@ -747,16 +903,22 @@ public class NetworkManager {
 			params = params + "&stuId" + stuId;
 		}
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("GET");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -781,20 +943,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean updateGrade(int gradeId, double score) throws IOException {
+	public boolean updateGrade(int gradeId, double score) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + GRADE;
 		String params = "?token="+accessToken+"&gradeId="+gradeId+"&score="+score;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("PUT");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("PUT");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -806,20 +976,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean cancelGrade(int gradeId) throws IOException {
+	public boolean cancelGrade(int gradeId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + GRADE;
 		String params = "?token="+accessToken+"&gradeId="+gradeId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("DELETE");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("DELETE");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -832,20 +1010,28 @@ public class NetworkManager {
 	}
 	
 	// question
-	public boolean makeQuestion(String lectureId, String stuId, String content) throws IOException {
+	public boolean makeQuestion(String lectureId, String stuId, String content) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + QUESTION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&stuId="+stuId+"&content="+content;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("POST");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("POST");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -856,10 +1042,12 @@ public class NetworkManager {
 		return false;
 	}
 	
-	public boolean syncQuestion(String stuId, String lectureId) throws IOException {
+	public boolean syncQuestion(String stuId, String lectureId) {
 //		양자택일
 //		stuId - 질문자 아이디 (학생) [optional]
 //		lectureId - 질문한 강의 [optional]
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + QUESTION;
 		String params = "?token="+accessToken;
 		if (stuId != null) {
@@ -869,16 +1057,22 @@ public class NetworkManager {
 			params = params + "&lectureId="+lectureId;
 		}
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("GET");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -903,20 +1097,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean updateQuestion(int questionId, String content) throws IOException {
+	public boolean updateQuestion(int questionId, String content) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + QUESTION;
 		String params = "?token="+accessToken+"&questionId="+questionId+"&content="+content;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("PUT");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("PUT");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -928,20 +1130,28 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean removeQuestion(int questionId) throws IOException {
+	public boolean removeQuestion(int questionId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + QUESTION;
 		String params = "?token="+accessToken+"&questionId="+questionId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("DELETE");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("DELETE");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -954,20 +1164,28 @@ public class NetworkManager {
 	}
 	
 	// answer
-	public boolean makeAnswer(int questionId, String content) throws IOException {
+	public boolean makeAnswer(int questionId, String content) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + ANSWER;
 		String params = "?token="+accessToken+"&questionId="+questionId+"&content="+content;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("POST");
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("POST");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -978,20 +1196,28 @@ public class NetworkManager {
 		return false;
 	}
 	
-	public boolean syncAnswer(int questionId) throws IOException {
+	public boolean syncAnswer(int questionId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + ANSWER;
 		String params = "?token="+accessToken+"&questionId="+questionId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("GET");
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -1022,20 +1248,29 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean updateAnswer(int answerId, String content) throws IOException {
+	public boolean updateAnswer(int answerId, String content) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + ANSWER;
 		String params = "?token="+accessToken+"&answerId="+answerId+"&content="+content;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("PUT");
 		
-		int responseCode = con.getResponseCode();
+		try {
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("PUT");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
@@ -1047,25 +1282,35 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean removeAnswer(int answerId) throws IOException {
+	public boolean removeAnswer(int answerId) {
+		int responseCode = 0;
+		String inputLine = "";
 		String url = API_HOST + ANSWER;
 		String params = "?token="+accessToken+"&answerId="+answerId;
 		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("DELETE");
 		
-		int responseCode = con.getResponseCode();
+		try{
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("DELETE");
+			
+			responseCode = con.getResponseCode();
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		
 		dataManager.openDB();
 		dataManager.deleteAnswerDB(answerId);
 		dataManager.closeDB();
@@ -1073,16 +1318,22 @@ public class NetworkManager {
 	}
 	
 	// outline
-	public ArrayList<LectureOutline> getLectureOutline(int version) throws IOException {
-		URL obj = new URL(LECTURE_OUTLINE_URL(version));
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		// optional default is GET
-		con.setRequestMethod("GET");
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
+	public ArrayList<LectureOutline> getLectureOutline(int version) {
+		String inputLine = "";
+		try {
+			URL obj = new URL(LECTURE_OUTLINE_URL(version));
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			// optional default is GET
+			con.setRequestMethod("GET");
+			
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 		
 		
 		ArrayList<LectureOutline> lectureOutlines = new ArrayList<LectureOutline>();
