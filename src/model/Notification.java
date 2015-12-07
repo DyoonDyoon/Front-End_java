@@ -1,16 +1,16 @@
 package model;
 
 public class Notification {
-	private String notificationId;
+	private int notificationId;
 	private String lectureId;
 	public String title;
 	public String description;
 		
-	public String getNotification(){
+	public int getNotification(){
 		return notificationId;
 	}
 	
-	public void setNotificationId(String notificationId){
+	public void setNotificationId(int notificationId){
 		this.notificationId = notificationId;
 	}
 	

@@ -247,7 +247,7 @@ public class NetworkManager {
 	// notification
 	public boolean postNotification(String lectureId, String title, String description) throws IOException {
 		String url = API_HOST + NOTIFICATION;
-		String params = "?token="+accessToken+"&userId="+lectureId+"&title="+title;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&title="+title;
 		if (description != null) {
 			params = params + "&description=" + description;
 		}
@@ -270,14 +270,32 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean getNotification(String lectureId, int version) {
+	public boolean getNotification(String lectureId, int version) throws IOException {
+		String url = API_HOST + NOTIFICATION;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&version="+version;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("GET");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
+
 		return true;
 	}
-	
+
 	public boolean updateNotification(String lectureId, int notiId, String title, String description) throws IOException {
 		String url = API_HOST + NOTIFICATION;
-		String params = "?token="+accessToken+"&userId="+lectureId+"&notiId="+notiId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&notiId="+notiId;
 		if (title != null) {
 			params = params + "&title=" + title;
 		}
@@ -306,7 +324,7 @@ public class NetworkManager {
 	
 	public boolean cancelNotification(String lectureId, int notiId) throws IOException {
 		String url = API_HOST + NOTIFICATION;
-		String params = "?token="+accessToken+"&userId="+lectureId+"&notiId="+notiId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&notiId="+notiId;
 		url = url + params;
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -330,7 +348,7 @@ public class NetworkManager {
 	// asssignment
 	public boolean postAssignment(String lectureId, String title, String description, String filePath, String startDate, String endDate) throws IOException {
 		String url = API_HOST + ASSIGNMENT;
-		String params = "?token="+accessToken+"&userId="+lectureId+"&title="+title;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&title="+title;
 		if (description != null) {
 			params = params + "&description=" + description;
 		}
@@ -370,7 +388,7 @@ public class NetworkManager {
 	
 	public boolean updateAssignment(String lectureId, int assignId, String title, String description, String filePath, String startDate, String endDate) throws IOException {
 		String url = API_HOST + ASSIGNMENT;
-		String params = "?token="+accessToken+"&userId="+lectureId+"&assignId="+assignId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
 		if (title != null) {
 			params = params + "&title=" + title;
 		}
@@ -408,7 +426,7 @@ public class NetworkManager {
 	
 	public boolean cancelAssignment(String lectureId, int assignId) throws IOException {
 		String url = API_HOST + ASSIGNMENT;
-		String params = "?token="+accessToken+"&userId="+lectureId+"&assignId="+assignId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
 		url = url + params;
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -431,7 +449,7 @@ public class NetworkManager {
 	// submit
 	public boolean submitReport(String lectureId, int assignId, String stuId, String filePath) throws IOException {
 		String url = API_HOST + SUBMIT;
-		String params = "?token="+accessToken+"&userId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
 		if (filePath != null) {
 			params = params + "&filePath=" + filePath;
 		}
@@ -457,7 +475,7 @@ public class NetworkManager {
 	public ArrayList<Submit> getReport(String lectureId, int assignId, String stuId) throws IOException {
 //		stuId : (학생용) 학생 아이디 넘겨주어 학생의 것만 받아오기 [optional]
 		String url = API_HOST + SUBMIT;
-		String params = "?token="+accessToken+"&userId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
 		url = url + params;
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();

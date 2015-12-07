@@ -4,7 +4,7 @@
 package model;
 
 public class Assignment {
-	private String assignId;
+	private int assignId;
 	private String lectureId;
 	public String title;
 	public String description;
@@ -12,11 +12,11 @@ public class Assignment {
 	public String startDate;
 	public String endDate;
 	
-	public String getAssignId(){
+	public int getAssignId(){
 		return assignId;
 	}
 	
-	public void setAssignId(String assignId){
+	public void setAssignId(int assignId){
 		this.assignId = assignId;
 	}
 	
