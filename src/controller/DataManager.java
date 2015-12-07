@@ -125,7 +125,7 @@ public class DataManager {
 			pstmt.setString(2, lectureId); 				// 학수번호
 			pstmt.setInt(3, submitId); 				// 제출 Id
 			pstmt.setString(4, studentId);				// 학생 Id
-			pstmt.setString(5, String.valueOf(score));	// 점수
+			pstmt.setDouble(5, score);	// 점수
 			int n = pstmt.executeUpdate();   			// 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
@@ -193,15 +193,16 @@ public class DataManager {
 		return submits;
 	}
 	
-	public boolean insertSubmitDB(int submitId, int assignId, String studentId, String filePath){
+	public boolean insertSubmitDB(int submitId, String lectureId, int assignId, String studentId, String filePath){
 		pstmt = null;	//동적 query문
-		String sql = "insert into submit values (?, ?, ?, ?)";
+		String sql = "insert into submit values (?, ?, ?, ?, ?)";
 		try{	  
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, submitId); 			// 제출 Id
-			pstmt.setInt(2, assignId); 			// 과제 Id
-			pstmt.setString(3, studentId);			// 학생Id
-			pstmt.setString(4, filePath);			// 파일경로
+			pstmt.setString(2, lectureId);
+			pstmt.setInt(3, assignId); 			// 과제 Id
+			pstmt.setString(4, studentId);			// 학생Id
+			pstmt.setString(5, filePath);			// 파일경로
 			int n = pstmt.executeUpdate();   		// 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
@@ -274,7 +275,8 @@ public class DataManager {
 	
 	public boolean insertAssignmentDB(int assignId, String lectureId, String title, String description, String filePath, String startDate, String endDate){
 		pstmt = null;	//동적 query문
-		String sql = "insert into assignment values (?, ?, ?, ?, ?, ?, ?)";
+		String sql = "insert into assignment(assignId, lectureId, title, description, filePath, startDate, endDate)"
+				+ "values (?, ?, ?, ?, ?, ?, ?)";
 		try{	  
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, assignId); 		// 과제Id
@@ -505,7 +507,7 @@ public class DataManager {
 	
 	public boolean insertNotificationDB(int notiId, String lectureId, String title, String description){
 		pstmt = null;	//동적 query문
-		String sql = "insert into notification values (?, ?, ?, ?)";
+		String sql = "insert into notification(notificationId, lectureId, title, description) values (?, ?, ?, ?)";
 		try{	  
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, notiId); 		// 공지Id
@@ -543,9 +545,9 @@ public class DataManager {
 		return true;
 	}
 		
-	public boolean deleteNotificationDB(int notiId){
+	public boolean deleteNotificationDB(int notiId, String lectureId){
 		pstmt = null;	//동적 query문
-		String sql = "delete from notification where notificationId=?";
+		String sql = "delete from notification where notificationId=? && lectureId=?";
 		try {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, notiId);

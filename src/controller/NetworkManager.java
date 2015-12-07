@@ -10,8 +10,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -21,7 +19,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import model.Answer;
-import model.Assignment;
 import model.Grade;
 import model.Lecture;
 import model.LectureOutline;
@@ -270,7 +267,7 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean getNotification(String lectureId, int version) throws IOException {
+	public boolean syncNotification(String lectureId, int version) throws IOException {
 		String url = API_HOST + NOTIFICATION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&version="+version;
 		url = url + params;
@@ -289,7 +286,33 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
-
+		DataManager dataManager = new DataManager();
+		int notiVer = response.get("notiVer").getAsInt();
+		JsonArray content = response.get("content").getAsJsonArray();
+		dataManager.openDB();
+		// notiVer 넣는 구문	
+		for (JsonElement e : content) {
+			JsonObject json = e.getAsJsonObject();
+			int type = json.get("type").getAsInt();
+			int notiId;
+			String title = json.get("title").getAsString();
+			String description = json.get("description").getAsString();
+			if (type == 0) {
+				// insert
+				notiId = json.get("notiId").getAsInt();
+				dataManager.insertNotificationDB(notiId, lectureId, title, description);
+			} else if (type == 1) {
+				// update
+				notiId = json.get("targetId").getAsInt();
+				dataManager.updateNotificationDB(notiId, lectureId, title, description);
+			} else {
+				// delete
+				notiId = json.get("targetId").getAsInt();
+				dataManager.deleteNotificationDB(notiId, lectureId);
+			}
+		}
+		
+		dataManager.closeDB();
 		return true;
 	}
 
