@@ -3,25 +3,44 @@
  */
 package model;
 
+import com.google.gson.JsonObject;
+
 public class Submit {
-	private String submitId;
-	private String assignId;
+	private int submitId;
+	private String lectureId;
+	private int assignId;
 	private String studentId;
 	private String filePath;
 	
-	public String getSubmitId(){
+	public Submit() {}
+	public Submit(JsonObject json) {
+		this.submitId = json.get("submitId").getAsInt();
+		this.lectureId = json.get("lectureId").getAsString();
+		this.assignId = json.get("assignId").getAsInt();
+		this.studentId = json.get("studentId").getAsString();
+		this.filePath = json.get("filePath").getAsString();
+	}
+	
+	public int getSubmitId(){
 		return submitId;
 	}
 	
-	public void setSubmitId(String submitId){
+	public void setSubmitId(int submitId){
 		this.submitId = submitId;
 	}
 	
-	public String getAssignId(){
+	public String getLectureId() {
+		return lectureId;
+	}
+	public void setLectureId(String lectureId) {
+		this.lectureId = lectureId;
+	}
+	
+	public int getAssignId(){
 		return assignId;
 	}
 	
-	public void setAssignId(String assignId){
+	public void setAssignId(int assignId){
 		this.assignId = assignId;
 	}
 	

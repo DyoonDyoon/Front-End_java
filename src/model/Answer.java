@@ -3,24 +3,33 @@
  */
 package model;
 
+import com.google.gson.JsonObject;
+
 public class Answer {
-	private String answerId;
-	private String questionId;
+	private int answerId;
+	private int questionId;
 	public String content;
 	
-	public String getAnswerId(){
+	public Answer() {}
+	public Answer(JsonObject json) {
+		this.answerId = json.get("answerId").getAsInt();
+		this.questionId = json.get("questionId").getAsInt();
+		this.content = json.get("content").getAsString();
+	}
+	
+	public int getAnswerId(){
 		return answerId;
 	}
 	
-	public void setAnswerId(String answerId){
+	public void setAnswerId(int answerId){
 		this.answerId= answerId;
 	}
 	
-	public String getQuestionId(){
+	public int getQuestionId(){
 		return questionId;
 	}
 	
-	public void setQuestionId(String questionId){
+	public void setQuestionId(int questionId){
 		this.questionId = questionId;
 	}
 	

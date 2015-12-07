@@ -10,6 +10,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -36,6 +38,7 @@ public class NetworkManager {
 	private static final String LECTURE_OUTLINE = "/lecture_outline";
 	private static final String LECTURE = "/lecture";
 	private static final String ANSWER = "/answer";
+	private static final String GRADE = "/grade";
 	private static final String ASSIGNMENT = "/assignment";
 	private static final String NOTIFICATION = "/notification";
 	private static final String QUESTION = "/question";
@@ -242,13 +245,16 @@ public class NetworkManager {
 	}
 	
 	// notification
-	public boolean postNotification(String lectureId, String title, String description) {
-		String url = API_HOST + LECTURE;
-		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;
+	public boolean postNotification(String lectureId, String title, String description) throws IOException {
+		String url = API_HOST + NOTIFICATION;
+		String params = "?token="+accessToken+"&userId="+lectureId+"&title="+title;
+		if (description != null) {
+			params = params + "&description=" + description;
+		}
 		url = url + params;
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("DELETE");
+		con.setRequestMethod("POST");
 		
 		int responseCode = con.getResponseCode();
 		
@@ -269,19 +275,90 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean updateNotification(String lectureId, int notiId, String title, String description) {
+	public boolean updateNotification(String lectureId, int notiId, String title, String description) throws IOException {
+		String url = API_HOST + NOTIFICATION;
+		String params = "?token="+accessToken+"&userId="+lectureId+"&notiId="+notiId;
+		if (title != null) {
+			params = params + "&title=" + title;
+		}
+		if (description != null) {
+			params = params + "&description=" + description;
+		}
 		
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("PUT");
+		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
-	public boolean cancelNotification(String lectureId, int notiId) {
+	public boolean cancelNotification(String lectureId, int notiId) throws IOException {
+		String url = API_HOST + NOTIFICATION;
+		String params = "?token="+accessToken+"&userId="+lectureId+"&notiId="+notiId;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("DELETE");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
 
 	// asssignment
-	public boolean postAssignment(String lectureId, String title, Assignment assignment) {
+	public boolean postAssignment(String lectureId, String title, String description, String filePath, String startDate, String endDate) throws IOException {
+		String url = API_HOST + ASSIGNMENT;
+		String params = "?token="+accessToken+"&userId="+lectureId+"&title="+title;
+		if (description != null) {
+			params = params + "&description=" + description;
+		}
+		if (filePath != null) {
+			params = params + "&filePath=" + filePath;
+		}
+		if (startDate != null) {
+			params = params + "&startDate=" + startDate;
+		}
+		if (endDate != null) {
+			params = params + "&endDate=" + endDate;
+		}
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("POST");
+		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		
 		return true;
 	}
@@ -291,101 +368,474 @@ public class NetworkManager {
 		return true;
 	}
 	
-	public boolean updateAssignment(String lectureId, int assignId, Assignment assignment) {
+	public boolean updateAssignment(String lectureId, int assignId, String title, String description, String filePath, String startDate, String endDate) throws IOException {
+		String url = API_HOST + ASSIGNMENT;
+		String params = "?token="+accessToken+"&userId="+lectureId+"&assignId="+assignId;
+		if (title != null) {
+			params = params + "&title=" + title;
+		}
+		if (description != null) {
+			params = params + "&description=" + description;
+		}
+		if (filePath != null) {
+			params = params + "&filePath=" + filePath;
+		}
+		if (startDate != null) {
+			params = params + "&startDate=" + startDate;
+		}
+		if (endDate != null) {
+			params = params + "&endDate=" + endDate;
+		}
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("PUT");
+		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		
 		return true;
 	}
 	
-	public boolean cancelAssignment(String lectureId, int assignId) {
+	public boolean cancelAssignment(String lectureId, int assignId) throws IOException {
+		String url = API_HOST + ASSIGNMENT;
+		String params = "?token="+accessToken+"&userId="+lectureId+"&assignId="+assignId;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("DELETE");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
 	// submit
-	public boolean submitReport(String lectureId, int assignId, String stuId, String filePath) {
+	public boolean submitReport(String lectureId, int assignId, String stuId, String filePath) throws IOException {
+		String url = API_HOST + SUBMIT;
+		String params = "?token="+accessToken+"&userId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
+		if (filePath != null) {
+			params = params + "&filePath=" + filePath;
+		}
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("POST");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
-	public ArrayList<Submit> getReport(String lectureId, int assignId, String stuId) {
+	public ArrayList<Submit> getReport(String lectureId, int assignId, String stuId) throws IOException {
 //		stuId : (학생용) 학생 아이디 넘겨주어 학생의 것만 받아오기 [optional]
-		return null;
+		String url = API_HOST + SUBMIT;
+		String params = "?token="+accessToken+"&userId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("GET");
+		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		
+		ArrayList<Submit> submits = new ArrayList<Submit>();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return null;
+		}
+		JsonArray array = response.get("content").getAsJsonArray();
+		for (JsonElement e : array) {
+			Submit submit = new Submit(e.getAsJsonObject());
+			submits.add(submit);
+		}
+		return submits;
 	}
 	
-	public boolean updateReport(int submitId, String filePath) {
+	public boolean updateReport(int submitId, String filePath) throws IOException {
+		String url = API_HOST + SUBMIT;
+		String params = "?token="+accessToken+"&submitId="+submitId+"&filePath="+filePath;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("PUT");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
-	public boolean cancelReport(int submitId) {
+	public boolean cancelReport(int submitId) throws IOException {
+		String url = API_HOST + SUBMIT;
+		String params = "?token="+accessToken+"&submitId="+submitId;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("DELETE");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
 	// grade
-	public boolean giveGrade(String lectureId, int submitId, String stuId, int score) {
+	public boolean giveGrade(String lectureId, int submitId, String stuId, double score) throws IOException {
+		String url = API_HOST + GRADE;
 		
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&submitId"+submitId+"&stuId="+stuId;
+		if(score != -1) {
+			params = params + "&score=" + score;
+		}
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("POST");
+		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
-	public ArrayList<Grade> getGrade(String stuId, String lectureId) {
+	public ArrayList<Grade> getGrade(String stuId, String lectureId) throws IOException {
 //		양자택일
 //		stuId - 성적을 찾는 학생 아이디 [optional]
 //		lectureId - 성적을 가진 강의 아이디 [optional]
-		return null;
+		if ((stuId == null && lectureId == null)) {
+			System.out.println("Get Grade : at least ONE parameter");
+			return null;
+		}
+		String url = API_HOST + GRADE;
+		String params = "?token="+accessToken;
+		if (lectureId != null) {
+			params = params + "&lectureId=" + lectureId;
+		}
+		if(stuId != null) {
+			params = params + "&stuId" + stuId;
+		}
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("GET");
+		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return null;
+		}
+		ArrayList<Grade> grades = new ArrayList<Grade>();
+		JsonArray array = response.get("content").getAsJsonArray();
+		for (JsonElement json : array) {
+			Grade grade = new Grade(json.getAsJsonObject());
+			grades.add(grade);
+		}
+		return grades;
 	}
 	
-	public boolean updateGrade(int gradeId, int score) {
+	public boolean updateGrade(int gradeId, double score) throws IOException {
+		String url = API_HOST + GRADE;
+		String params = "?token="+accessToken+"&gradeId="+gradeId+"&score="+score;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("PUT");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
-	public boolean cancelGrade(int gradeId) {
+	public boolean cancelGrade(double gradeId) throws IOException {
+		String url = API_HOST + GRADE;
+		String params = "?token="+accessToken+"&gradeId="+gradeId;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("DELETE");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
 	// question
-	public boolean makeQuestion(String lectureId, String stuId, String content) {
-
+	public boolean makeQuestion(String lectureId, String stuId, String content) throws IOException {
+		String url = API_HOST + QUESTION;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&stuId="+stuId+"&content="+content;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("POST");
+		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
-	public Question getQuestion(String stuId, String lectureId) {
+	public ArrayList<Question> getQuestion(String stuId, String lectureId) throws IOException {
 //		양자택일
 //		stuId - 질문자 아이디 (학생) [optional]
 //		lectureId - 질문한 강의 [optional]
-		return null;
+		String url = API_HOST + QUESTION;
+		String params = "?token="+accessToken;
+		if (stuId != null) {
+			params = params + "&stuId="+stuId;
+		}
+		if (lectureId != null) {
+			params = params + "&lectureId="+lectureId;
+		}
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("GET");
+		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return null;
+		}
+		ArrayList<Question> questions = new ArrayList<Question>();
+		JsonArray array = response.get("content").getAsJsonArray();
+		for (JsonElement json : array) {
+			Question question = new Question(json.getAsJsonObject());
+			questions.add(question);
+		}
+		return questions;
 	}
 	
-	public boolean updateQuestion(int questionId, String content) {
+	public boolean updateQuestion(int questionId, String content) throws IOException {
+		String url = API_HOST + QUESTION;
+		String params = "?token="+accessToken+"&questionId="+questionId+"&content="+content;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("PUT");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
-	public boolean removeQuestion(int questionId) {
+	public boolean removeQuestion(int questionId) throws IOException {
+		String url = API_HOST + QUESTION;
+		String params = "?token="+accessToken+"&questionId="+questionId;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("DELETE");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
 	// answer
-	public boolean makeAnswer(int questionId, String content) {
+	public boolean makeAnswer(int questionId, String content) throws IOException {
+		String url = API_HOST + ANSWER;
+		String params = "?token="+accessToken+"&questionId="+questionId+"&content="+content;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("POST");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
-	public Answer getAnswer(int questionId) {
+	public Answer getAnswer(int questionId) throws IOException {
+		String url = API_HOST + ANSWER;
+		String params = "?token="+accessToken+"&questionId="+questionId;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("GET");
 		
-		return null;
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return null;
+		}
+		JsonElement content = response.get("content");
+		if (content.getAsString().equals("No answer")) {
+			System.out.println("get answer : no answer");
+			return null;
+		}
+		Answer answer = new Answer(content.getAsJsonObject());
+		return answer;
 	}
 	
-	public boolean updateAnswer(int answerId, String content) {
+	public boolean updateAnswer(int answerId, String content) throws IOException {
+		String url = API_HOST + ANSWER;
+		String params = "?token="+accessToken+"&answerId="+answerId+"&content="+content;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("PUT");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	
-	public boolean removeAnswer(int answerId) {
+	public boolean removeAnswer(int answerId) throws IOException {
+		String url = API_HOST + ANSWER;
+		String params = "?token="+accessToken+"&answerId="+answerId;
+		url = url + params;
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("DELETE");
 		
+		int responseCode = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine = in.readLine();
+		in.close();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		if (responseCode != 200) {
+			System.out.println(response.get("message").toString());
+			return false;
+		}
 		return true;
 	}
 	

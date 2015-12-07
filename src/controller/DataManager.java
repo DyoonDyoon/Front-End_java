@@ -53,9 +53,9 @@ public class DataManager {
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
 	        	Grade grade = new Grade();
-	        	grade.setGradeId(result.getString(1)); //primary key
+	        	grade.setGradeId(result.getInt(1)); //primary key
 	        	grade.setLectureId(result.getString(2));
-	        	grade.setSubmitId(result.getString(3));
+	        	grade.setSubmitId(result.getInt(3));
 	        	grade.setStudentId(result.getString(4));
 	        	grade.setScore(Integer.parseInt((result.getString(5))));
 	        	
@@ -131,8 +131,8 @@ public class DataManager {
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
 	        	Submit submit = new Submit();
-	        	submit.setSubmitId(result.getString(1)); //primary key
-	        	submit.setAssignId(result.getString(2));
+	        	submit.setSubmitId(result.getInt(1)); //primary key
+	        	submit.setAssignId(result.getInt(2));
 	        	submit.setStudentId(result.getString(3));
 	        	submit.setFilePath(result.getString(4));
 	        		        	
@@ -291,8 +291,8 @@ public class DataManager {
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
 	        	Answer answer = new Answer();
-	        	answer.setAnswerId(result.getString(1)); //primary key
-	        	answer.setQuestionId(result.getString(2));
+	        	answer.setAnswerId(result.getInt(1)); //primary key
+	        	answer.setQuestionId(result.getInt(2));
 	        	answer.content = result.getString(3);
 	        	
 	        	answers.add(answer);
@@ -365,7 +365,7 @@ public class DataManager {
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
 	        	Question question = new Question();
-	        	question.setQuestionId(result.getString(1));
+	        	question.setQuestionId(result.getInt(1));
 	        	question.setLectureId(result.getString(2));
 	        	question.setStudentId(result.getString(3)); 
 	        	question.content = result.getString(4);

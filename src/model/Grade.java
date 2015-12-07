@@ -3,18 +3,30 @@
  */
 package model;
 
+import com.google.gson.JsonObject;
+
 public class Grade {
-	private String gradeId;
+	private int gradeId;
 	private String lectureId;
-	private String submitId;
+	private int submitId;
 	private String studentId;
 	private double score;
 	
-	public String getGradeId(){
+	public Grade() {}
+	
+	public Grade(JsonObject json) {
+		this.gradeId = json.get("gradeId").getAsInt();
+		this.lectureId = json.get("lectureId").getAsString();
+		this.submitId = json.get("submitId").getAsInt();
+		this.studentId = json.get("stuId").getAsString();
+		this.score = json.get("score").getAsDouble();
+	}
+	
+	public int getGradeId(){
 		return gradeId;
 	}
 	
-	public void setGradeId(String gradeId){
+	public void setGradeId(int gradeId){
 		this.gradeId = gradeId;
 	}
 	
@@ -26,11 +38,11 @@ public class Grade {
 		this.lectureId = lectureId;
 	}
 	
-	public String getSubmitId(){
+	public int getSubmitId(){
 		return submitId;
 	}
 	
-	public void setSubmitId(String submitId){
+	public void setSubmitId(int submitId){
 		this.submitId = submitId;
 	}
 	
