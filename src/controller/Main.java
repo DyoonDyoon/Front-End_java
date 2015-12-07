@@ -2,8 +2,6 @@ package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.sql.SQLException;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -76,7 +74,7 @@ git 		dataManager.closeDB();
 						System.out.println("major : " + stu.major);
 						JOptionPane.showMessageDialog(null, stu.name + "님 안녕하세요!");
 						loginpage.setVisible(false);
-						mainpage.setStudentObject(stu);
+						mainpage.setContext(stu, manager, dataManager);
 						mainpage.setActionListener(e);
 						mainpage.setVisible(true);
 					}

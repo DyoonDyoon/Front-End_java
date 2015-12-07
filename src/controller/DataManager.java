@@ -34,7 +34,7 @@ public class DataManager {
 	        	String LectureId = result.getString(1); 
 	        	String NotiId = result.getString(2);
 	            	
-	        	if(LectureId == lectureId && NotiId == notiId) //lectureId와 notiId가 이미 존재
+	        	if(LectureId.equals(lectureId) && NotiId.equals(notiId)) //lectureId와 notiId가 이미 존재
 	        		return true;
 	        }
 		} catch (Exception e){            
@@ -54,7 +54,7 @@ public class DataManager {
 	        	String LectureId = result.getString(1); 
 	        	String AssignId = result.getString(2);
 	            	
-	        	if(LectureId == lectureId && AssignId == assignId) //lectureId와 assignId가 이미 존재
+	        	if(LectureId.equals(lectureId) && AssignId.equals(assignId)) //lectureId와 assignId가 이미 존재
 	        		return true;
 	        }
 		} catch (Exception e){            
@@ -73,9 +73,9 @@ public class DataManager {
 	        while (result.next()){
 	        	String LectureId = result.getString(1); 
 	        	String UserId = result.getString(2);
-	            	
-	        	if(LectureId == lectureId && UserId == userId) //lectureId와 userId가 이미 존재
+	        	if(LectureId.equals(lectureId) && UserId.equals(userId)) { //lectureId와 userId가 이미 존재
 	        		return true;
+	        	}
 	        }
 		} catch (Exception e){            
 	        System.out.println(e.getMessage());
@@ -93,7 +93,7 @@ public class DataManager {
 	        while (result.next()){
 	        	String LectureId = result.getString(1); 
 	        
-	        	if(LectureId == lectureId) //lectureId가 이미 존재
+	        	if(LectureId.equals(lectureId)) //lectureId가 이미 존재
 	        		return true;
 	        }
 		} catch (Exception e){            
@@ -188,7 +188,7 @@ public class DataManager {
 	        while (result.next()){
 	        	String LectureId = result.getString(1); 
 	        
-	        	if(LectureId == lectureId) //lectureId가 이미 존재
+	        	if(LectureId.equals(lectureId)) //lectureId가 이미 존재
 	        		return true;
 	        }
 		} catch (Exception e){            

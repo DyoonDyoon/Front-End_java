@@ -41,7 +41,7 @@ public class NetworkManager {
 	private static final String NOTIFICATION = "/notification";
 	private static final String QUESTION = "/question";
 	private static final String SUBMIT = "/submit";
-	private static final String USER = "/user";
+//	private static final String USER = "/user";
 	
 	private static final String CONFIG_FIlE = "./config.json";
 
