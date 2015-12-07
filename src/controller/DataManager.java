@@ -88,11 +88,10 @@ public class DataManager {
 	
 	public boolean updateVersionDB(String lectureId, int notiVersion, int assignVersion){
 		// 0인 column은 update를 하지 않음
-		
+		return true;
 			
-		}
-		
 	}
+		
 	
 	public ArrayList<Notification> selectNotificationDB(String key){	  //학수번호로 검색
 		ArrayList<Notification> notifications =  new ArrayList<Notification>();
