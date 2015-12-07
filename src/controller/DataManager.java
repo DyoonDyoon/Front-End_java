@@ -73,8 +73,8 @@ public class DataManager {
 		try{	  
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, lectureId); 			// 학수번호
-			pstmt.setString(2, String.valueOf(0)); 	// 
-			pstmt.setString(3, String.valueOf(0)); 	// 강의명
+			pstmt.setString(2, String.valueOf(0)); 	// 공지Id
+			pstmt.setString(3, String.valueOf(0)); 	// 과제Id
 			int n = pstmt.executeUpdate();   		// 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
@@ -87,9 +87,38 @@ public class DataManager {
 	}
 	
 	public boolean updateVersionDB(String lectureId, int notiVersion, int assignVersion){
-		// 0인 column은 update를 하지 않음
+		int index = 1;
+		pstmt = null;	//동적 query문		
+		String sql = "update version set ";
+		if(notiVersion != 0){
+			sql = sql + "notificationId=?";
+		}
+		if(assignVersion !=0){
+			if(notiVersion != 0){
+				sql = sql + ", ";
+			}
+			sql = sql + "assignVersion=?";
+		}
+		sql = sql + " where lectureId=?";
+		try{	  
+			pstmt = conn.prepareStatement(sql);
+			if(notiVersion != 0){
+				pstmt.setString(index++, String.valueOf(notiVersion)); 
+			}
+			if(assignVersion != 0){
+				pstmt.setString(index++, String.valueOf(assignVersion));
+			}
+			pstmt.setString(index, lectureId);	
+			int n = pstmt.executeUpdate(); 				// 쿼리문 실행
+			if(n<=0){
+				System.out.println("insert 실패");
+			}
+		} catch (Exception e){            
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+			return false;
+		}
 		return true;
-			
 	}
 		
 	public ArrayList<Grade> selectGradeDB(String key){	  //grade Id로 검색
