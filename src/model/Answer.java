@@ -10,11 +10,19 @@ public class Answer {
 	private int questionId;
 	public String content;
 	
-	public Answer() {}
+	public Answer() {
+		this.answerId = 0;
+		this.questionId = 0;
+		this.content = null;
+	}
 	public Answer(JsonObject json) {
-		this.answerId = json.get("answerId").getAsInt();
-		this.questionId = json.get("questionId").getAsInt();
-		this.content = json.get("content").getAsString();
+		this();
+		if (!json.get("answerId").isJsonNull())
+			this.answerId = json.get("answerId").getAsInt();
+		if (!json.get("questionId").isJsonNull())
+			this.questionId = json.get("questionId").getAsInt();
+		if (!json.get("content").isJsonNull())
+			this.content = json.get("content").getAsString();
 	}
 	
 	public int getAnswerId(){
@@ -31,6 +39,14 @@ public class Answer {
 	
 	public void setQuestionId(int questionId){
 		this.questionId = questionId;
+	}
+	
+	public boolean isEqual(Answer answer) {
+		if (this.answerId == answer.getAnswerId()
+				&& this.questionId == answer.getQuestionId()
+				&& this.content == answer.content)
+			return true;
+		return false;
 	}
 	
 	public String toString() {

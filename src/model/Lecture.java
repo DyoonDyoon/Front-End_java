@@ -9,11 +9,18 @@ public class Lecture {
 	private  String lectureId;
 	private  String userId;
 	
-	public Lecture() {}	//default constructor
+	public Lecture() {	//default constructor
+		this.lectureId = null;
+		this.userId = null;
+	}
 	
 	public Lecture(JsonObject json) {	// constructor by json
-		lectureId = json.get("lectureId").getAsString();
-		userId = json.get("userId").getAsString();
+		this();
+		
+		if (!json.get("lectureId").isJsonNull())
+			this.lectureId = json.get("lectureId").getAsString();
+		if (!json.get("userId").isJsonNull())
+			this.userId = json.get("userId").getAsString();
 	}
 	
 	public String getLectureId(){

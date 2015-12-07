@@ -12,14 +12,26 @@ public class Grade {
 	private String studentId;
 	private double score;
 	
-	public Grade() {}
+	public Grade() {
+		this.gradeId = 0;
+		this.lectureId = null;
+		this.submitId = 0;
+		this.studentId = null;
+		this.score = 0;
+	}
 	
 	public Grade(JsonObject json) {
-		this.gradeId = json.get("gradeId").getAsInt();
-		this.lectureId = json.get("lectureId").getAsString();
-		this.submitId = json.get("submitId").getAsInt();
-		this.studentId = json.get("stuId").getAsString();
-		this.score = json.get("score").getAsDouble();
+		this();
+		if(!json.get("gradeId").isJsonNull())
+			this.gradeId = json.get("gradeId").getAsInt();
+		if(!json.get("lectureId").isJsonNull())
+			this.lectureId = json.get("lectureId").getAsString();
+		if(!json.get("submitId").isJsonNull())
+			this.submitId = json.get("submitId").getAsInt();
+		if(!json.get("stuId").isJsonNull())
+			this.studentId = json.get("stuId").getAsString();
+		if(!json.get("score").isJsonNull())
+			this.score = json.get("score").getAsDouble();
 	}
 	
 	public int getGradeId(){

@@ -11,12 +11,22 @@ public class Question {
 	private String studentId;
 	public String content;
 	
-	public Question() {}
+	public Question() {
+		//default constructor
+		this.questionId = 0;
+		this.lectureId = null;
+		this.studentId = null;
+		this.content = null;
+	}
 	public Question(JsonObject json) {
-		this.questionId = json.get("questionId").getAsInt();
-		this.lectureId = json.get("lectureId").getAsString();
-		this.studentId = json.get("stuId").getAsString();
-		this.content = json.get("content").getAsString();
+		if (!json.get("questionId").isJsonNull())
+			this.questionId = json.get("questionId").getAsInt();
+		if (!json.get("lectureId").isJsonNull())
+			this.lectureId = json.get("lectureId").getAsString();
+		if (!json.get("stuId").isJsonNull())
+			this.studentId = json.get("stuId").getAsString();
+		if (!json.get("content").isJsonNull())
+			this.content = json.get("content").getAsString();
 	}
 	
 	public int getQuestionId(){

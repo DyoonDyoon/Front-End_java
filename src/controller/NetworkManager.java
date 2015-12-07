@@ -10,7 +10,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -26,6 +25,7 @@ import model.LectureOutline;
 import model.Question;
 import model.Submit;
 import model.User;
+import model.Version;
 
 public class NetworkManager {
 //	private static final String API_HOST = "http://localhost:3001";
@@ -53,7 +53,8 @@ public class NetworkManager {
 	}
 	
 	public NetworkManager() {
-		accessToken = null;
+//		accessToken = null;
+		accessToken = "2606c58fb87d82d9703750daa94304bb";
 		dataManager = new DataManager();
 	}
 	
@@ -171,7 +172,7 @@ public class NetworkManager {
 	
 	public boolean applyLecture(String userId, String lectureId) throws IOException {
 		String url = API_HOST + LECTURE;
-		String params = "?token="+accessToken+"userId="+userId+"&lectureId="+lectureId;
+		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;
 		url = url + params;
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -189,12 +190,15 @@ public class NetworkManager {
 			return false;
 		}
 		dataManager.openDB();
+		if (!dataManager.existsRecordAtVersion(lectureId)) {	// 버전테이블이 없을 경우 생성
+			dataManager.insertVersionDB(lectureId);
+		}
 		dataManager.insertLectureDB(lectureId, userId);
 		dataManager.closeDB();
 		return true;
 	}
 	
-	public ArrayList<Lecture> getLectures(String userId) throws IOException {
+	public boolean syncLectures(String userId) throws IOException {
 		String url = API_HOST + LECTURE;
 		String params = "?token="+accessToken+"&userId="+userId;
 		url = url + params;
@@ -211,20 +215,23 @@ public class NetworkManager {
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
-			return null;
+			return false;
 		}
 
-		ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 		JsonArray content = response.get("content").getAsJsonArray();
 		dataManager.openDB();
+		if (content.size() < dataManager.selectLectureDB(userId).size()) {
+			dataManager.deleteAllLectureDB();
+		}
 		for (JsonElement e : content) {
 			JsonObject lectureJson = e.getAsJsonObject();
 			Lecture lecture = new Lecture(lectureJson);
-			dataManager.insertLectureDB(lecture.getLectureId(), lecture.getUserId());
-			lectures.add(lecture);
+			if (!dataManager.existsRecordAtLectureDB(lecture.getLectureId(), lecture.getUserId())) {	// 없는 레코드일 경우
+				dataManager.insertLectureDB(lecture.getLectureId(), lecture.getUserId());
+			}
 		}
 		dataManager.closeDB();
-		return lectures;
+		return true;
 	}
 	
 	public boolean dropLecture(String userId, String lectureId) throws IOException {
@@ -246,6 +253,9 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.deleteLectureDB(lectureId, userId);
+		dataManager.closeDB();
 		return true;
 	}
 	
@@ -272,6 +282,10 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		Version version = dataManager.selectVersionDB(lectureId);
+		dataManager.closeDB();
+		syncNotification(version.getLectureId(), version.notiVersion);
 		return true;
 	}
 	
@@ -302,8 +316,15 @@ public class NetworkManager {
 			JsonObject json = e.getAsJsonObject();
 			int type = json.get("type").getAsInt();
 			int notiId;
-			String title = json.get("title").getAsString();
-			String description = json.get("description").getAsString();
+			String title = null;
+			String description = null;
+			if (!json.get("title").isJsonNull()) {
+				title = json.get("title").getAsString();
+			}
+			if (!json.get("descrition").isJsonNull()) {
+				description = json.get("description").getAsString();
+			}
+			
 			if (type == 0) {
 				// insert
 				notiId = json.get("notiId").getAsInt();
@@ -349,6 +370,10 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		Version version = dataManager.selectVersionDB(lectureId);
+		dataManager.closeDB();
+		syncNotification(version.getLectureId(), version.notiVersion);
 		return true;
 	}
 	
@@ -371,6 +396,10 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		Version version = dataManager.selectVersionDB(lectureId);
+		dataManager.closeDB();
+		syncNotification(version.getLectureId(), version.notiVersion);
 		return true;
 	}
 	
@@ -407,7 +436,11 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
-		
+
+		dataManager.openDB();
+		Version version = dataManager.selectVersionDB(lectureId);
+		dataManager.closeDB();
+		syncAssignment(version.getLectureId(), version.assignVersion);
 		return true;
 	}
 	
@@ -434,15 +467,31 @@ public class NetworkManager {
 		JsonArray content = response.get("content").getAsJsonArray();
 		dataManager.openDB();
 		dataManager.updateVersionDB(lectureId, 0, assignVer);
-		for (JsonElement e : content) {
-			JsonObject json = e.getAsJsonObject();
+		for (int i = 0; i < content.size(); ++i) {
+			JsonObject json = content.get(i).getAsJsonObject();
 			int type = json.get("type").getAsInt();
 			int assignId;
-			String title = json.get("title").getAsString();
-			String description = json.get("description").getAsString();
-			String filePath = json.get("filePath").getAsString();
-			String startDate = json.get("startDate").getAsString();
-			String endDate = json.get("endDate").getAsString();
+			String title = null;
+			String description = null;
+			String filePath = null;
+			String startDate = null;
+			String endDate = null;
+			if (!json.get("title").isJsonNull()) {
+				title = json.get("title").getAsString();
+			}
+			if (!json.get("description").isJsonNull()) {
+				description = json.get("description").getAsString();
+			}
+			if (!json.get("filePath").isJsonNull()) {
+				filePath = json.get("filePath").getAsString();
+			}
+			if (!json.get("startDate").isJsonNull()) { 
+				startDate = json.get("startDate").getAsString();
+			}
+			if (!json.get("endDate").isJsonNull()) {
+				endDate = json.get("endDate").getAsString();
+			}
+			
 			if (type == 0) {
 				// insert
 				assignId = json.get("assignId").getAsInt();
@@ -496,7 +545,11 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
-		
+
+		dataManager.openDB();
+		Version version = dataManager.selectVersionDB(lectureId);
+		dataManager.closeDB();
+		syncAssignment(version.getLectureId(), version.assignVersion);
 		return true;
 	}
 	
@@ -519,6 +572,11 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+
+		dataManager.openDB();
+		Version version = dataManager.selectVersionDB(lectureId);
+		dataManager.closeDB();
+		syncAssignment(version.getLectureId(), version.assignVersion);
 		return true;
 	}
 	
@@ -545,10 +603,12 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
-		return true;
+		if (syncReport(lectureId, assignId, stuId))
+			return true;
+		return false;
 	}
 	
-	public ArrayList<Submit> getReport(String lectureId, int assignId, String stuId) throws IOException {
+	public boolean syncReport(String lectureId, int assignId, String stuId) throws IOException {
 //		stuId : (학생용) 학생 아이디 넘겨주어 학생의 것만 받아오기 [optional]
 		String url = API_HOST + SUBMIT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
@@ -567,18 +627,28 @@ public class NetworkManager {
 		String inputLine = in.readLine();
 		in.close();
 		
-		ArrayList<Submit> submits = new ArrayList<Submit>();
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
-			return null;
+			return false;
 		}
 		JsonArray array = response.get("content").getAsJsonArray();
+		dataManager.openDB();
+		if (array.size() < dataManager.selectSubmitDB(lectureId, assignId, stuId).size()) {
+			dataManager.deleteAllLectureDB();
+		}
 		for (JsonElement e : array) {
 			Submit submit = new Submit(e.getAsJsonObject());
-			submits.add(submit);
+			if (!dataManager.existsRecordAtSubmitDB(submit.getSubmitId())) {
+				dataManager.insertSubmitDB(submit.getSubmitId(),
+						submit.getLectureId(),
+						submit.getAssignId(),
+						submit.getStudentId(),
+						submit.getFilePath());
+			}
 		}
-		return submits;
+		dataManager.closeDB();
+		return true;
 	}
 	
 	public boolean updateReport(int submitId, String filePath) throws IOException {
@@ -600,6 +670,9 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.updateSubmitDB(submitId, filePath);
+		dataManager.closeDB();
 		return true;
 	}
 	
@@ -622,6 +695,9 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.deleteSubmitDB(submitId);
+		dataManager.closeDB();
 		return true;
 	}
 	
@@ -649,16 +725,18 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
-		return true;
+		if (syncGrade(stuId, lectureId))
+			return true;
+		return false;
 	}
 	
-	public ArrayList<Grade> getGrade(String stuId, String lectureId) throws IOException {
+	public boolean syncGrade(String stuId, String lectureId) throws IOException {
 //		양자택일
 //		stuId - 성적을 찾는 학생 아이디 [optional]
 //		lectureId - 성적을 가진 강의 아이디 [optional]
 		if ((stuId == null && lectureId == null)) {
 			System.out.println("Get Grade : at least ONE parameter");
-			return null;
+			return false;
 		}
 		String url = API_HOST + GRADE;
 		String params = "?token="+accessToken;
@@ -682,15 +760,25 @@ public class NetworkManager {
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
-			return null;
+			return false;
 		}
-		ArrayList<Grade> grades = new ArrayList<Grade>();
 		JsonArray array = response.get("content").getAsJsonArray();
+		dataManager.openDB();
+		if (array.size() < dataManager.selectGradeDB(stuId, lectureId).size()) {
+			dataManager.deleteAllGradeDB();
+		}
 		for (JsonElement json : array) {
 			Grade grade = new Grade(json.getAsJsonObject());
-			grades.add(grade);
+			if (!dataManager.existsRecordAtGradeDB(grade.getGradeId())) {
+				dataManager.insertGradeDB(grade.getGradeId(),
+						grade.getLectureId(),
+						grade.getSubmitId(),
+						grade.getStudentId(),
+						grade.getScore());
+			}
 		}
-		return grades;
+		dataManager.closeDB();
+		return true;
 	}
 	
 	public boolean updateGrade(int gradeId, double score) throws IOException {
@@ -712,10 +800,13 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.updateGradeDB(gradeId, score);
+		dataManager.closeDB();
 		return true;
 	}
 	
-	public boolean cancelGrade(double gradeId) throws IOException {
+	public boolean cancelGrade(int gradeId) throws IOException {
 		String url = API_HOST + GRADE;
 		String params = "?token="+accessToken+"&gradeId="+gradeId;
 		url = url + params;
@@ -734,6 +825,9 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.deleteGradeDB(gradeId);
+		dataManager.closeDB();
 		return true;
 	}
 	
@@ -757,10 +851,12 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
-		return true;
+		if (syncQuestion(stuId, lectureId))
+			return true;
+		return false;
 	}
 	
-	public ArrayList<Question> getQuestion(String stuId, String lectureId) throws IOException {
+	public boolean syncQuestion(String stuId, String lectureId) throws IOException {
 //		양자택일
 //		stuId - 질문자 아이디 (학생) [optional]
 //		lectureId - 질문한 강의 [optional]
@@ -786,15 +882,25 @@ public class NetworkManager {
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
-			return null;
+			return false;
 		}
-		ArrayList<Question> questions = new ArrayList<Question>();
+		
 		JsonArray array = response.get("content").getAsJsonArray();
+		dataManager.openDB();
+		if (array.size() < dataManager.selectQuestionDB(stuId, lectureId).size()) {
+			dataManager.deleteAllQuestionDB();
+		}
 		for (JsonElement json : array) {
 			Question question = new Question(json.getAsJsonObject());
-			questions.add(question);
+			if (!dataManager.existsRecordAtQuestionDB(question.getQuestionId())) {
+				dataManager.insertQuestionDB(question.getQuestionId(),
+						question.getLectureId(),
+						question.getStudentId(),
+						question.content);
+			}
 		}
-		return questions;
+		dataManager.closeDB();
+		return true;
 	}
 	
 	public boolean updateQuestion(int questionId, String content) throws IOException {
@@ -816,6 +922,9 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.updateQuestionDB(questionId, content);
+		dataManager.closeDB();
 		return true;
 	}
 	
@@ -838,6 +947,9 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.deleteQuestionDB(questionId);
+		dataManager.closeDB();
 		return true;
 	}
 	
@@ -861,10 +973,12 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
-		return true;
+		if (syncAnswer(questionId)) 
+			return true;
+		return false;
 	}
 	
-	public Answer getAnswer(int questionId) throws IOException {
+	public boolean syncAnswer(int questionId) throws IOException {
 		String url = API_HOST + ANSWER;
 		String params = "?token="+accessToken+"&questionId="+questionId;
 		url = url + params;
@@ -881,15 +995,31 @@ public class NetworkManager {
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
 			System.out.println(response.get("message").toString());
-			return null;
+			return false;
 		}
 		JsonElement content = response.get("content");
 		if (content.getAsString().equals("No answer")) {
 			System.out.println("get answer : no answer");
-			return null;
+			return true;
 		}
 		Answer answer = new Answer(content.getAsJsonObject());
-		return answer;
+		dataManager.openDB();
+		if(!dataManager.existsRecordAtAnswerDB(answer.getAnswerId())) {
+			dataManager.insertAnswerDB(answer.getAnswerId(),
+					answer.getQuestionId(),
+					answer.content);
+		} else {
+			Answer localAnswer = dataManager.selectAnswerDB(questionId);
+			if (!localAnswer.isEqual(answer)) {
+				if (dataManager.deleteAnswerDB(localAnswer.getAnswerId())) {
+					dataManager.insertAnswerDB(answer.getAnswerId(),
+							answer.getQuestionId(),
+							answer.content);
+				}
+			}
+		}
+		dataManager.closeDB();
+		return true;
 	}
 	
 	public boolean updateAnswer(int answerId, String content) throws IOException {
@@ -911,6 +1041,9 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.updateAnswerDB(answerId, content);
+		dataManager.closeDB();
 		return true;
 	}
 	
@@ -933,6 +1066,9 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.deleteAnswerDB(answerId);
+		dataManager.closeDB();
 		return true;
 	}
 	

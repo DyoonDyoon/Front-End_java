@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import model.User;
+import model.Version;
 import view.LoginPage;
 import view.MainPage;
 
@@ -24,19 +25,16 @@ public class Main {
 		//String key = lectureOutline.getLectureId();
 		//lectureOutline.professorName = "hello";
 		//dataManager.updateLectureOutlineDB(lectureOutline, key);
-
-		dataManager.openDB();
-		if(dataManager.existsRecordAtNotificationDB("1", "CSE2020-01"))
-			System.out.printf("이미 존재");
-		dataManager.closeDB();
+		
 		/*
 		int version = manager.needsUpdateLectureOutline();
 		if (version != -1) {
 			dataManager.openDB();
+			dataManager.deleteLectureOutlineDB();
 			dataManager.insertLectureOutlineDB(manager.getLectureOutline(version));
 			dataManager.closeDB();
 		}
-		 */
+		*/
 
 		/*select할때 사용
 		ArrayList<Grade> lec = new ArrayList<Grade>();

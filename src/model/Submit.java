@@ -12,13 +12,25 @@ public class Submit {
 	private String studentId;
 	private String filePath;
 	
-	public Submit() {}
+	public Submit() {
+		//default constructor
+		this.submitId = 0;
+		this.lectureId = null;
+		this.assignId = 0;
+		this.studentId = null;
+		this.filePath = null;
+	}
 	public Submit(JsonObject json) {
-		this.submitId = json.get("submitId").getAsInt();
-		this.lectureId = json.get("lectureId").getAsString();
-		this.assignId = json.get("assignId").getAsInt();
-		this.studentId = json.get("studentId").getAsString();
-		this.filePath = json.get("filePath").getAsString();
+		if (!json.get("submitId").isJsonNull())
+			this.submitId = json.get("submitId").getAsInt();
+		if (!json.get("lectureId").isJsonNull())
+			this.lectureId = json.get("lectureId").getAsString();
+		if (!json.get("assignId").isJsonNull())
+			this.assignId = json.get("assignId").getAsInt();
+		if (!json.get("studentId").isJsonNull())
+			this.studentId = json.get("studentId").getAsString();
+		if (!json.get("filePath").isJsonNull())
+			this.filePath = json.get("filePath").getAsString();
 	}
 	
 	public int getSubmitId(){

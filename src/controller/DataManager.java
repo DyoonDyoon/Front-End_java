@@ -103,14 +103,14 @@ public class DataManager {
 		return false; //primary key 존재 안함
 	}
 	
-	public boolean existsRecordAtQuestionDB(String questionId){
+	public boolean existsRecordAtQuestionDB(int questionId){
 		pstmt = null;
 		String sql = "select questionId from question";
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
-	        	String QuestionId = result.getString(1); 
+	        	int QuestionId = result.getInt(1); 
 	        
 	        	if(QuestionId == questionId) //questionId가 이미 존재
 	        		return true;
@@ -122,14 +122,14 @@ public class DataManager {
 		return false; //primary key 존재 안함
 	}
 	
-	public boolean existsRecordAtAnswerDB(String answerId){
+	public boolean existsRecordAtAnswerDB(int answerId){
 		pstmt = null;
 		String sql = "select answerId from answer";
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
-	        	String AnswerId = result.getString(1); 
+	        	int AnswerId = result.getInt(1); 
 	        
 	        	if(AnswerId == answerId) //answerId가 이미 존재
 	        		return true;
@@ -141,14 +141,14 @@ public class DataManager {
 		return false; //primary key 존재 안함
 	}
 	
-	public boolean existsRecordAtSubmitDB(String submitId){
+	public boolean existsRecordAtSubmitDB(int submitId){
 		pstmt = null;
 		String sql = "select submitId from submit";
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
-	        	String SubmitId = result.getString(1); 
+	        	int SubmitId = result.getInt(1); 
 	        
 	        	if(SubmitId == submitId) //submitId가 이미 존재
 	        		return true;
@@ -160,16 +160,35 @@ public class DataManager {
 		return false; //primary key 존재 안함
 	}
 	
-	public boolean existsRecordAtGradeDB(String gradeId){
+	public boolean existsRecordAtGradeDB(int gradeId){
 		pstmt = null;
 		String sql = "select gradeId from grade";
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
-	        	String GradeId = result.getString(1); 
+	        	int GradeId = result.getInt(1); 
 	        
 	        	if(GradeId == gradeId) //gradeId가 이미 존재
+	        		return true;
+	        }
+		} catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return false; //primary key 존재 안함
+	}
+	
+	public boolean existsRecordAtVersion(String lectureId){
+		pstmt = null;
+		String sql = "select lectureId from version";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        while (result.next()){
+	        	String LectureId = result.getString(1); 
+	        
+	        	if(LectureId == lectureId) //lectureId가 이미 존재
 	        		return true;
 	        }
 		} catch (Exception e){            
@@ -183,6 +202,7 @@ public class DataManager {
 		String myUrl = "jdbc:mysql://localhost:3306/eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 		String id = "root"; // 사용자 계정
 		String pw = "5721"; //사용자 계정의 패스워드
+		
 		try { 
 			  Class.forName("com.mysql.jdbc.Driver"); // 데이터베이스와 연동하기 위해 DriverManager에 등록  
 		}catch(ClassNotFoundException e){
@@ -202,15 +222,16 @@ public class DataManager {
 	public Version selectVersionDB(String lectureId){
 		Version version = new Version("", 0, 0);
 		pstmt = null;	//동적 query문		
-		String sql = "select * from lecture_outline where lectureId=\"" + lectureId + "\"";
+		String sql = "select * from version where lectureId=\"" + lectureId + "\"";
 		try{ 
+			System.out.println(sql);
 	        pstmt = conn.prepareStatement(sql);
 	        ResultSet result = pstmt.executeQuery(sql); // execute select SQL statement  
 	        result.next();	// 시작
 	        
 	        version.setLectureId(result.getString(1));
-	        version.notiVersion = Integer.parseInt((result.getString(2)));
-	        version.assignVersion= Integer.parseInt(result.getString(3));
+	        version.notiVersion = result.getInt(2);
+	        version.assignVersion= result.getInt(3);
 		}
 	    catch (Exception e)
 	    {            
@@ -222,7 +243,7 @@ public class DataManager {
 	
 	public boolean insertVersionDB(String lectureId){
 		pstmt = null;	//동적 query문
-		String sql = "insert into notification values (?, ?, ?)";
+		String sql = "insert into version values (?, ?, ?)";
 		try{	  
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, lectureId); 			// 학수번호
@@ -244,13 +265,13 @@ public class DataManager {
 		pstmt = null;	//동적 query문		
 		String sql = "update version set ";
 		if(notiVersion != 0){
-			sql = sql + "notificationId=?";
+			sql = sql + "notiVer=?";
 		}
 		if(assignVersion !=0){
 			if(notiVersion != 0){
 				sql = sql + ", ";
 			}
-			sql = sql + "assignVersion=?";
+			sql = sql + "assignVer=?";
 		}
 		sql = sql + " where lectureId=?";
 		try{	  
@@ -369,6 +390,20 @@ public class DataManager {
 		return true;
 	}
 	
+	public boolean deleteAllGradeDB() {
+		pstmt = null;	//동적 query문
+		String sql = "delete from grade";
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
 	public ArrayList<Submit> selectSubmitDB(String lectureId, int assignId, String stuId){
 		ArrayList<Submit> submits =  new ArrayList<Submit>();
 		pstmt = null;	//동적 query문		
@@ -440,6 +475,20 @@ public class DataManager {
 		try {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, submitId);
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean deleteAllSubmitDB(int submitId){
+		pstmt = null;	//동적 query문
+		String sql = "delete from submit";
+		try {
+			pstmt = conn.prepareStatement(sql);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 	        System.out.println(e.getMessage());
@@ -549,26 +598,23 @@ public class DataManager {
 		return true;
 	}
 	
-	public ArrayList<Answer> selectAnswerDB(int key){	  //questionId로 검색
-		ArrayList<Answer> answers =  new ArrayList<Answer>();
+	public Answer selectAnswerDB(int key){	  //questionId로 검색
+		Answer answer =  new Answer();
 		pstmt = null;	//동적 query문		
 		String sql = "select * from answer where questionId=\"" + key + "\"";
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
-	        while (result.next()){
-	        	Answer answer = new Answer();
-	        	answer.setAnswerId(result.getInt(1)); //primary key
-	        	answer.setQuestionId(result.getInt(2));
-	        	answer.content = result.getString(3);
-	        	
-	        	answers.add(answer);
-	        }
+	        result.next();
+	       
+	    	answer.setAnswerId(result.getInt(1)); //primary key
+	    	answer.setQuestionId(result.getInt(2));
+	    	answer.content = result.getString(3);
 	    } catch (Exception e){            
 	        System.out.println(e.getMessage());
 	        e.printStackTrace();
 	    }
-		return answers;
+		return answer;
 	}
 	
 	public boolean insertAnswerDB(int answerId, int questionId, String content){
@@ -715,6 +761,20 @@ public class DataManager {
 		return true;
 	}
 
+	public boolean deleteAllQuestionDB(){
+		pstmt = null;	//동적 query문
+		String sql = "delete from question";
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
 	public ArrayList<Notification> selectNotificationDB(String key){	  //학수번호로 검색
 		ArrayList<Notification> notifications =  new ArrayList<Notification>();
 		pstmt = null;	//동적 query문		
@@ -854,6 +914,20 @@ public class DataManager {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, lectureId);
 			pstmt.setString(2, userId);
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean deleteAllLectureDB() {
+		pstmt = null;	//동적 query문		
+		String sql = "delete from lecture";
+		try {
+			pstmt = conn.prepareStatement(sql);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 	        System.out.println(e.getMessage());
