@@ -180,10 +180,9 @@ public class DataManager {
 	}
 	
 	public boolean openDB(){
-		String myUrl = "jdbc:mysql://localhost:3306/eclass"; // 사용하려는 데이터베이스명을 포함한 URL 기술
+		String myUrl = "jdbc:mysql://localhost:3306/eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 		String id = "root"; // 사용자 계정
 		String pw = "5721"; //사용자 계정의 패스워드
-		
 		try { 
 			  Class.forName("com.mysql.jdbc.Driver"); // 데이터베이스와 연동하기 위해 DriverManager에 등록  
 		}catch(ClassNotFoundException e){
@@ -227,8 +226,8 @@ public class DataManager {
 		try{	  
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, lectureId); 			// 학수번호
-			pstmt.setString(2, String.valueOf(0)); 	// 공지Id
-			pstmt.setString(3, String.valueOf(0)); 	// 과제Id
+			pstmt.setInt(2, 0);  
+			pstmt.setInt(3, 0); 
 			int n = pstmt.executeUpdate();   		// 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
@@ -275,10 +274,27 @@ public class DataManager {
 		return true;
 	}
 		
-	public ArrayList<Grade> selectGradeDB(String key){	  //grade Id로 검색
+	public ArrayList<Grade> selectGradeDB(String stuId, String lectureId){	  //grade Id로 검색
+//		양자택일
+//		stuId - 성적을 찾는 학생 아이디 [optional]
+//		lectureId - 성적을 가진 강의 아이디 [optional]
+		if ((stuId == null && lectureId == null)) {
+			System.out.println("Get Grade : at least ONE parameter");
+			return null;
+		}
+		
 		ArrayList<Grade> grades =  new ArrayList<Grade>();
 		pstmt = null;	//동적 query문		
-		String sql = "select * from grade where gradeId=\"" + key + "\"";
+		String sql = "select * from grade where ";
+		if (stuId != null) {
+			sql = sql + "stuId=\"" + stuId + "\"";
+		}
+		if (lectureId != null) {
+			if (stuId != null) {
+				sql = sql + " && ";
+			}
+			sql = sql + "lectureId=\"" + lectureId + "\"";
+		}
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
@@ -288,7 +304,7 @@ public class DataManager {
 	        	grade.setLectureId(result.getString(2));
 	        	grade.setSubmitId(result.getInt(3));
 	        	grade.setStudentId(result.getString(4));
-	        	grade.setScore(Integer.parseInt((result.getString(5))));
+	        	grade.setScore(result.getDouble(5));
 	        	
 	        	grades.add(grade);
 	        }
@@ -353,10 +369,13 @@ public class DataManager {
 		return true;
 	}
 	
-	public ArrayList<Submit> selectSubmitDB(int key){	  //submitId로 검색
+	public ArrayList<Submit> selectSubmitDB(String lectureId, int assignId, String stuId){
 		ArrayList<Submit> submits =  new ArrayList<Submit>();
 		pstmt = null;	//동적 query문		
-		String sql = "select * from submit where submitId=\"" + key + "\"";
+		String sql = "select * from submit where lectureId=\"" + lectureId + "\" && assignId="+assignId;
+		if (stuId != null) {
+			sql = sql + " && stuId=\"" + stuId + "\"";
+		}
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
@@ -530,10 +549,10 @@ public class DataManager {
 		return true;
 	}
 	
-	public ArrayList<Answer> selectAnswerDB(int key){	  //answerId로 검색
+	public ArrayList<Answer> selectAnswerDB(int key){	  //questionId로 검색
 		ArrayList<Answer> answers =  new ArrayList<Answer>();
 		pstmt = null;	//동적 query문		
-		String sql = "select * from answer where answerId=\"" + key + "\"";
+		String sql = "select * from answer where questionId=\"" + key + "\"";
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
@@ -604,10 +623,26 @@ public class DataManager {
 		return true;
 	}
 	
-	public ArrayList<Question> selectQuestionDB(String key){	  //학수번호로 검색
+	public ArrayList<Question> selectQuestionDB(String stuId, String lectureId){	  //학수번호로 검색
+//		양자택일
+//		stuId - 질문자 아이디 (학생) [optional]
+//		lectureId - 질문한 강의 [optional]
+		if ((stuId == null && lectureId == null)) {
+			System.out.println("Get Grade : at least ONE parameter");
+			return null;
+		}
 		ArrayList<Question> questions =  new ArrayList<Question>();
 		pstmt = null;	//동적 query문		
-		String sql = "select * from question where lectureId=\"" + key + "\"";
+		String sql = "select * from question where ";
+		if (stuId != null) {
+			sql = sql + "stuId=\"" + stuId + "\"";
+		}
+		if (lectureId != null) {
+			if (stuId != null) {
+				sql = sql + " && ";
+			}
+			sql = sql + "lectureId=\"" + lectureId + "\"";
+		}
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
@@ -723,7 +758,7 @@ public class DataManager {
 		return true;
 	}
 	
-	public boolean updateNotificationDB(int notiId, String title, String description) {
+	public boolean updateNotificationDB(int notiId, String lectureId, String title, String description) {
 		pstmt = null;	//동적 query문
 		int index = 1;
 		String sql = "update notification set ";
@@ -736,7 +771,7 @@ public class DataManager {
 			}
 			sql = sql + "description=?";
 		}
-		sql = sql + "  where notificationId=?";
+		sql = sql + "  where notificationId=? && lectureId=?";
 		try {
 			pstmt = conn.prepareStatement(sql);
 			if(title != null){
@@ -745,7 +780,8 @@ public class DataManager {
 			if(description != null){
 				pstmt.setString(index++, description); 	// 수정할 내용
 			}
-			pstmt.setInt(index, notiId); 		// 공지Id
+			pstmt.setInt(index++, notiId); 		// 공지Id
+			pstmt.setString(index++, lectureId); 		// 공지Id
 			int n = pstmt.executeUpdate(); 		// 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
@@ -774,7 +810,7 @@ public class DataManager {
 	public ArrayList<Lecture> selectLectureDB(String key){	  //학수번호로 검색
 		ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 		pstmt = null;	//동적 query문		
-		String sql = "select * from lecture where lectureId=\"" + key + "\"";
+		String sql = "select * from lecture where userId=\"" + key + "\"";
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);

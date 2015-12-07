@@ -188,6 +188,9 @@ public class NetworkManager {
 			System.out.println(response.get("message").toString());
 			return false;
 		}
+		dataManager.openDB();
+		dataManager.insertLectureDB(lectureId, userId);
+		dataManager.closeDB();
 		return true;
 	}
 	
@@ -213,12 +216,14 @@ public class NetworkManager {
 
 		ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 		JsonArray content = response.get("content").getAsJsonArray();
+		dataManager.openDB();
 		for (JsonElement e : content) {
 			JsonObject lectureJson = e.getAsJsonObject();
 			Lecture lecture = new Lecture(lectureJson);
+			dataManager.insertLectureDB(lecture.getLectureId(), lecture.getUserId());
 			lectures.add(lecture);
 		}
-
+		dataManager.closeDB();
 		return lectures;
 	}
 	
@@ -292,7 +297,7 @@ public class NetworkManager {
 		int notiVer = response.get("notiVer").getAsInt();
 		JsonArray content = response.get("content").getAsJsonArray();
 		dataManager.openDB();
-		// notiVer 넣는 구문	
+		dataManager.updateVersionDB(lectureId, notiVer, 0);
 		for (JsonElement e : content) {
 			JsonObject json = e.getAsJsonObject();
 			int type = json.get("type").getAsInt();
@@ -428,7 +433,7 @@ public class NetworkManager {
 		int assignVer = response.get("assignVer").getAsInt();
 		JsonArray content = response.get("content").getAsJsonArray();
 		dataManager.openDB();
-		// notiVer 넣는 구문	
+		dataManager.updateVersionDB(lectureId, 0, assignVer);
 		for (JsonElement e : content) {
 			JsonObject json = e.getAsJsonObject();
 			int type = json.get("type").getAsInt();
@@ -546,7 +551,10 @@ public class NetworkManager {
 	public ArrayList<Submit> getReport(String lectureId, int assignId, String stuId) throws IOException {
 //		stuId : (학생용) 학생 아이디 넘겨주어 학생의 것만 받아오기 [optional]
 		String url = API_HOST + SUBMIT;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
+		if (stuId != null) {
+			params = params + "&stuId=" + stuId;
+		}
 		url = url + params;
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
