@@ -17,13 +17,38 @@ import model.Lecture;
 import model.LectureOutline;
 import model.Notification;
 import model.Question;
+import model.RecommendedLecture;
 import model.Submit;
 import model.Version;
 
 public class DataManager {	
 	Connection conn = null; 	
 	PreparedStatement pstmt = null;
+	
+	public ArrayList<RecommendedLecture> selectRecommendedLecture(){
+		ArrayList<RecommendedLecture> recommendedLectures = new ArrayList<RecommendedLecture>();
+		pstmt = null;	//동적 query문
+		String sql = "select * from lecture_outline where curriculum like '%교양%' && point in (1, 2)";
+		try{	  
+			pstmt = conn.prepareStatement(sql);
+			ResultSet result = pstmt.executeQuery(sql);
+			while (result.next()){
+			RecommendedLecture recommendedLecture = new RecommendedLecture();
+			recommendedLecture.setLectureId(result.getString(1));
+			recommendedLecture.professorName = result.getString(2);
+			recommendedLecture.title = result.getString(3);
+			recommendedLecture.curriculum = result.getString(4);
+			recommendedLecture.setPoint(Integer.parseInt((result.getString(5))));
 			
+			recommendedLectures.add(recommendedLecture);
+			}
+		} 
+		catch(SQLException e){
+			e.printStackTrace();
+		}
+		return recommendedLectures;
+	}
+	
 	public boolean existsRecordAtNotificationDB(String lectureId, String notiId){
 		pstmt = null;
 		String sql = "select lectureId, notificationId from notification";
@@ -201,7 +226,10 @@ public class DataManager {
 	public boolean openDB(){
 		String myUrl = "jdbc:mysql://localhost:3306/eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 		String id = "root"; // 사용자 계정
-		String pw = "1234"; //사용자 계정의 패스워드
+		String pw = "5721"; //사용자 계정의 패스워드
+//		String myUrl = "jdbc:mysql://localhost:3306/front_eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
+//		String id = "root"; // 사용자 계정
+//		String pw = "1234"; //사용자 계정의 패스워드
 		
 		try { 
 			  Class.forName("com.mysql.jdbc.Driver"); // 데이터베이스와 연동하기 위해 DriverManager에 등록  
