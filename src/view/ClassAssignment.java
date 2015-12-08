@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 
 public class ClassAssignment extends JFrame{
 	public ClassAssignment(){
-		setTitle("질의 응답"); // 객체의 제목 설정
+		setTitle("과제 확인"); // 객체의 제목 설정
 		setSize(450,450); // 객체  Size 설정
 		setLocation(820,20); // 창이 뜰 위치를 설정
 		setLayout(null); // 객체의 Layout을 Absolute로 설정

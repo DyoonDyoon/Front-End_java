@@ -12,5 +12,4 @@ public class ClassNotification extends JFrame{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X키를 누르면 프로그램이 종료하도록함
 		setVisible(true);
 	}
-
 }
