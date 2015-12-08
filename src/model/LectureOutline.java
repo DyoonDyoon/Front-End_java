@@ -9,15 +9,29 @@ public class LectureOutline{
 	public String curriculum; //교과과정
 	private int point; //학점
 
+	public LectureOutline() {
+		// default constructor
+		this.lectureId = null;
+		this.professorName = null;
+		this.title = null;
+		this.curriculum = null;
+		this.point = 0;
+	}
+	
 	public LectureOutline(JsonObject json) {
-		this.lectureId = json.get("lecture_id").getAsString();
-		this.professorName = json.get("professor_name").getAsString();
-		this.title = json.get("title").getAsString();
-		this.curriculum = json.get("curriculum").getAsString();
-		String pointStr = json.get("point").getAsString();
-		if (pointStr.length() == 0) {
-			pointStr = "0";
-		}
+		this();
+		
+		if (!json.get("lecture_id").isJsonNull())
+			this.lectureId = json.get("lecture_id").getAsString();
+		if (!json.get("professor_name").isJsonNull())
+			this.professorName = json.get("professor_name").getAsString();
+		if (!json.get("title").isJsonNull())
+			this.title = json.get("title").getAsString();
+		if (!json.get("curriculum").isJsonNull())
+			this.curriculum = json.get("curriculum").getAsString();
+		String pointStr = "0"; 
+		if (!json.get("point").isJsonNull())
+			pointStr = json.get("point").getAsString();
 		this.point = Integer.parseInt(pointStr);
 	}
 	

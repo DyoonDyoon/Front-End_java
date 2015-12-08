@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -24,11 +24,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
+import controller.DataManager;
+import controller.NetworkManager;
+import model.Lecture;
+import model.LectureOutline;
 import model.User;
 
 public class MainPage extends JFrame{
@@ -40,6 +42,10 @@ public class MainPage extends JFrame{
 	public JPanel contentPane;
 	
 	User stu = null; // 학생 정보를 저장하는 Student 객체 선언
+	DataManager dataManager = null;
+	NetworkManager networkManager = null;
+	
+	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 	
 	//메인 패널의 좌우 정보를 저장하는 JPanel 선언
 	JPanel LeftPanel;
@@ -181,7 +187,9 @@ public class MainPage extends JFrame{
 	}
 	
 	// Main에서 로그인을 할 경우 Student 객체를 저장하고 화면을 구현하도록함
-	public void setStudentObject(User stu){
+	public void setContext(User stu, NetworkManager networkManager, DataManager dataManager){
+		this.networkManager = networkManager;
+		this.dataManager = dataManager;
 		this.stu = stu; // Student객체를 방아와 설정
 		setSubjectList(); // 수강중인 강의 목록 구현
 		setInform(); // 학생 정보 표시창을 구현
@@ -279,10 +287,17 @@ public class MainPage extends JFrame{
 		SubjectPanel.setBounds(50, 20, 188, 309); // 위치와 사이즈 설정
 		SubjectPanel.setLayout(null); // 레이아웃을 Absolute로 설정
 		
-		//★★★★★★★★★★★★for문을 통해 강의 제목을 가져오도록하는 구문 필요
 		subject = new Vector<String>();
-		for(int i=0; i<50;i++){
-			subject.add("듣는 강의");
+		if (networkManager.syncLectures(stu.getId())) {
+			dataManager.openDB();
+			lectures = dataManager.selectLectureDB(stu.getId());
+			for (int i = 0; i < lectures.size(); i++) {
+				Lecture lecture = lectures.get(i);
+				LectureOutline lectureOutline = dataManager.selectLectureOutlineDB(lecture.getLectureId());
+				if (lectureOutline != null)
+					subject.add(lectureOutline.title);
+			}
+			dataManager.closeDB();
 		}
 		
 		//강의 목록을 가지고있는 Vector 배열을 통해 강의 목록 생성
@@ -580,7 +595,6 @@ public class MainPage extends JFrame{
 		ClassPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
 		ClassPanel.setLayout(null); // 레이아웃을 Absolute로 설정
 		
-
 		RightPanel.removeAll();
 		RightPanel.add(ClassPanel);
 		contentPane.revalidate();

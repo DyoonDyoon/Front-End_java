@@ -1,17 +1,10 @@
 package controller;
 
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.IOException;
 
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-import javax.swing.event.ListSelectionListener;
 
 import model.User;
 import view.LoginPage;
@@ -21,7 +14,7 @@ public class Main {
 	public static String ID;
 	public static String PW;
 	public static ActionListener e;
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) {
 		NetworkManager manager = new NetworkManager();
 		DataManager dataManager = new DataManager();
 		
@@ -31,15 +24,6 @@ public class Main {
 		//lectureOutline.professorName = "hello";
 		//dataManager.updateLectureOutlineDB(lectureOutline, key);
 
-		/*
-		int version = manager.needsUpdateLectureOutline();
-		if (version != -1) {
-			dataManager.openDB();
-			dataManager.insertLectureOutlineDB(manager.getLectureOutline(version));
-			dataManager.closeDB();
-		}
-		 */
-
 		/*select할때 사용
 		ArrayList<Grade> lec = new ArrayList<Grade>();
 		dataManager.openDB();
@@ -47,8 +31,24 @@ public class Main {
 		for(int num=0; num<lec.size(); ++num){
 			System.out.println(lec.get(num));
 		}
-		dataManager.closeDB();
+ 		dataManager.closeDB();
 		*/
+		
+		Thread downloadThread = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				int version = manager.needsUpdateLectureOutline();
+				if (version != -1) {
+					dataManager.openDB();
+					dataManager.deleteLectureOutlineDB();
+					dataManager.insertLectureOutlineDB(manager.getLectureOutline(version));
+					dataManager.closeDB();
+					System.out.println("complete download lecture outline!");
+				}
+			}
+		});
+		downloadThread.start();
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -67,17 +67,11 @@ public class Main {
 					case "login"://������ ActionCommand
 					ID = loginpage.IDField.getText();
 					PW = loginpage.PWField.getText();
-					User stu = null;
-					try {
-						stu = manager.login(ID, PW);
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					User stu = manager.login(ID, PW);
 					if (stu != null) {
 						JOptionPane.showMessageDialog(null, stu.name + "님 안녕하세요!");
 						loginpage.setVisible(false);
-						mainpage.setStudentObject(stu);
+						mainpage.setContext(stu, manager, dataManager);
 						mainpage.setVisible(true);
 					}
 					else{
@@ -92,6 +86,4 @@ public class Main {
 			};
 		loginpage.setActionListener(e);
 	}
-	
-	
 }

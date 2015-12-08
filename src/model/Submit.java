@@ -3,25 +3,56 @@
  */
 package model;
 
+import com.google.gson.JsonObject;
+
 public class Submit {
-	private String submitId;
-	private String assignId;
+	private int submitId;
+	private String lectureId;
+	private int assignId;
 	private String studentId;
 	private String filePath;
 	
-	public String getSubmitId(){
+	public Submit() {
+		//default constructor
+		this.submitId = 0;
+		this.lectureId = null;
+		this.assignId = 0;
+		this.studentId = null;
+		this.filePath = null;
+	}
+	public Submit(JsonObject json) {
+		if (!json.get("submitId").isJsonNull())
+			this.submitId = json.get("submitId").getAsInt();
+		if (!json.get("lectureId").isJsonNull())
+			this.lectureId = json.get("lectureId").getAsString();
+		if (!json.get("assignId").isJsonNull())
+			this.assignId = json.get("assignId").getAsInt();
+		if (!json.get("studentId").isJsonNull())
+			this.studentId = json.get("studentId").getAsString();
+		if (!json.get("filePath").isJsonNull())
+			this.filePath = json.get("filePath").getAsString();
+	}
+	
+	public int getSubmitId(){
 		return submitId;
 	}
 	
-	public void setSubmitId(String submitId){
+	public void setSubmitId(int submitId){
 		this.submitId = submitId;
 	}
 	
-	public String getAssignId(){
+	public String getLectureId() {
+		return lectureId;
+	}
+	public void setLectureId(String lectureId) {
+		this.lectureId = lectureId;
+	}
+	
+	public int getAssignId(){
 		return assignId;
 	}
 	
-	public void setAssignId(String assignId){
+	public void setAssignId(int assignId){
 		this.assignId = assignId;
 	}
 	
