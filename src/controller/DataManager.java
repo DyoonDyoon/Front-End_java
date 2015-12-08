@@ -33,14 +33,14 @@ public class DataManager {
 			pstmt = conn.prepareStatement(sql);
 			ResultSet result = pstmt.executeQuery(sql);
 			while (result.next()){
-			RecommendedLecture recommendedLecture = new RecommendedLecture();
-			recommendedLecture.setLectureId(result.getString(1));
-			recommendedLecture.professorName = result.getString(2);
-			recommendedLecture.title = result.getString(3);
-			recommendedLecture.curriculum = result.getString(4);
-			recommendedLecture.setPoint(Integer.parseInt((result.getString(5))));
-			
-			recommendedLectures.add(recommendedLecture);
+				RecommendedLecture recommendedLecture = new RecommendedLecture();
+				recommendedLecture.setLectureId(result.getString(1));
+				recommendedLecture.professorName = result.getString(2);
+				recommendedLecture.title = result.getString(3);
+				recommendedLecture.curriculum = result.getString(4);
+				recommendedLecture.setPoint(result.getInt(5));
+				
+				recommendedLectures.add(recommendedLecture);
 			}
 		} 
 		catch(SQLException e){
@@ -975,14 +975,15 @@ public class DataManager {
 		try{ 
 	        pstmt = conn.prepareStatement(sql);
 	        result = pstmt.executeQuery(sql); // execute select SQL statement  
-	        result.next();	// 시작
 	        
-	        lectureOutlines = new LectureOutline("", "", "", "", 0);
-	        lectureOutlines.setLectureId(result.getString(1));
-	        lectureOutlines.professorName = result.getString(2);
-	        lectureOutlines.title = result.getString(3);
-	        lectureOutlines.curriculum = result.getString(4);
-	        lectureOutlines.setPoint(Integer.parseInt((result.getString(5))));
+	        if (result.next()) {
+		        lectureOutlines = new LectureOutline("", "", "", "", 0);
+		        lectureOutlines.setLectureId(result.getString(1));
+		        lectureOutlines.professorName = result.getString(2);
+		        lectureOutlines.title = result.getString(3);
+		        lectureOutlines.curriculum = result.getString(4);
+		        lectureOutlines.setPoint(Integer.parseInt((result.getString(5))));
+	        }
 		}
 	    catch (Exception e)
 	    {            
