@@ -49,6 +49,7 @@ public class MainPage extends JFrame{
 	
 	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 	Vector<String[]> lectureTitles = new Vector<String[]>();
+	ArrayList<Assignment> assigns = new ArrayList<Assignment>();
 	
 	//메인 패널의 좌우 정보를 저장하는 JPanel 선언
 	JPanel LeftPanel;
@@ -157,6 +158,9 @@ public class MainPage extends JFrame{
 						break;
 					case "ReadAssign":
 						JOptionPane.showMessageDialog(null,AssignmentTable.getSelectedRow());
+						Assignment assign = assigns.get(AssignmentTable.getSelectedRow());
+						AssignmentTitle.setText(assign.title);
+						AssignmentContent.setText(assign.description);
 						break;
 					case "ReadNoti":
 						JOptionPane.showMessageDialog(null,NotificationTable.getSelectedRow());
@@ -405,7 +409,7 @@ public class MainPage extends JFrame{
 		AssignmentPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
 		AssignmentPanel.setLayout(null); // 레이아웃을 Absolute로 설정
 	
-		ArrayList<Assignment> assigns = new ArrayList<Assignment>();
+		assigns = new ArrayList<Assignment>();
 		dataManager.openDB();
 		for (int i = 0; i < lectures.size(); ++i) {
 			Lecture lecture = lectures.get(i);
@@ -420,8 +424,8 @@ public class MainPage extends JFrame{
 				}
 			}
 		}
+		dataManager.closeDB();
 		
-		System.out.println(assigns);
 		String[] columnNames = {"강의","제목"}; // Column을 설명하기 위함
 		
 		DefaultTableModel defaulttablemodel = new DefaultTableModel(assigns.size(), columnNames.length)
