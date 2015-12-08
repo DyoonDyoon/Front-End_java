@@ -248,18 +248,19 @@ public class DataManager {
 	}
 	
 	public Version selectVersionDB(String lectureId){
-		Version version = new Version("", 0, 0);
+		Version version = null;
 		pstmt = null;	//동적 query문		
 		String sql = "select * from version where lectureId=\"" + lectureId + "\"";
 		try{ 
-			System.out.println(sql);
 	        pstmt = conn.prepareStatement(sql);
 	        ResultSet result = pstmt.executeQuery(sql); // execute select SQL statement  
-	        result.next();	// 시작
 	        
-	        version.setLectureId(result.getString(1));
-	        version.notiVersion = result.getInt(2);
-	        version.assignVersion= result.getInt(3);
+	        if (result.next()) {
+	        	version = new Version("", 0, 0);
+		        version.setLectureId(result.getString(1));
+		        version.notiVersion = result.getInt(2);
+		        version.assignVersion= result.getInt(3);
+	        }
 		}
 	    catch (Exception e)
 	    {            
@@ -292,26 +293,27 @@ public class DataManager {
 		int index = 1;
 		pstmt = null;	//동적 query문		
 		String sql = "update version set ";
-		if(notiVersion != 0){
+		if(notiVersion != -1){
 			sql = sql + "notiVer=?";
 		}
-		if(assignVersion !=0){
-			if(notiVersion != 0){
+		if(assignVersion !=-1){
+			if(notiVersion != -1){
 				sql = sql + ", ";
 			}
 			sql = sql + "assignVer=?";
 		}
 		sql = sql + " where lectureId=?";
+		System.out.println(sql);
 		try{	  
 			pstmt = conn.prepareStatement(sql);
-			if(notiVersion != 0){
+			if(notiVersion != -1){
 				pstmt.setString(index++, String.valueOf(notiVersion)); 
 			}
-			if(assignVersion != 0){
+			if(assignVersion != -1){
 				pstmt.setString(index++, String.valueOf(assignVersion));
 			}
 			pstmt.setString(index, lectureId);	
-			int n = pstmt.executeUpdate(); 				// 쿼리문 실행
+			int n = pstmt.executeUpdate(); // 쿼리문 실행
 			if(n<=0){
 				System.out.println("insert 실패");
 			}
@@ -526,22 +528,22 @@ public class DataManager {
 		return true;
 	}
 	
-	public ArrayList<Assignment> selectAssignmentDB(int key){	  //assignId로 검색
+	public ArrayList<Assignment> selectAssignmentDB(String key){	  //assignId로 검색
 		ArrayList<Assignment> assignments =  new ArrayList<Assignment>();
 		pstmt = null;	//동적 query문		
-		String sql = "select * from assignment where assignId=\"" + key + "\"";
+		String sql = "select * from assignment where lectureId=\"" + key + "\"";
 		try{ 
 	        pstmt = conn.prepareStatement(sql);  
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
 	        	Assignment assignment = new Assignment();
-	        	assignment.setAssignId(result.getInt(1)); //primary key
-	        	assignment.setLectureId(result.getString(2));
-	        	assignment.title = result.getString(3);
-	        	assignment.description = result.getString(4);
-	        	assignment.filePath = result.getString(5);
-	        	assignment.startDate = result.getString(6);
-	        	assignment.endDate = result.getString(7);
+	        	assignment.setAssignId(result.getInt(2));
+	        	assignment.setLectureId(result.getString(3));
+	        	assignment.title = result.getString(4);
+	        	assignment.description = result.getString(5);
+	        	assignment.filePath = result.getString(6);
+	        	assignment.startDate = result.getString(7);
+	        	assignment.endDate = result.getString(8);
 	        	
 	        	assignments.add(assignment);
 	        }
@@ -812,10 +814,10 @@ public class DataManager {
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
 	        	Notification notification = new Notification();
-	        	//notification.setNotificationId(result.getString(1));는 공지 Id라서 뺌
-	        	notification.setLectureId(result.getString(2));
-	        	notification.title = result.getString(3); 
-	        	notification.description = result.getString(4);
+	        	//notification.setNotificationId(result.getString(2));는 공지 Id라서 뺌
+	        	notification.setLectureId(result.getString(3));
+	        	notification.title = result.getString(4); 
+	        	notification.description = result.getString(5);
 	        	
 	        	notifications.add(notification);
 	        }

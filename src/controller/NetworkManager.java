@@ -277,6 +277,9 @@ public class NetworkManager {
 			JsonObject lectureJson = e.getAsJsonObject();
 			Lecture lecture = new Lecture(lectureJson);
 			if (!dataManager.existsRecordAtLectureDB(lecture.getLectureId(), lecture.getUserId())) {	// 없는 레코드일 경우
+				if (!dataManager.existsRecordAtVersion(lecture.getLectureId())) {	// 버전테이블이 없을 경우 생성
+					dataManager.insertVersionDB(lecture.getLectureId());
+				}
 				dataManager.insertLectureDB(lecture.getLectureId(), lecture.getUserId());
 			}
 		}
@@ -385,7 +388,7 @@ public class NetworkManager {
 		int notiVer = response.get("notiVer").getAsInt();
 		JsonArray content = response.get("content").getAsJsonArray();
 		dataManager.openDB();
-		dataManager.updateVersionDB(lectureId, notiVer, 0);
+		dataManager.updateVersionDB(lectureId, notiVer, -1);
 		for (JsonElement e : content) {
 			JsonObject json = e.getAsJsonObject();
 			int type = json.get("type").getAsInt();
@@ -571,7 +574,7 @@ public class NetworkManager {
 		int assignVer = response.get("assignVer").getAsInt();
 		JsonArray content = response.get("content").getAsJsonArray();
 		dataManager.openDB();
-		dataManager.updateVersionDB(lectureId, 0, assignVer);
+		dataManager.updateVersionDB(lectureId, -1, assignVer);
 		for (int i = 0; i < content.size(); ++i) {
 			JsonObject json = content.get(i).getAsJsonObject();
 			int type = json.get("type").getAsInt();

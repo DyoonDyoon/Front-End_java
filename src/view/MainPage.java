@@ -29,9 +29,11 @@ import javax.swing.table.TableColumnModel;
 
 import controller.DataManager;
 import controller.NetworkManager;
+import model.Assignment;
 import model.Lecture;
 import model.LectureOutline;
 import model.User;
+import model.Version;
 
 public class MainPage extends JFrame{
 	
@@ -46,6 +48,7 @@ public class MainPage extends JFrame{
 	NetworkManager networkManager = null;
 	
 	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
+	Vector<String[]> lectureTitles = new Vector<String[]>();
 	
 	//메인 패널의 좌우 정보를 저장하는 JPanel 선언
 	JPanel LeftPanel;
@@ -297,14 +300,20 @@ public class MainPage extends JFrame{
 		SubjectPanel.setLayout(null); // 레이아웃을 Absolute로 설정
 		
 		subject = new Vector<String>();
+		lectureTitles = new Vector<String[]>();
 		if (networkManager.syncLectures(stu.getId())) {
 			dataManager.openDB();
 			lectures = dataManager.selectLectureDB(stu.getId());
 			for (int i = 0; i < lectures.size(); i++) {
 				Lecture lecture = lectures.get(i);
 				LectureOutline lectureOutline = dataManager.selectLectureOutlineDB(lecture.getLectureId());
-				if (lectureOutline != null)
+				if (lectureOutline != null) {
+					String[] lectureTitle = new String[2];
+					lectureTitle[0] = lectureOutline.title;
+					lectureTitle[1] = lectureOutline.getLectureId();
+					lectureTitles.add(lectureTitle);
 					subject.add(lectureOutline.title);
+				}
 			}
 			dataManager.closeDB();
 		}
@@ -396,21 +405,26 @@ public class MainPage extends JFrame{
 		AssignmentPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
 		AssignmentPanel.setLayout(null); // 레이아웃을 Absolute로 설정
 	
-		String columnNames[] = {"강의","제목"}; // Column을 설명하기 위함
-		//강의 목록 저장
-		Object rowData[][] = { {"시스템 소프트웨어 프로그래밍","씨발 힘들어요"},
-				{"주니어 디자인 프로젝트","뒤질꺼같아요"},
-				{"객체 지향 언어와 실습","다신 하기 싫어요"},
-				{"프로그래밍 언어와 실습","살려주세요"},
-				{"미적분학 및 연습","배고파요"},
-				{"미적분학 및 연습","기술 창조와 특허"},
-				{"미적분학 및 연습","가나다"},
-				{"미적분학 및 연습","가나다"},
-				{"미적분학 및 연습","가나다"},
-				{"미적분학 및 연습","가나다"},
-		};
-
-		DefaultTableModel defaulttablemodel = new DefaultTableModel(rowData,columnNames)
+		ArrayList<Assignment> assigns = new ArrayList<Assignment>();
+		dataManager.openDB();
+		for (int i = 0; i < lectures.size(); ++i) {
+			Lecture lecture = lectures.get(i);
+			Version version = dataManager.selectVersionDB(lecture.getLectureId());
+			if (version == null)
+				continue;
+			
+			if (networkManager.syncAssignment(lecture.getLectureId(), version.assignVersion)) {
+				ArrayList<Assignment> localAssign = dataManager.selectAssignmentDB(lecture.getLectureId());
+				if (localAssign != null && !localAssign.isEmpty()) {
+					assigns.addAll(localAssign);
+				}
+			}
+		}
+		
+		System.out.println(assigns);
+		String[] columnNames = {"강의","제목"}; // Column을 설명하기 위함
+		
+		DefaultTableModel defaulttablemodel = new DefaultTableModel(assigns.size(), columnNames.length)
 			{
 			    @Override
 			    public boolean isCellEditable(int row, int column){
@@ -418,6 +432,18 @@ public class MainPage extends JFrame{
 			       return false;
 			    }
 		};
+		defaulttablemodel.setColumnIdentifiers(columnNames);
+		for (int i = 0; i < assigns.size(); ++i) {
+			Assignment assign = assigns.get(i);
+			for (int j = 0; j < lectures.size(); ++j) {
+				String[] lectureTitle = lectureTitles.get(j);
+				if (assign.getLectureId().equals(lectureTitle[1])) {
+					defaulttablemodel.setValueAt(lectureTitle[0], i, 0);
+					break;
+				}
+			}
+			defaulttablemodel.setValueAt(assign.title, i, 1);
+		}
 		
 		AssignmentTable = new JTable(defaulttablemodel);
 		AssignmentTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
