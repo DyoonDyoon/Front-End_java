@@ -20,21 +20,15 @@ public class Main {
 		NetworkManager manager = new NetworkManager();
 		DataManager dataManager = new DataManager();
 		
-		//ArrayList<LectureOutline> lectures = manager.getLectureOutline();
-		//LectureOutline lectureOutline = lectures.get(0);
-		//String key = lectureOutline.getLectureId();
-		//lectureOutline.professorName = "hello";
-		//dataManager.updateLectureOutlineDB(lectureOutline, key);
-
 		//select할때 사용
-		ArrayList<RecommendedLecture> lec = new ArrayList<RecommendedLecture>();
+		/*ArrayList<RecommendedLecture> lec = new ArrayList<RecommendedLecture>();
 		dataManager.openDB();
 		lec = dataManager.selectRecommendedLecture();
 		for(int num=0; num<lec.size(); ++num){
 			System.out.println(lec.get(num));
 		}
  		dataManager.closeDB();
-		
+		*/
 		
 		Thread downloadThread = new Thread(new Runnable(){
 			@Override
