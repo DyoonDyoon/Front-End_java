@@ -3,7 +3,11 @@ package view;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -11,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -19,12 +24,18 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import model.User;
 
 public class MainPage extends JFrame{
+	
+	ActionListener actionlistener;
+	MouseAdapter mouseadapter_jlist;
+	MouseAdapter mouseadapter_jtable;
 	//메인 화면의 내용을 저장하는 JPanel 선언
 	public JPanel contentPane;
 	
@@ -42,16 +53,16 @@ public class MainPage extends JFrame{
 
 	//왼쪽 패널의 메뉴 부분을 구현하기 위한 JPanel과 JButton 
 	JPanel MenuAll; // 버튼을 저장할 JPanel
-	public JButton gotoMain; // 메인으로 돌아가는 버튼
-	public JButton CheckAssign; // 과제 확인을 위한 버튼
-	public JButton CheckNoti; // 공지사항 확인을 위한 버튼
-	public JButton CheckGrade; // 성적 확인을 위한 버튼
+	JButton gotoMain; // 메인으로 돌아가는 버튼
+	JButton CheckAssign; // 과제 확인을 위한 버튼
+	JButton CheckNoti; // 공지사항 확인을 위한 버튼
+	JButton CheckGrade; // 성적 확인을 위한 버튼
 	
 	//오른쪽 패널에 존재하는 수강중인 강의와 강의실 입장을 구현하기 위한 JPanel과 List, Button
 	JPanel SubjectPanel; // 강의실을 나타내는 JPanel
 	JList SubjectList; // 수강중인 강의를 저장하는 JList
 	JScrollPane scrollPane; // JList는  자체적으로 Scrollbar가 존재하지 않으므로 구현을 위해 필요함
-	public JButton EnterSubject; // 강의실 입장을 위한 JButton
+	JButton EnterSubject; // 강의실 입장을 위한 JButton
 	Vector<String> subject; // 수강중인 강의를 저장하도록하는 String형 Vector 배열
 	
 	//오른쪽 패널에 존재하는 추천 강의 구현을 위한 JTable, JPanel
@@ -73,6 +84,9 @@ public class MainPage extends JFrame{
 	
 	JPanel GradePanel;
 	JTable GradeTable;
+	
+	JPanel ClassPanel;
+	
 	JScrollPane GradescrollPane;
 	
 	public MainPage(){ // 생성자 구현
@@ -100,6 +114,70 @@ public class MainPage extends JFrame{
 		RightPanel.setBorder(new LineBorder(new Color(0, 0, 0), 2)); // 가장자리 궇ㄴ
 		RightPanel.setBounds(142, 0, 650, 420); // 크기와 위치를 지정
 		RightPanel.setLayout(null); // 레이아웃을 Absolute로 설정
+		
+		actionlistener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent event) {//ActionListener�� implements�� �Լ�
+				switch(event.getActionCommand())//�̺�Ʈ���� ������ ActionCommand�� ������
+				{
+					case "CheckAssign":
+						JOptionPane.showMessageDialog(null, "과제확인이요!");
+						showAssign();
+						setVisible(true);
+						break;
+					case "CheckNoti":
+						JOptionPane.showMessageDialog(null, "공지확인이요!");
+						showNoti();
+						setVisible(true);
+						break;
+					case "CheckGrade":
+						JOptionPane.showMessageDialog(null, "성적확인이요!");
+						showGrade();
+						setVisible(true);
+						break;
+					case "EnterSubject":
+						JOptionPane.showMessageDialog(null, "강의실입장이요!");
+						gotoClass();
+						setVisible(true);
+						break;
+					case "gotoMain":
+						gotoMain();
+						setVisible(true);
+						break;
+					default:
+						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
+					break;
+				}
+				}
+			};
+			mouseadapter_jlist = new MouseAdapter(){
+				public void mouseClicked(MouseEvent evt) {
+			        JList list = (JList)evt.getSource();
+			        if (evt.getClickCount() == 2) {
+			            // Double-click detected
+			            int index = list.locationToIndex(evt.getPoint());
+						JOptionPane.showMessageDialog(null, index+"번 줄입니다");
+			        } else if (evt.getClickCount() == 3) {
+			            // Triple-click detected
+			            int index = list.locationToIndex(evt.getPoint());
+						JOptionPane.showMessageDialog(null, index+"번 줄입니다");
+			        }
+			    }
+			};
+			mouseadapter_jtable = new MouseAdapter(){
+				public void mouseClicked(MouseEvent evt) {
+			        JTable table = (JTable)evt.getSource();
+			        if (evt.getClickCount() == 2) {
+			            // Double-click detected
+			            int index = table.getSelectedRow();
+						JOptionPane.showMessageDialog(null, index+"번 줄입니다");
+			        } else if (evt.getClickCount() == 3) {
+			            // Triple-click detected
+			            int index = table.getSelectedRow();
+						JOptionPane.showMessageDialog(null, index+"번 줄입니다");
+			        }
+			    }
+			};
 	}
 	
 	// Main에서 로그인을 할 경우 Student 객체를 저장하고 화면을 구현하도록함
@@ -111,6 +189,8 @@ public class MainPage extends JFrame{
 		setRecommendList(); // 추천 강의 목록 구현
 		contentPane.add(LeftPanel); // 왼쪽 패널을 Main Panel에 추가
 		contentPane.add(RightPanel); // ㅇ오른쪽 패널을 Main Panel에 추가
+		contentPane.revalidate();
+		contentPane.repaint();
 	}
 	
 	// 학생 정보를 통해 이름,학번,학과를 출력하는 Panel을 생성하는 함수
@@ -154,6 +234,7 @@ public class MainPage extends JFrame{
 		gotoMain = new JButton("메인 화면"); // 이름 설정 후 생성
 		gotoMain.setBounds(10, 10, 114, 30); // 위치와 크기 설정 
 		gotoMain.setFont(new Font("맑은 고딕", Font.PLAIN, 14)); // 폰트와 크기 설정
+		gotoMain.addActionListener(actionlistener);
 		gotoMain.setActionCommand("gotoMain"); // 클릭할 경우 ActionListener에 보낼 Command 설정
 		LeftPanel.add(gotoMain); // 왼쪽 패널에 구현한 버튼을 저장
 		
@@ -166,6 +247,7 @@ public class MainPage extends JFrame{
 		CheckAssign = new JButton("과제 확인"); // 이름 설정 후 생성
 		CheckAssign.setBounds(0, 76, 114, 57); // 위치와 사이즈 설정
 		CheckAssign.setFont(new Font("맑은 고딕", Font.PLAIN, 16)); // 폰트와 크기 설정
+		CheckAssign.addActionListener(actionlistener);
 		CheckAssign.setActionCommand("CheckAssign"); // 클릭할 경우 ActionListener에 보낼 Command 설정
 		MenuAll.add(CheckAssign); // MenuAll 패널에 더함
 		
@@ -173,6 +255,7 @@ public class MainPage extends JFrame{
 		CheckNoti = new JButton("공지 확인"); // 이름 설정 후 생성
 		CheckNoti.setBounds(0, 0, 114, 57); // 위치와 사이즈 설정
 		CheckNoti.setFont(new Font("맑은 고딕", Font.PLAIN, 16)); // 폰트와 크기 설정
+		CheckNoti.addActionListener(actionlistener);
 		CheckNoti.setActionCommand("CheckNoti"); // 클릭할 경우 ActionListener에 보낼 Command 설정
 		MenuAll.add(CheckNoti); // MenuAll 패널에 더함
 		
@@ -180,6 +263,7 @@ public class MainPage extends JFrame{
 		CheckGrade = new JButton("성적 확인"); // 이름 성정 후 생성
 		CheckGrade.setBounds(0, 152, 114, 57); // 위치와 사이즈 설정 
 		CheckGrade.setFont(new Font("맑은 고딕", Font.PLAIN, 16)); // 폰트와 크기 설정
+		CheckGrade.addActionListener(actionlistener);
 		CheckGrade.setActionCommand("CheckGrade"); // 클릭할 경우 ActionListener에 보낼 Command 설정
 		MenuAll.add(CheckGrade); // MenuAll 패널에 더함
 		
@@ -207,6 +291,7 @@ public class MainPage extends JFrame{
 		SubjectList.setAutoscrolls(true); // 스크롤바를 생성하도록 함
 		SubjectList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 여러개를 선택하지 못하도록함
 		SubjectList.setBackground(SystemColor.control); // 색상 지정
+		SubjectList.addMouseListener(mouseadapter_jlist);
 		
 		scrollPane = new JScrollPane(); // List에 스크롤바를 생성하도록함
 		scrollPane.setBounds(12, 21, 164, 235); // 위치와 사이즈 설정
@@ -217,6 +302,7 @@ public class MainPage extends JFrame{
 		EnterSubject = new JButton("강의실 입장"); // 이름 설정 후 생성
 		EnterSubject.setBounds(22, 266, 143, 33); // 위치와 사이즈 설정
 		EnterSubject.setFont(new Font("맑은 고딕", Font.PLAIN, 16)); // 폰트와 크기를 지정
+		EnterSubject.addActionListener(actionlistener);
 		EnterSubject.setActionCommand("EnterSubject"); // 클릭할 경우 ActionListener에 보낼 Command 설정
 		SubjectPanel.add(EnterSubject); // SubjectPanel에 더함
 		
@@ -260,6 +346,7 @@ public class MainPage extends JFrame{
 		RecSubjectTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		RecSubjectTable.setBackground(SystemColor.control); // 생상 설정
 		RecSubjectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
+		RecSubjectTable.addMouseListener(mouseadapter_jtable);
 		
 		//JTable의 Column의 크기를 지정하도록 함
 		TableColumnModel columnmodel = RecSubjectTable.getColumnModel();
@@ -313,7 +400,7 @@ public class MainPage extends JFrame{
 		AssignmentTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		AssignmentTable.setBackground(SystemColor.control); // 생상 설정
 		AssignmentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
-
+		AssignmentTable.addMouseListener(mouseadapter_jtable);
 		
 		TableColumnModel columnmodel = AssignmentTable.getColumnModel();
 		columnmodel.getColumn(0).setPreferredWidth(150); 
@@ -357,7 +444,6 @@ public class MainPage extends JFrame{
 		NotificationPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
 		NotificationPanel.setLayout(null); // 레이아웃을 Absolute로 설정
 	
-
 		String columnNames[] = {"강의","제목"}; // Column을 설명하기 위함
 		//강의 목록 저장
 		Object rowData[][] = { {"시스템 소프트웨어 프로그래밍","과제 없습니다"},
@@ -386,7 +472,7 @@ public class MainPage extends JFrame{
 		NotificationTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		NotificationTable.setBackground(SystemColor.control); // 생상 설정
 		NotificationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
-
+		NotificationTable.addMouseListener(mouseadapter_jtable);
 		
 		TableColumnModel columnmodel = NotificationTable.getColumnModel();
 		columnmodel.getColumn(0).setPreferredWidth(150); 
@@ -466,7 +552,6 @@ public class MainPage extends JFrame{
 		GradeTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		GradeTable.setBackground(SystemColor.control); // 생상 설정
 		GradeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
-
 		
 		TableColumnModel columnmodel = GradeTable.getColumnModel();
 		columnmodel.getColumn(0).setPreferredWidth(150); 
@@ -482,7 +567,6 @@ public class MainPage extends JFrame{
 		GradescrollPane.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		GradescrollPane.setBackground(SystemColor.control); // 배경 색 설정
 		GradePanel.add(GradescrollPane);
-
 		
 		RightPanel.removeAll();
 		RightPanel.add(GradePanel);
@@ -490,23 +574,26 @@ public class MainPage extends JFrame{
 		contentPane.repaint();
 	}
 	
+	public void gotoClass(){
+		ClassPanel = new JPanel();
+		ClassPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "ABC" + " 강의실", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		ClassPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
+		ClassPanel.setLayout(null); // 레이아웃을 Absolute로 설정
+		
+
+		RightPanel.removeAll();
+		RightPanel.add(ClassPanel);
+		contentPane.revalidate();
+		contentPane.repaint();
+	
+	}
+	
 	//메인화면으로 돌아가도록하는 함수
-	public void gotoMain(ActionListener e){
+	public void gotoMain(){
 		RightPanel.removeAll(); // 오른쪽 패널을 모두 삭제
 		setSubjectList(); // 수강중인 강의 목록을 띄움
 		setRecommendList(); // 추천 강의 목록을 띄움
-		EnterSubject.addActionListener(e); // ActionListener을 설정
 		contentPane.revalidate(); 
 		contentPane.repaint(); //다시 Refresh해줌
-	}
-	
-	//ActionListener을 설정해주는 함수 
-	public void setActionListener(ActionListener e){
-		//모든 버튼에 ActionListener을 추가함
-		CheckAssign.addActionListener(e);
-		CheckNoti.addActionListener(e);
-		CheckGrade.addActionListener(e);
-		EnterSubject.addActionListener(e);
-		gotoMain.addActionListener(e);
 	}
 }

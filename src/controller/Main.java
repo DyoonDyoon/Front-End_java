@@ -1,11 +1,17 @@
 package controller;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionListener;
 
 import model.User;
 import view.LoginPage;
@@ -69,49 +75,22 @@ public class Main {
 						e1.printStackTrace();
 					}
 					if (stu != null) {
-						System.out.println("id : " + stu.getId());
-						System.out.println("name : " + stu.name);
-						System.out.println("major : " + stu.major);
 						JOptionPane.showMessageDialog(null, stu.name + "님 안녕하세요!");
 						loginpage.setVisible(false);
 						mainpage.setStudentObject(stu);
-						mainpage.setActionListener(e);
 						mainpage.setVisible(true);
 					}
 					else{
 						JOptionPane.showMessageDialog(null, "입력하신 아이디와 비밀번호가 일치하지 않습니다");
 					}
 					break;
-					case "CheckAssign":
-						JOptionPane.showMessageDialog(null, "과제확인이요!");
-						mainpage.showAssign();
-						mainpage.setVisible(true);
-						break;
-					case "CheckNoti":
-						JOptionPane.showMessageDialog(null, "공지확인이요!");
-						mainpage.showNoti();
-						mainpage.setVisible(true);
-						break;
-					case "CheckGrade":
-						JOptionPane.showMessageDialog(null, "성적확인이요!");
-						mainpage.showGrade();
-						mainpage.setVisible(true);
-						break;
-					case "EnterSubject":
-						JOptionPane.showMessageDialog(null, "강의실입장이요!");
-						mainpage.setVisible(true);
-						break;
-					case "gotoMain":
-						mainpage.gotoMain(e);
-						mainpage.setVisible(true);
-						break;
 					default:
 						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
 					break;
 				}
 				}
 			};
-		loginpage.setActionListener(e);	
+		loginpage.setActionListener(e);
 	}
 	
 	

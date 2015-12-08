@@ -243,24 +243,24 @@ public class NetworkManager {
 	
 	// notification
 	public boolean postNotification(String lectureId, String title, String description) {
-		String url = API_HOST + LECTURE;
-		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;
-		url = url + params;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod("DELETE");
-		
-		int responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine = in.readLine();
-		in.close();
-		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
-		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
-			return false;
-		}
+//		String url = API_HOST + LECTURE;
+//		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;
+//		url = url + params;
+//		URL obj = new URL(url);
+//		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+//		con.setRequestMethod("DELETE");
+//		
+//		int responseCode = con.getResponseCode();
+//		
+//		BufferedReader in = new BufferedReader(
+//		        new InputStreamReader(con.getInputStream()));
+//		String inputLine = in.readLine();
+//		in.close();
+//		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+//		if (responseCode != 200) {
+//			System.out.println(response.get("message").toString());
+//			return false;
+//		}
 		return true;
 	}
 	
