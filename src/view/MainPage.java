@@ -81,12 +81,14 @@ public class MainPage extends JFrame{
 	JScrollPane AssignmentscrollPane;
 	JTextArea AssignmentTitle;
 	JTextArea AssignmentContent;
+	JButton ReadAssignmentButton;
 	
 	JPanel NotificationPanel;
 	JTable NotificationTable;
 	JScrollPane NotificationscrollPane;
 	JTextArea NotificationTitle;
 	JTextArea NotificationContent;
+	JButton ReadNotificationButton;
 	
 	JPanel GradePanel;
 	JTable GradeTable;
@@ -142,13 +144,19 @@ public class MainPage extends JFrame{
 						setVisible(true);
 						break;
 					case "EnterSubject":
-						JOptionPane.showMessageDialog(null, "강의실입장이요!");
+						JOptionPane.showMessageDialog(null,SubjectList.getSelectedIndex());
 						gotoClass();
 						setVisible(true);
 						break;
 					case "gotoMain":
 						gotoMain();
 						setVisible(true);
+						break;
+					case "ReadAssign":
+						JOptionPane.showMessageDialog(null,AssignmentTable.getSelectedRow());
+						break;
+					case "ReadNoti":
+						JOptionPane.showMessageDialog(null,NotificationTable.getSelectedRow());
 						break;
 					default:
 						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
@@ -170,6 +178,7 @@ public class MainPage extends JFrame{
 			        }
 			    }
 			};
+			
 			mouseadapter_jtable = new MouseAdapter(){
 				public void mouseClicked(MouseEvent evt) {
 			        JTable table = (JTable)evt.getSource();
@@ -431,7 +440,7 @@ public class MainPage extends JFrame{
 		AssignmentPanel.add(AssignmentscrollPane);
 
 		AssignmentTitle = new JTextArea("123");
-		AssignmentTitle.setBounds(10, 210, 400, 20);
+		AssignmentTitle.setBounds(10, 205, 400, 20);
 		AssignmentTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		AssignmentTitle.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		AssignmentTitle.setEditable(false);
@@ -445,6 +454,14 @@ public class MainPage extends JFrame{
 		AssignmentContent.setEditable(false);
 		AssignmentContent.setBackground(SystemColor.control); // 생상 설정
 		AssignmentPanel.add(AssignmentContent);
+		
+		ReadAssignmentButton = new JButton("조회");
+		ReadAssignmentButton.setBounds(450, 205, 120, 20);
+		ReadAssignmentButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		ReadAssignmentButton.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		ReadAssignmentButton.addActionListener(actionlistener);
+		ReadAssignmentButton.setActionCommand("ReadAssign"); // 클릭할 경우 ActionListener에 보낼 Command 설정
+		AssignmentPanel.add(ReadAssignmentButton);
 		
 		RightPanel.removeAll();
 		RightPanel.add(AssignmentPanel);
@@ -503,7 +520,7 @@ public class MainPage extends JFrame{
 		NotificationPanel.add(NotificationscrollPane);
 
 		NotificationTitle = new JTextArea("123");
-		NotificationTitle.setBounds(10, 210, 400, 20);
+		NotificationTitle.setBounds(10, 205, 400, 20);
 		NotificationTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		NotificationTitle.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		NotificationTitle.setEditable(false);
@@ -517,6 +534,14 @@ public class MainPage extends JFrame{
 		NotificationContent.setEditable(false);
 		NotificationContent.setBackground(SystemColor.control); // 생상 설정
 		NotificationPanel.add(NotificationContent);
+
+		ReadNotificationButton = new JButton("조회");
+		ReadNotificationButton.setBounds(450, 205, 120, 20);
+		ReadNotificationButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		ReadNotificationButton.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		ReadNotificationButton.addActionListener(actionlistener);
+		ReadNotificationButton.setActionCommand("ReadNoti"); // 클릭할 경우 ActionListener에 보낼 Command 설정
+		NotificationPanel.add(ReadNotificationButton);
 		
 		RightPanel.removeAll();
 		RightPanel.add(NotificationPanel);
@@ -594,6 +619,7 @@ public class MainPage extends JFrame{
 		ClassPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "ABC" + " 강의실", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		ClassPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
 		ClassPanel.setLayout(null); // 레이아웃을 Absolute로 설정
+		
 		
 		RightPanel.removeAll();
 		RightPanel.add(ClassPanel);
