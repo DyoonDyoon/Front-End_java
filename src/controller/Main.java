@@ -19,15 +19,7 @@ public class Main {
 	public static void main(String[] args) {
 		NetworkManager manager = new NetworkManager();
 		DataManager dataManager = new DataManager();
-		
-		//ArrayList<LectureOutline> lectures = manager.getLectureOutline();
-		//LectureOutline lectureOutline = lectures.get(0);
-		//String key = lectureOutline.getLectureId();
-		//lectureOutline.professorName = "hello";
-		//dataManager.updateLectureOutlineDB(lectureOutline, key);
 
-		//select할때 사용
-		
 		Thread downloadThread = new Thread(new Runnable(){
 			@Override
 			public void run() {

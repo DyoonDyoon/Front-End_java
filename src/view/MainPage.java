@@ -33,6 +33,7 @@ import javax.swing.table.TableColumnModel;
 import controller.DataManager;
 import controller.NetworkManager;
 import model.Assignment;
+import model.Grade;
 import model.Lecture;
 import model.LectureOutline;
 import model.Notification;
@@ -57,6 +58,7 @@ public class MainPage extends JFrame{
 	Vector<String[]> lectureTitles = new Vector<String[]>();
 	ArrayList<Assignment> assigns = new ArrayList<Assignment>();
 	ArrayList<Notification> notis = new ArrayList<Notification>();
+	ArrayList<Grade> grades = new ArrayList<Grade>();
 	
 	//메인 패널의 좌우 정보를 저장하는 JPanel 선언
 	JPanel LeftPanel;
@@ -620,29 +622,17 @@ public class MainPage extends JFrame{
 		GradePanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
 		GradePanel.setLayout(null); // 레이아웃을 Absolute로 설정
 	
-		String columnNames[] = {"강의","과제 번호","점수"}; // Column을 설명하기 위함
+		String[] columnNames = {"강의","과제 번호","점수"}; // Column을 설명하기 위함
+		
 		//강의 목록 저장
-		Object rowData[][] = { {"시스템 소프트웨어 프로그래밍",0,40},
-				{"주니어 디자인 프로젝트",0,50},
-				{"객체 지향 언어와 실습",40},
-				{"프로그래밍 언어와 실습",60},
-				{"미적분학 및 연습",0,60},
-				{"미적분학 및 연습",2,60},
-				{"미적분학 및 연습",3,60},
-				{"미적분학 및 연습",4,60},
-				{"미적분학 및 연습",5,60},
-				{"미적분학 및 연습",6,60},
-				{"미적분학 및 연습",6,60},
-				{"미적분학 및 연습",6,60},
-				{"미적분학 및 연습",6,60},
-				{"미적분학 및 연습",6,60},
-				{"미적분학 및 연습",6,60},
-				{"미적분학 및 연습",6,60},
-				{"미적분학 및 연습",6,60},
-				{"미적분학 및 연습",6,60},
-		};
-
-		DefaultTableModel defaulttablemodel = new DefaultTableModel(rowData,columnNames)
+		grades = new ArrayList<Grade>();
+		if (networkManager.syncGrade(stu.getId(), null)) {
+			dataManager.openDB();
+			grades = dataManager.selectGradeDB(stu.getId(), null);
+			dataManager.closeDB();
+		}
+		
+		DefaultTableModel defaulttablemodel = new DefaultTableModel(grades.size(), columnNames.length)
 			{
 			    @Override
 			    public boolean isCellEditable(int row, int column){
@@ -650,6 +640,21 @@ public class MainPage extends JFrame{
 			       return false;
 			    }
 		};
+		
+		defaulttablemodel.setColumnIdentifiers(columnNames);
+		for (int i = 0; i < grades.size(); ++i) {
+			Grade grade = grades.get(i);
+			for (int j = 0; j < lectures.size(); ++j) {
+				String[] lectureTitle = lectureTitles.get(j);
+				if (grade.getLectureId().equals(lectureTitle[1])) {
+					defaulttablemodel.setValueAt(lectureTitle[0], i, 0);
+					break;
+				}
+			}
+			defaulttablemodel.setValueAt(grade.getSubmitId(), i, 1);
+			defaulttablemodel.setValueAt(grade.getScore(), i, 2);
+		}
+		
 		
 		GradeTable = new JTable(defaulttablemodel);
 		GradeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
