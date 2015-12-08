@@ -2,11 +2,13 @@ package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import model.User;
+import model.RecommendedLecture;
 import view.LoginPage;
 import view.MainPage;
 
@@ -24,15 +26,15 @@ public class Main {
 		//lectureOutline.professorName = "hello";
 		//dataManager.updateLectureOutlineDB(lectureOutline, key);
 
-		/*select할때 사용
-		ArrayList<Grade> lec = new ArrayList<Grade>();
+		//select할때 사용
+		ArrayList<RecommendedLecture> lec = new ArrayList<RecommendedLecture>();
 		dataManager.openDB();
-		lec = dataManager.selectGradeDB("1");
+		lec = dataManager.selectRecommendedLecture();
 		for(int num=0; num<lec.size(); ++num){
 			System.out.println(lec.get(num));
 		}
  		dataManager.closeDB();
-		*/
+		
 		
 		Thread downloadThread = new Thread(new Runnable(){
 			@Override
