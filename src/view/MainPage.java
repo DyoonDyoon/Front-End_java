@@ -32,6 +32,7 @@ import controller.NetworkManager;
 import model.Assignment;
 import model.Lecture;
 import model.LectureOutline;
+import model.Notification;
 import model.User;
 import model.Version;
 
@@ -50,6 +51,7 @@ public class MainPage extends JFrame{
 	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 	Vector<String[]> lectureTitles = new Vector<String[]>();
 	ArrayList<Assignment> assigns = new ArrayList<Assignment>();
+	ArrayList<Notification> notis = new ArrayList<Notification>();
 	
 	//메인 패널의 좌우 정보를 저장하는 JPanel 선언
 	JPanel LeftPanel;
@@ -157,13 +159,15 @@ public class MainPage extends JFrame{
 						setVisible(true);
 						break;
 					case "ReadAssign":
-						JOptionPane.showMessageDialog(null,AssignmentTable.getSelectedRow());
 						Assignment assign = assigns.get(AssignmentTable.getSelectedRow());
 						AssignmentTitle.setText(assign.title);
 						AssignmentContent.setText(assign.description);
 						break;
 					case "ReadNoti":
-						JOptionPane.showMessageDialog(null,NotificationTable.getSelectedRow());
+						Notification noti = notis.get(NotificationTable.getSelectedRow());
+						System.out.println(noti);
+						NotificationTitle.setText(noti.title);
+						NotificationContent.setText(noti.description);
 						break;
 					default:
 						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
@@ -506,21 +510,27 @@ public class MainPage extends JFrame{
 		NotificationPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
 		NotificationPanel.setLayout(null); // 레이아웃을 Absolute로 설정
 	
-		String columnNames[] = {"강의","제목"}; // Column을 설명하기 위함
+		String[] columnNames = {"강의","제목"}; // Column을 설명하기 위함
 		//강의 목록 저장
-		Object rowData[][] = { {"시스템 소프트웨어 프로그래밍","과제 없습니다"},
-				{"주니어 디자인 프로젝트","과제 없습니다"},
-				{"객체 지향 언어와 실습","과제 없습니다"},
-				{"프로그래밍 언어와 실습","과제 없습니다"},
-				{"미적분학 및 연습","과제 없습니다"},
-				{"미적분학 및 연습","과제 없습니다"},
-				{"미적분학 및 연습","과제 없습니다"},
-				{"미적분학 및 연습","과제 없습니다"},
-				{"미적분학 및 연습","과제 없습니다"},
-				{"미적분학 및 연습","과제 없습니다"},
-		};
 
-		DefaultTableModel defaulttablemodel = new DefaultTableModel(rowData,columnNames)
+		notis = new ArrayList<Notification>();
+		dataManager.openDB();
+		for (int i = 0; i < lectures.size(); ++i) {
+			Lecture lecture = lectures.get(i);
+			Version version = dataManager.selectVersionDB(lecture.getLectureId());
+			if (version == null)
+				continue;
+			
+			if (networkManager.syncNotification(lecture.getLectureId(), version.notiVersion)) {
+				ArrayList<Notification> localNoti = dataManager.selectNotificationDB(lecture.getLectureId());
+				if (localNoti != null && !localNoti.isEmpty()) {
+					notis.addAll(localNoti);
+				}
+			}
+		}
+		dataManager.closeDB();
+		
+		DefaultTableModel defaulttablemodel = new DefaultTableModel(notis.size(), columnNames.length)
 			{
 			    @Override
 			    public boolean isCellEditable(int row, int column){
@@ -528,6 +538,19 @@ public class MainPage extends JFrame{
 			       return false;
 			    }
 		};
+		
+		defaulttablemodel.setColumnIdentifiers(columnNames);
+		for (int i = 0; i < notis.size(); ++i) {
+			Notification noti = notis.get(i);
+			for (int j = 0; j < lectures.size(); ++j) {
+				String[] lectureTitle = lectureTitles.get(j);
+				if (noti.getLectureId().equals(lectureTitle[1])) {
+					defaulttablemodel.setValueAt(lectureTitle[0], i, 0);
+					break;
+				}
+			}
+			defaulttablemodel.setValueAt(noti.title, i, 1);
+		}
 		
 		NotificationTable = new JTable(defaulttablemodel);
 		NotificationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함

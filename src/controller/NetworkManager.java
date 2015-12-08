@@ -398,7 +398,7 @@ public class NetworkManager {
 			if (!json.get("title").isJsonNull()) {
 				title = json.get("title").getAsString();
 			}
-			if (!json.get("descrition").isJsonNull()) {
+			if (!json.get("description").isJsonNull()) {
 				description = json.get("description").getAsString();
 			}
 			
