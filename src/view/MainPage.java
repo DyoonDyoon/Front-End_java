@@ -184,13 +184,16 @@ public class MainPage extends JFrame{
 						NotificationContent.setText(noti.description);
 						break;
 					case "ClassNoti":
+						new ClassNotification();
 						break;
 					case "ClassAssign":
+						new ClassAssignment();
 						break;
 					case "ClassQuestion":
 						new ClassQuestion();
 						break;
 					case "ClassGrade":
+						new ClassGrade();
 						break;
 					default:
 						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
