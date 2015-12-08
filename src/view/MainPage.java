@@ -107,6 +107,13 @@ public class MainPage extends JFrame{
 	JTable GradeTable;
 	
 	JPanel ClassPanel;
+	JPanel ClassNamePanel;
+	JLabel ClassName;
+	JLabel ClassProfessor;
+	JButton ClassNotification;
+	JButton ClassQuestion;
+	JButton ClassAssignment;
+	JButton ClassGrade;
 	
 	JScrollPane GradescrollPane;
 	
@@ -158,7 +165,7 @@ public class MainPage extends JFrame{
 						break;
 					case "EnterSubject":
 						JOptionPane.showMessageDialog(null,SubjectList.getSelectedIndex()+"번 강의실로 입장합니다.");
-						gotoClass(SubjectList.getSelectedIndex());
+						gotoClass();
 						setVisible(true);
 						break;
 					case "gotoMain":
@@ -486,7 +493,7 @@ public class MainPage extends JFrame{
 		AssignmentscrollPane.setBackground(SystemColor.control); // 배경 색 설정
 		AssignmentPanel.add(AssignmentscrollPane);
 
-		AssignmentTitle = new JTextArea("123");
+		AssignmentTitle = new JTextArea();
 		AssignmentTitle.setBounds(10, 205, 400, 20);
 		AssignmentTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		AssignmentTitle.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
@@ -494,7 +501,7 @@ public class MainPage extends JFrame{
 		AssignmentTitle.setBackground(SystemColor.control); // 생상 설정
 		AssignmentPanel.add(AssignmentTitle);
 		
-		AssignmentContent = new JTextArea("123");
+		AssignmentContent = new JTextArea();
 		AssignmentContent.setBounds(10, 230, 600, 150);
 		AssignmentContent.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		AssignmentContent.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
@@ -585,7 +592,7 @@ public class MainPage extends JFrame{
 		NotificationscrollPane.setBackground(SystemColor.control); // 배경 색 설정
 		NotificationPanel.add(NotificationscrollPane);
 
-		NotificationTitle = new JTextArea("123");
+		NotificationTitle = new JTextArea();
 		NotificationTitle.setBounds(10, 205, 400, 20);
 		NotificationTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		NotificationTitle.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
@@ -593,7 +600,7 @@ public class MainPage extends JFrame{
 		NotificationTitle.setBackground(SystemColor.control); // 생상 설정
 		NotificationPanel.add(NotificationTitle);
 		
-		NotificationContent = new JTextArea("123");
+		NotificationContent = new JTextArea();
 		NotificationContent.setBounds(10, 230, 600, 150);
 		NotificationContent.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		NotificationContent.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
@@ -683,19 +690,56 @@ public class MainPage extends JFrame{
 		contentPane.repaint();
 	}
 	
-	public void gotoClass(int classNum){
-		Object ClassName = SubjectList.getSelectedValue();
+	public void gotoClass(){
+		int lectureIdx = SubjectList.getSelectedIndex();
+		Lecture lecture = lectures.get(lectureIdx);
+		dataManager.openDB();
+		LectureOutline lectureoutline = dataManager.selectLectureOutlineDB(lecture.getLectureId());
+		dataManager.closeDB();
+		
 		ClassPanel = new JPanel();
-		ClassPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), ClassName + " 강의실", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		ClassPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "강의실", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		ClassPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
 		ClassPanel.setLayout(null); // 레이아웃을 Absolute로 설정
+		
+		ClassNamePanel = new JPanel();
+		ClassNamePanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "강의 정보", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		ClassNamePanel.setBounds(40,40, 550, 120); // 위치와 사이즈 설정
+		ClassNamePanel.setLayout(null);
+		
+		ClassName = new JLabel();
+		ClassName.setText(lectureoutline.title + " [ " + lectureoutline.getLectureId() + " ]");
+		ClassName.setFont(new Font("맑은 고딕", Font.BOLD, 20)); // 폰트와 폰트 크기 설정
+		ClassName.setLocation(20,20);
+		ClassName.setSize(ClassName.getPreferredSize());
+		ClassNamePanel.add(ClassName);
+		
+		ClassProfessor = new JLabel();
+		ClassProfessor.setText("담당 교수 : " +lectureoutline.professorName);
+		ClassProfessor.setFont(new Font("맑은 고딕", Font.PLAIN, 16)); // 폰트와 폰트 크기 설정
+		ClassProfessor.setLocation(20,70);
+		ClassProfessor.setSize(ClassProfessor.getPreferredSize());
+		ClassNamePanel.add(ClassProfessor);
+
+		ClassPanel.add(ClassNamePanel);
+		
+		ClassNotification = new JButton("공지 사항");
+		ClassPanel.add(ClassNotification);
+		
+		ClassQuestion = new JButton("질의 응답");
+		ClassPanel.add(ClassQuestion);
+		
+		ClassAssignment = new JButton("과제 확인");
+		ClassPanel.add(ClassAssignment);
+		
+		ClassGrade = new JButton("성적 확인");
+		ClassPanel.add(ClassGrade);
 		
 		
 		RightPanel.removeAll();
 		RightPanel.add(ClassPanel);
 		contentPane.revalidate();
 		contentPane.repaint();
-	
 	}
 	
 	//메인화면으로 돌아가도록하는 함수
