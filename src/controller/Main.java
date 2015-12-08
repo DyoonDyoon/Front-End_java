@@ -27,14 +27,6 @@ public class Main {
 		//dataManager.updateLectureOutlineDB(lectureOutline, key);
 
 		//select할때 사용
-		ArrayList<RecommendedLecture> lec = new ArrayList<RecommendedLecture>();
-		dataManager.openDB();
-		lec = dataManager.selectRecommendedLecture();
-		for(int num=0; num<lec.size(); ++num){
-			System.out.println(lec.get(num));
-		}
- 		dataManager.closeDB();
-		
 		
 		Thread downloadThread = new Thread(new Runnable(){
 			@Override

@@ -1,3 +1,6 @@
+/**
+ *  Created by JeongDongMin on 2015. 12. 05..
+ */
 package view;
 
 import java.awt.Graphics;

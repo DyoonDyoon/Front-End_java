@@ -1,3 +1,6 @@
+/**
+ *  Created by JeongDongMin on 2015. 12. 08..
+ */
 package view;
 
 import java.awt.Color;
@@ -33,6 +36,7 @@ import model.Assignment;
 import model.Lecture;
 import model.LectureOutline;
 import model.Notification;
+import model.RecommendedLecture;
 import model.User;
 import model.Version;
 
@@ -49,6 +53,7 @@ public class MainPage extends JFrame{
 	NetworkManager networkManager = null;
 	
 	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
+	ArrayList<RecommendedLecture> recommendedlectures  = new ArrayList<RecommendedLecture>();
 	Vector<String[]> lectureTitles = new Vector<String[]>();
 	ArrayList<Assignment> assigns = new ArrayList<Assignment>();
 	ArrayList<Notification> notis = new ArrayList<Notification>();
@@ -150,8 +155,8 @@ public class MainPage extends JFrame{
 						setVisible(true);
 						break;
 					case "EnterSubject":
-						JOptionPane.showMessageDialog(null,SubjectList.getSelectedIndex());
-						gotoClass();
+						JOptionPane.showMessageDialog(null,SubjectList.getSelectedIndex()+"번 강의실로 입장합니다.");
+						gotoClass(SubjectList.getSelectedIndex());
 						setVisible(true);
 						break;
 					case "gotoMain":
@@ -358,29 +363,35 @@ public class MainPage extends JFrame{
 		RecSubjectPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "추천 강의", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		RecSubjectPanel.setBounds(350, 20, 250, 265); // 위치와 사이즈 설정
 		RecSubjectPanel.setLayout(null); // 레이아웃을 Absolute로 설정
+
+		ArrayList<RecommendedLecture> temp  = new ArrayList<RecommendedLecture>();
 		
-		String columnNames[] = {"학점","강의 제목"}; // Column을 설명하기 위함
-		//강의 목록 저장
-		Object rowData[][] = { {3,"주니어 디자인 프로젝트"},
-				{3,"시스템 소프트웨어 프로그래밍"},
-				{3,"프로그래밍 언어와 실습"},
-				{3,"객체 지향 언어와 실습"},
-				{3,"미적분학 및 연습"},
-				{3,"기술 창조와 특허"},
-				{1,"가나다"},
-				{1,"가나다"},
-				{1,"가나다"},
-				{1,"가나다"},
+		recommendedlectures = new ArrayList<RecommendedLecture>();
+		dataManager.openDB();
+		temp = dataManager.selectRecommendedLecture();
+		dataManager.closeDB();
+		
+		for(int i=0;i<20;i++){
+			int r = (int)(Math.random()*1000)%temp.size();
+			recommendedlectures.add(temp.get(r));
+		}
+		String[] columnNames = {"제목","학점"}; // Column을 설명하기 위함
+		
+		DefaultTableModel defaulttablemodel = new DefaultTableModel(recommendedlectures.size(), columnNames.length)
+			{
+			    @Override
+			    public boolean isCellEditable(int row, int column){
+			       //all cells false
+			       return false;
+			    }
 		};
-		//Default 테이블을 설정함
-		DefaultTableModel defaulttablemodel = new DefaultTableModel(rowData,columnNames)
-		{
-		    @Override
-		    public boolean isCellEditable(int row, int column){
-		       //all cells false
-		       return false;
-		    }
-		};
+		
+		defaulttablemodel.setColumnIdentifiers(columnNames);
+		for (int i = 0; i < recommendedlectures.size(); ++i) {
+			RecommendedLecture recommendedlecture = recommendedlectures.get(i);
+			defaulttablemodel.setValueAt(recommendedlecture.title, i, 1);
+			defaulttablemodel.setValueAt(recommendedlecture.getPoint(), i, 0);
+		}
 		
 		RecSubjectTable = new JTable(defaulttablemodel); // Default 테이블을 통해 JTable 생성
 		RecSubjectTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
@@ -391,8 +402,8 @@ public class MainPage extends JFrame{
 		
 		//JTable의 Column의 크기를 지정하도록 함
 		TableColumnModel columnmodel = RecSubjectTable.getColumnModel();
-		columnmodel.getColumn(0).setPreferredWidth(50); // 학점 칸은 50픽셀로 설정
-		columnmodel.getColumn(1).setPreferredWidth(170); // 강의 제목 칸은 170픽셀로 설정
+		columnmodel.getColumn(0).setPreferredWidth(50); // 강의 제목 칸은 170픽셀로 설정
+		columnmodel.getColumn(1).setPreferredWidth(170);  // 학점 칸은 50픽셀로 설정
 		columnmodel.getColumn(0).setResizable(false);
 		columnmodel.getColumn(1).setResizable(false);
 		
@@ -667,9 +678,10 @@ public class MainPage extends JFrame{
 		contentPane.repaint();
 	}
 	
-	public void gotoClass(){
+	public void gotoClass(int classNum){
+		Object ClassName = SubjectList.getSelectedValue();
 		ClassPanel = new JPanel();
-		ClassPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "ABC" + " 강의실", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		ClassPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), ClassName + " 강의실", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		ClassPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
 		ClassPanel.setLayout(null); // 레이아웃을 Absolute로 설정
 		
