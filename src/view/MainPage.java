@@ -183,6 +183,15 @@ public class MainPage extends JFrame{
 						NotificationTitle.setText(noti.title);
 						NotificationContent.setText(noti.description);
 						break;
+					case "ClassNoti":
+						break;
+					case "ClassAssign":
+						break;
+					case "ClassQuestion":
+						new ClassQuestion();
+						break;
+					case "ClassGrade":
+						break;
 					default:
 						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
 					break;
@@ -724,17 +733,32 @@ public class MainPage extends JFrame{
 		ClassPanel.add(ClassNamePanel);
 		
 		ClassNotification = new JButton("공지 사항");
+		ClassNotification.setBounds(65, 190, 240, 80);
+		ClassNotification.setFont(new Font("맑은 고딕", Font.BOLD, 20)); // 폰트와 폰트 크기 설정
+		ClassNotification.addActionListener(actionlistener);
+		ClassNotification.setActionCommand("ClassNoti");
 		ClassPanel.add(ClassNotification);
 		
-		ClassQuestion = new JButton("질의 응답");
-		ClassPanel.add(ClassQuestion);
-		
 		ClassAssignment = new JButton("과제 확인");
+		ClassAssignment.setBounds(325, 190, 240, 80);
+		ClassAssignment.setFont(new Font("맑은 고딕", Font.BOLD, 20)); // 폰트와 폰트 크기 설정
+		ClassAssignment.addActionListener(actionlistener);
+		ClassAssignment.setActionCommand("ClassAssign");
 		ClassPanel.add(ClassAssignment);
 		
+		ClassQuestion = new JButton("질의 응답");
+		ClassQuestion.setBounds(65, 290, 240, 80);
+		ClassQuestion.setFont(new Font("맑은 고딕", Font.BOLD, 20)); // 폰트와 폰트 크기 설정
+		ClassQuestion.addActionListener(actionlistener);
+		ClassQuestion.setActionCommand("ClassQuestion");
+		ClassPanel.add(ClassQuestion);
+	
 		ClassGrade = new JButton("성적 확인");
+		ClassGrade.setBounds(325, 290, 240, 80);
+		ClassGrade.setFont(new Font("맑은 고딕", Font.BOLD, 20)); // 폰트와 폰트 크기 설정
+		ClassGrade.addActionListener(actionlistener);
+		ClassGrade.setActionCommand("ClassGrade");
 		ClassPanel.add(ClassGrade);
-		
 		
 		RightPanel.removeAll();
 		RightPanel.add(ClassPanel);
