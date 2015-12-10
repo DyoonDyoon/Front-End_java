@@ -226,7 +226,7 @@ public class DataManager {
 	public boolean openDB(){
 		String myUrl = "jdbc:mysql://localhost:3306/eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 		String id = "root"; // 사용자 계정
-		String pw = "1234"; //사용자 계정의 패스워드
+		String pw = "5721"; //사용자 계정의 패스워드
 //		String myUrl = "jdbc:mysql://localhost:3306/front_eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 //		String id = "root"; // 사용자 계정
 //		String pw = "1234"; //사용자 계정의 패스워드

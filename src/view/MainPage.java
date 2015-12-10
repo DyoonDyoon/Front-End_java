@@ -49,7 +49,7 @@ public class MainPage extends JFrame{
 	//메인 화면의 내용을 저장하는 JPanel 선언
 	public JPanel contentPane;
 	
-	User stu = null; // 학생 정보를 저장하는 Student 객체 선언
+	User user = null; // 사용자 정보를 저장하는 User 객체 선언
 	DataManager dataManager = null;
 	NetworkManager networkManager = null;
 	
@@ -66,9 +66,9 @@ public class MainPage extends JFrame{
 	
 	//왼쪽 패널에 학생 정보를 저장하는 부분 구현을 위한 JPanel과 JLabel 선언
 	JPanel inform; // 정보를 저장하기 위한 JPanel
-	JLabel StId;   // 학번 저장할 JLabel
-	JLabel StName; // 학생 이름을 저장할 JLabel
-	JLabel StMajor; // 학생 학과를 저장할 JLabel
+	JLabel UserId;   // 학번 저장할 JLabel
+	JLabel UserName; // user 이름을 저장할 JLabel
+	JLabel UserMajor; // 학과를 저장할 JLabel
 
 	//왼쪽 패널의 메뉴 부분을 구현하기 위한 JPanel과 JButton 
 	JPanel MenuAll; // 버튼을 저장할 JPanel
@@ -145,8 +145,8 @@ public class MainPage extends JFrame{
 		
 		actionlistener = new ActionListener(){
 			@Override
-			public void actionPerformed(ActionEvent event) {//ActionListener�� implements�� �Լ�
-				switch(event.getActionCommand())//�̺�Ʈ���� ������ ActionCommand�� ������
+			public void actionPerformed(ActionEvent event) {//ActionListener implements
+				switch(event.getActionCommand())// ActionCommand
 				{
 					case "CheckAssign":
 						JOptionPane.showMessageDialog(null, "과제확인이요!");
@@ -199,82 +199,83 @@ public class MainPage extends JFrame{
 						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
 					break;
 				}
-				}
-			};
-			mouseadapter_jlist = new MouseAdapter(){
-				public void mouseClicked(MouseEvent evt) {
-			        JList list = (JList)evt.getSource();
-			        if (evt.getClickCount() == 2) {
-			            // Double-click detected
-			            int index = list.locationToIndex(evt.getPoint());
-						JOptionPane.showMessageDialog(null, index+"번 줄입니다");
-			        } else if (evt.getClickCount() == 3) {
-			            // Triple-click detected
-			            int index = list.locationToIndex(evt.getPoint());
-						JOptionPane.showMessageDialog(null, index+"번 줄입니다");
-			        }
-			    }
-			};
-			
-			mouseadapter_jtable = new MouseAdapter(){
-				public void mouseClicked(MouseEvent evt) {
-			        JTable table = (JTable)evt.getSource();
-			        if (evt.getClickCount() == 2) {
-			            // Double-click detected
-			            int index = table.getSelectedRow();
-						JOptionPane.showMessageDialog(null, index+"번 줄입니다");
-			        } else if (evt.getClickCount() == 3) {
-			            // Triple-click detected
-			            int index = table.getSelectedRow();
-						JOptionPane.showMessageDialog(null, index+"번 줄입니다");
-			        }
-			    }
-			};
+			}
+		};
+		
+		mouseadapter_jlist = new MouseAdapter(){
+			public void mouseClicked(MouseEvent evt) {
+		        JList list = (JList)evt.getSource();
+		        if (evt.getClickCount() == 2) {
+		            // Double-click detected
+		            int index = list.locationToIndex(evt.getPoint());
+					JOptionPane.showMessageDialog(null, index+"번 줄입니다");
+		        } else if (evt.getClickCount() == 3) {
+		            // Triple-click detected
+		            int index = list.locationToIndex(evt.getPoint());
+					JOptionPane.showMessageDialog(null, index+"번 줄입니다");
+		        }
+		    }
+		};
+		
+		mouseadapter_jtable = new MouseAdapter(){
+			public void mouseClicked(MouseEvent evt) {
+		        JTable table = (JTable)evt.getSource();
+		        if (evt.getClickCount() == 2) {
+		            // Double-click detected
+		            int index = table.getSelectedRow();
+					JOptionPane.showMessageDialog(null, index+"번 줄입니다");
+		        } else if (evt.getClickCount() == 3) {
+		            // Triple-click detected
+		            int index = table.getSelectedRow();
+					JOptionPane.showMessageDialog(null, index+"번 줄입니다");
+		        }
+		    }
+		};
 	}
 	
-	// Main에서 로그인을 할 경우 Student 객체를 저장하고 화면을 구현하도록함
-	public void setContext(User stu, NetworkManager networkManager, DataManager dataManager){
+	// Main에서 로그인을 할 경우 User 객체를 저장하고 화면을 구현하도록함
+	public void setContext(User user, NetworkManager networkManager, DataManager dataManager){
 		this.networkManager = networkManager;
 		this.dataManager = dataManager;
-		this.stu = stu; // Student객체를 방아와 설정
+		this.user = user; // User 객체를 받아와 설정
 		setSubjectList(); // 수강중인 강의 목록 구현
-		setInform(); // 학생 정보 표시창을 구현
+		setInform(); // user 정보 표시창을 구현
 		setMenu(); // 메뉴 표시창을 구현
 		setRecommendList(); // 추천 강의 목록 구현
 		contentPane.add(LeftPanel); // 왼쪽 패널을 Main Panel에 추가
-		contentPane.add(RightPanel); // ㅇ오른쪽 패널을 Main Panel에 추가
+		contentPane.add(RightPanel); // 오른쪽 패널을 Main Panel에 추가
 		contentPane.revalidate();
 		contentPane.repaint();
 	}
 	
-	// 학생 정보를 통해 이름,학번,학과를 출력하는 Panel을 생성하는 함수
+	// user 정보를 통해 이름,학번,학과를 출력하는 Panel을 생성하는 함수
 	public void setInform(){
-		// 학생 정보를 저장하는 Panel 구현
+		// user 정보를 저장하는 Panel 구현
 		inform = new JPanel(); // 생성
 		inform.setLocation(12,47); // 위치 설정
 		inform.setSize(114, 100); // 사이즈 설정
 		inform.setBorder(BorderFactory.createLineBorder(Color.black)); // 가장자리를 검은색 실선으로 설정
 		
-		//학생 학번을 저장하는 JLabel 구현
-		StId = new JLabel(stu.getId()); // 생성
-		StId.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 크기를 설정
-		StId.setBounds(12, 35, 34, 15); // 위치와 사이즈를 설정
-		StId.setVisible(true); // 보이도록 함
-		inform.add(StId); // 학생 정보를 저장하는 Panel에 더함
+		//user 학번을 저장하는 JLabel 구현
+		UserId = new JLabel(user.getId()); // 생성
+		UserId.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 크기를 설정
+		UserId.setBounds(12, 35, 34, 15); // 위치와 사이즈를 설정
+		UserId.setVisible(true); // 보이도록 함
+		inform.add(UserId); // user 정보를 저장하는 Panel에 더함
 		
-		//학생 이름을 저장하는 JLabel 구현
-		StName = new JLabel(stu.name); // 생성
-		StName.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 크기를 설정
-		StName.setVisible(true); //보이도록 함
-		StName.setBounds(12, 10, 57, 15); // 위치와 사이즈를 설정
-		inform.add(StName); // 학생정보를 저장하는 Panel에 더함
+		//user 이름을 저장하는 JLabel 구현
+		UserName = new JLabel(user.name); // 생성
+		UserName.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 크기를 설정
+		UserName.setVisible(true); //보이도록 함
+		UserName.setBounds(12, 10, 57, 15); // 위치와 사이즈를 설정
+		inform.add(UserName); // user 정보를 저장하는 Panel에 더함
 		
 		//학과를 저장하는 JLabel 구현
-		StMajor = new JLabel(stu.major); // 생성
-		StMajor.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 크기를 설정
-		StMajor.setVisible(true); // 보이도록 함
-		StMajor.setBounds(12, 60, 57, 15); // 위치와 사이즈를 설정
-		inform.add(StMajor); // 학생 정보를 저장하는 Panel에 더함
+		UserMajor = new JLabel(user.major); // 생성
+		UserMajor.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 크기를 설정
+		UserMajor.setVisible(true); // 보이도록 함
+		UserMajor.setBounds(12, 60, 57, 15); // 위치와 사이즈를 설정
+		inform.add(UserMajor); // user 정보를 저장하는 Panel에 더함
 		
 		inform.setVisible(true); // 구현한 Panel을 보이도록 함
 		// Title을 가지는 가장자리로 구현하도록 함 
@@ -335,9 +336,9 @@ public class MainPage extends JFrame{
 		
 		subject = new Vector<String>();
 		lectureTitles = new Vector<String[]>();
-		if (networkManager.syncLectures(stu.getId())) {
+		if (networkManager.syncLectures(user.getId())) {
 			dataManager.openDB();
-			lectures = dataManager.selectLectureDB(stu.getId());
+			lectures = dataManager.selectLectureDB(user.getId());
 			for (int i = 0; i < lectures.size(); i++) {
 				Lecture lecture = lectures.get(i);
 				LectureOutline lectureOutline = dataManager.selectLectureOutlineDB(lecture.getLectureId());
@@ -378,7 +379,7 @@ public class MainPage extends JFrame{
 	
 	//추천 강의 목록을 띄우기 위한 함수
 	public void setRecommendList(){
-		//추천 강의 목록을 구현하기 위한 Panel 설정
+		// 추천 강의 목록을 구현하기 위한 Panel 설정
 		RecSubjectPanel = new JPanel(); // 생성
 		// 가장자리에 타이틀을 가지고 있는 선을 추가하기 위함
 		RecSubjectPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "추천 강의", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -488,7 +489,7 @@ public class MainPage extends JFrame{
 		AssignmentTable = new JTable(defaulttablemodel);
 		AssignmentTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
 		AssignmentTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
-		AssignmentTable.setBackground(SystemColor.control); // 생상 설정
+		AssignmentTable.setBackground(SystemColor.control); // 색상 설정
 		AssignmentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
 		AssignmentTable.addMouseListener(mouseadapter_jtable);
 		
@@ -510,7 +511,7 @@ public class MainPage extends JFrame{
 		AssignmentTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		AssignmentTitle.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		AssignmentTitle.setEditable(false);
-		AssignmentTitle.setBackground(SystemColor.control); // 생상 설정
+		AssignmentTitle.setBackground(SystemColor.control); // 색상 설정
 		AssignmentPanel.add(AssignmentTitle);
 		
 		AssignmentContent = new JTextArea();
@@ -518,7 +519,7 @@ public class MainPage extends JFrame{
 		AssignmentContent.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		AssignmentContent.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		AssignmentContent.setEditable(false);
-		AssignmentContent.setBackground(SystemColor.control); // 생상 설정
+		AssignmentContent.setBackground(SystemColor.control); // 색상 설정
 		AssignmentPanel.add(AssignmentContent);
 		
 		ReadAssignmentButton = new JButton("조회");
@@ -587,7 +588,7 @@ public class MainPage extends JFrame{
 		NotificationTable = new JTable(defaulttablemodel);
 		NotificationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
 		NotificationTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
-		NotificationTable.setBackground(SystemColor.control); // 생상 설정
+		NotificationTable.setBackground(SystemColor.control); // 색상 설정
 		NotificationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
 		NotificationTable.addMouseListener(mouseadapter_jtable);
 		
@@ -609,7 +610,7 @@ public class MainPage extends JFrame{
 		NotificationTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		NotificationTitle.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		NotificationTitle.setEditable(false);
-		NotificationTitle.setBackground(SystemColor.control); // 생상 설정
+		NotificationTitle.setBackground(SystemColor.control); // 색상 설정
 		NotificationPanel.add(NotificationTitle);
 		
 		NotificationContent = new JTextArea();
@@ -617,7 +618,7 @@ public class MainPage extends JFrame{
 		NotificationContent.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		NotificationContent.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		NotificationContent.setEditable(false);
-		NotificationContent.setBackground(SystemColor.control); // 생상 설정
+		NotificationContent.setBackground(SystemColor.control); // 색상 설정
 		NotificationPanel.add(NotificationContent);
 
 		ReadNotificationButton = new JButton("조회");
@@ -645,9 +646,9 @@ public class MainPage extends JFrame{
 		
 		//강의 목록 저장
 		grades = new ArrayList<Grade>();
-		if (networkManager.syncGrade(stu.getId(), null)) {
+		if (networkManager.syncGrade(user.getId(), null)) {
 			dataManager.openDB();
-			grades = dataManager.selectGradeDB(stu.getId(), null);
+			grades = dataManager.selectGradeDB(user.getId(), null);
 			dataManager.closeDB();
 		}
 		
@@ -678,7 +679,7 @@ public class MainPage extends JFrame{
 		GradeTable = new JTable(defaulttablemodel);
 		GradeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
 		GradeTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
-		GradeTable.setBackground(SystemColor.control); // 생상 설정
+		GradeTable.setBackground(SystemColor.control); // 색상 설정
 		GradeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
 		
 		TableColumnModel columnmodel = GradeTable.getColumnModel();
