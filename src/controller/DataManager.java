@@ -815,7 +815,7 @@ public class DataManager {
 	        ResultSet result = pstmt.executeQuery(sql);
 	        while (result.next()){
 	        	Notification notification = new Notification();
-	        	//notification.setNotificationId(result.getString(2));는 공지 Id라서 뺌
+	        	notification.setNotificationId(result.getInt(2));
 	        	notification.setLectureId(result.getString(3));
 	        	notification.title = result.getString(4); 
 	        	notification.description = result.getString(5);
@@ -889,6 +889,8 @@ public class DataManager {
 		String sql = "delete from notification where notificationId=? && lectureId=?";
 		try {
 			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, notiId);
+			pstmt.setString(2, lectureId);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 	        System.out.println(e.getMessage());
