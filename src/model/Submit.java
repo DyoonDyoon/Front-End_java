@@ -27,8 +27,8 @@ public class Submit {
 			this.lectureId = json.get("lectureId").getAsString();
 		if (!json.get("assignId").isJsonNull())
 			this.assignId = json.get("assignId").getAsInt();
-		if (!json.get("studentId").isJsonNull())
-			this.studentId = json.get("studentId").getAsString();
+		if (!json.get("stuId").isJsonNull())
+			this.studentId = json.get("stuId").getAsString();
 		if (!json.get("filePath").isJsonNull())
 			this.filePath = json.get("filePath").getAsString();
 	}

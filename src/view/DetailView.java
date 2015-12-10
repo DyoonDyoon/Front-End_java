@@ -27,7 +27,6 @@ import model.User;
 public class DetailView extends JFrame {
 	public enum DetailViewType {
 		ASSIGNMENT,
-		SUBMIT,
 		QUESTION,
 		ANSWER,
 		NOTIFICATION,
@@ -55,8 +54,6 @@ public class DetailView extends JFrame {
 	private ReloadListener delegate;
 	
 	public DetailView(NetworkManager networkManager, Lecture lecture, User user, ReloadListener delegate) {
-		user = null;
-		
 		writeMode = false;
 		
 		type = null;
@@ -80,7 +77,6 @@ public class DetailView extends JFrame {
 		contentPane.setLayout(null);
 		
 		titleArea = new JTextArea();
-		titleArea.setBounds(10, 10, 300, 20);
 		titleArea.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		titleArea.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		titleArea.setBackground(SystemColor.control); // 색상 설정
@@ -88,7 +84,6 @@ public class DetailView extends JFrame {
 		contentPane.add(titleArea);
 		
 		contentArea = new JTextArea();
-		contentArea.setBounds(10, 40, 300, 330);
 		contentArea.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		contentArea.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		contentArea.setBackground(SystemColor.control); // 색상 설정
@@ -97,7 +92,6 @@ public class DetailView extends JFrame {
 		contentPane.add(contentArea);
 		
 		customButton = new JButton("Custom");
-		customButton.setBounds(130, 400, 100, 30);
 		customButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		customButton.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		contentPane.add(customButton);
@@ -116,6 +110,12 @@ public class DetailView extends JFrame {
 	}
 	
 	private void reloadData() {
+		// Layout 재설정
+		titleArea.setBounds(10, 10, 300, 20);
+		contentArea.setBounds(10, 40, 300, 330);
+		customButton.setBounds(130, 400, 100, 30);
+		contentArea.setVisible(true);
+		
 		for (ActionListener action : customButton.getActionListeners()) {
 			customButton.removeActionListener(action);
 		}
@@ -136,12 +136,22 @@ public class DetailView extends JFrame {
 			if(!writeMode) {
 				titleArea.setText(this.assignment.title);
 				contentArea.setText(this.assignment.description);
+			} else {
+				if (user.getType() == 0) {
+					// 레포트 제출하는 프레임은 파일 경로만 입력받음
+					contentArea.setVisible(false);
+					customButton.setBounds(110, 40, 100, 20);
+					setSize(this.getWidth(), 85);
+				}
 			}
 			break;
 		case QUESTION:
 			if(!writeMode) {
 				titleArea.setText(this.question.getStudentId());
 				contentArea.setText(this.question.content);
+			} else {
+				titleArea.setEditable(false);
+				titleArea.setText(this.lecture.getLectureId());
 			}
 			break;
 		case ANSWER:
@@ -157,8 +167,9 @@ public class DetailView extends JFrame {
 			}
 			break;
 		case GRADE:
-			break;
-		case SUBMIT:
+			contentArea.setVisible(false);
+			customButton.setBounds(110, 40, 100, 20);
+			setSize(this.getWidth(), 85);
 			break;
 		default:
 			break;
@@ -178,30 +189,28 @@ public class DetailView extends JFrame {
 			action = new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (manager.postAssignment(lecture.getLectureId(),
-							titleArea.getText(),
-							contentArea.getText(),
-							null, null, null)) {
-						setVisible(false);
-						delegate.needsReloadData(type);
-					} else {
-						JOptionPane.showMessageDialog(null, "과제 생성에 실패했습니다!");
-					}
-				}
-			};
-			break;
-		case SUBMIT:
-			action = new ActionListener(){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (manager.postAssignment(lecture.getLectureId(),
-							titleArea.getText(),
-							contentArea.getText(),
-							null, null, null)) {
-						setVisible(false);
-						delegate.needsReloadData(type);
-					} else {
-						JOptionPane.showMessageDialog(null, "레포트 제출에 실패했습니다!");
+					if (user.getType() == 0) {
+						// 레포트 제출
+						if (manager.submitReport(lecture.getLectureId(),
+								assignment.getAssignId(),
+								user.getId(),
+								titleArea.getText())) {
+							setVisible(false);
+							delegate.needsReloadData(type);
+						} else {
+							JOptionPane.showMessageDialog(null, "레포트 제출에 실패했습니다!");
+						}
+					} else if (user.getType() == 1) {
+						// 과제 생성
+						if (manager.postAssignment(lecture.getLectureId(),
+								titleArea.getText(),
+								contentArea.getText(),
+								null, null, null)) {
+							setVisible(false);
+							delegate.needsReloadData(type);
+						} else {
+							JOptionPane.showMessageDialog(null, "과제 생성에 실패했습니다!");
+						}
 					}
 				}
 			};

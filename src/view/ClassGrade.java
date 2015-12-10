@@ -17,14 +17,14 @@ import javax.swing.table.TableColumnModel;
 
 import controller.DataManager;
 import controller.NetworkManager;
+import controller.ReloadListener;
 import model.Grade;
 import model.Lecture;
-import model.Notification;
 import model.Submit;
 import model.User;
-import model.Version;
+import view.DetailView.DetailViewType;
 
-public class ClassGrade extends JFrame{
+public class ClassGrade extends JFrame implements ReloadListener{
 	
 	User user = null; // 학생 정보를 저장하는 Student 객체 선언
 	DataManager dataManager = null;
@@ -34,6 +34,7 @@ public class ClassGrade extends JFrame{
 	JTable GradeTable;
 	JScrollPane GradescrollPane;
 	ArrayList<Grade> grades = new ArrayList<Grade>();
+	ArrayList<Submit> submits = new ArrayList<Submit>();
 	
 	public ClassGrade(User user, DataManager dataManager, NetworkManager networkManager, Lecture lecture){
 		setTitle("성적 확인"); // 객체의 제목 설정
@@ -94,5 +95,10 @@ public class ClassGrade extends JFrame{
 		GradescrollPane.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		GradescrollPane.setBackground(SystemColor.control); // 배경 색 설정
 		contentPane.add(GradescrollPane);
+	}
+
+	@Override
+	public void needsReloadData(DetailViewType type) {
+		
 	}
 }
