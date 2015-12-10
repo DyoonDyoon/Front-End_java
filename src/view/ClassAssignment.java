@@ -20,6 +20,7 @@ import controller.NetworkManager;
 import model.Assignment;
 import model.Lecture;
 import model.User;
+import model.Version;
 
 public class ClassAssignment extends JFrame{
 	
@@ -49,14 +50,14 @@ public class ClassAssignment extends JFrame{
 		
 		String[] columnNames = {"과제 번호","제목"}; // Column을 설명하기 위함
 		
-		//강의 목록 저장
-		Assignments = new ArrayList<Assignment>();
-//		if (networkManager.syncAssignment(user.getId(), lecture.getLectureId())){
-//			dataManager.openDB();
-//			Assignments = dataManager.selectAssignmentDB(user.getId(), lecture.getLectureId());
-//			dataManager.closeDB();
-//		}
-//		
+		dataManager.openDB();
+		Version version = dataManager.selectVersionDB(lecture.getLectureId());
+		if (networkManager.syncNotification(lecture.getLectureId(), version.assignVersion)) {
+			// DB에서 해당 강의의 과제를 가져와 저장
+			Assignments = dataManager.selectAssignmentDB(lecture.getLectureId());
+		}
+		dataManager.closeDB();
+		
 		DefaultTableModel defaulttablemodel = new DefaultTableModel(Assignments.size(), columnNames.length)
 			{
 			    @Override
@@ -67,12 +68,11 @@ public class ClassAssignment extends JFrame{
 		};
 		
 		defaulttablemodel.setColumnIdentifiers(columnNames);
-//		for (int i = 0; i < Assignments.size(); ++i) {
-//			Assignment Assignment = Assignments.get(i);
-//			defaulttablemodel.setValueAt(Assignment.getAssignmentId(), i, 0);
-//			defaulttablemodel.setValueAt(Assignment.getScore(), i, 1);
-//		}
-		
+		for (int i = 0; i < Assignments.size(); ++i) {
+			Assignment Assignment = Assignments.get(i);
+			defaulttablemodel.setValueAt(Assignment.getAssignId(), i, 0);
+			defaulttablemodel.setValueAt(Assignment.title, i, 1);
+		}
 		
 		AssignmentTable = new JTable(defaulttablemodel);
 		AssignmentTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함

@@ -226,7 +226,7 @@ public class DataManager {
 	public boolean openDB(){
 		String myUrl = "jdbc:mysql://localhost:3306/eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 		String id = "root"; // 사용자 계정
-		String pw = "1234"; //사용자 계정의 패스워드
+		String pw = "5721"; //사용자 계정의 패스워드
 //		String myUrl = "jdbc:mysql://localhost:3306/front_eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 //		String id = "root"; // 사용자 계정
 //		String pw = "1234"; //사용자 계정의 패스워드
@@ -434,10 +434,10 @@ public class DataManager {
 		return true;
 	}
 	
-	public ArrayList<Submit> selectSubmitDB(String lectureId, int assignId, String stuId){
+	public ArrayList<Submit> selectSubmitDB(String lectureId, int submitId, String stuId){
 		ArrayList<Submit> submits =  new ArrayList<Submit>();
 		pstmt = null;	//동적 query문		
-		String sql = "select * from submit where lectureId=\"" + lectureId + "\" && assignId="+assignId;
+		String sql = "select * from submit where lectureId=\"" + lectureId + "\" && submitId="+ submitId;
 		if (stuId != null) {
 			sql = sql + " && stuId=\"" + stuId + "\"";
 		}
@@ -447,9 +447,10 @@ public class DataManager {
 	        while (result.next()){
 	        	Submit submit = new Submit();
 	        	submit.setSubmitId(result.getInt(1)); //primary key
-	        	submit.setAssignId(result.getInt(2));
-	        	submit.setStudentId(result.getString(3));
-	        	submit.setFilePath(result.getString(4));
+	        	submit.setLectureId(result.getString(2));
+	        	submit.setAssignId(result.getInt(3));
+	        	submit.setStudentId(result.getString(4));
+	        	submit.setFilePath(result.getString(5));
 	        		        	
 	        	submits.add(submit);
 	        }

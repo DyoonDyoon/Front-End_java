@@ -19,7 +19,10 @@ import controller.DataManager;
 import controller.NetworkManager;
 import model.Grade;
 import model.Lecture;
+import model.Notification;
+import model.Submit;
 import model.User;
+import model.Version;
 
 public class ClassGrade extends JFrame{
 	
@@ -49,14 +52,10 @@ public class ClassGrade extends JFrame{
 		
 		String[] columnNames = {"과제 번호","점수"}; // Column을 설명하기 위함
 		
-		//강의 목록 저장
-		grades = new ArrayList<Grade>();
-//		if (networkManager.syncGrade(user.getId(), lecture.getLectureId())){
-//			dataManager.openDB();
-//			grades = dataManager.selectGradeDB(user.getId(), lecture.getLectureId());
-//			dataManager.closeDB();
-//		}
-//		
+		dataManager.openDB();
+		// DB에서 해당 강의 성적을 가져와 저장
+		grades = dataManager.selectGradeDB(lecture.getUserId(),lecture.getLectureId());
+		dataManager.closeDB();
 		DefaultTableModel defaulttablemodel = new DefaultTableModel(grades.size(), columnNames.length)
 			{
 			    @Override
@@ -69,10 +68,13 @@ public class ClassGrade extends JFrame{
 		defaulttablemodel.setColumnIdentifiers(columnNames);
 		for (int i = 0; i < grades.size(); ++i) {
 			Grade grade = grades.get(i);
-			defaulttablemodel.setValueAt(grade.getGradeId(), i, 0);
+			dataManager.openDB();
+			// sumbitId로 assignId를 검색하기 위함
+			ArrayList<Submit> submit = dataManager.selectSubmitDB(lecture.getLectureId(), grade.getSubmitId() ,lecture.getUserId());
+			dataManager.closeDB();
+			defaulttablemodel.setValueAt(submit.get(0).getAssignId(), i, 0);
 			defaulttablemodel.setValueAt(grade.getScore(), i, 1);
 		}
-		
 		
 		GradeTable = new JTable(defaulttablemodel);
 		GradeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함

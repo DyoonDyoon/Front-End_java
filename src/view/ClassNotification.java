@@ -31,6 +31,7 @@ public class ClassNotification extends JFrame{
 	JPanel contentPane;
 	JTable NotificationTable;
 	JScrollPane NotificationscrollPane;
+	ArrayList<Notification> notifications = new ArrayList<Notification>();
 	
 	public ClassNotification(User stu, DataManager dataManager, NetworkManager networkManager,Lecture lectureNow){
 		this.dataManager = dataManager;
@@ -54,7 +55,6 @@ public class ClassNotification extends JFrame{
 		
 		String[] columnNames = {"공지 번호", "제목"}; // Column을 설명하기 위함
 		
-		ArrayList<Notification> notifications = new ArrayList<Notification>();
 		dataManager.openDB();
 		Version version = dataManager.selectVersionDB(lecture.getLectureId());
 		if (networkManager.syncNotification(lecture.getLectureId(), version.notiVersion)) {
@@ -75,8 +75,8 @@ public class ClassNotification extends JFrame{
 		defaulttablemodel.setColumnIdentifiers(columnNames);
 		for (int i = 0; i < notifications.size(); ++i) {
 			Notification noti = notifications.get(i);
-			defaulttablemodel.setValueAt(noti.getNotificationId(), i, 1);
-			defaulttablemodel.setValueAt(noti.title, i, 2);
+			defaulttablemodel.setValueAt(i+1, i, 0);
+			defaulttablemodel.setValueAt(noti.title, i, 1);
 		}
 		
 		NotificationTable = new JTable(defaulttablemodel);
