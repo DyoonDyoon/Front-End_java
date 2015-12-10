@@ -5,14 +5,19 @@ package view;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -37,9 +42,11 @@ import model.Grade;
 import model.Lecture;
 import model.LectureOutline;
 import model.Notification;
+import model.Question;
 import model.RecommendedLecture;
 import model.User;
 import model.Version;
+import view.LoginPage.MyPanel;
 
 public class MainPage extends JFrame{
 	
@@ -49,75 +56,85 @@ public class MainPage extends JFrame{
 	//메인 화면의 내용을 저장하는 JPanel 선언
 	public JPanel contentPane;
 	
-	User user = null; // 사용자 정보를 저장하는 User 객체 선언
-	DataManager dataManager = null;
-	NetworkManager networkManager = null;
+	private BufferedImage img = null;
 	
-	ArrayList<Lecture> lectures = new ArrayList<Lecture>();
-	ArrayList<RecommendedLecture> recommendedlectures  = new ArrayList<RecommendedLecture>();
-	Vector<String[]> lectureTitles = new Vector<String[]>();
-	ArrayList<Assignment> assigns = new ArrayList<Assignment>();
-	ArrayList<Notification> notis = new ArrayList<Notification>();
-	ArrayList<Grade> grades = new ArrayList<Grade>();
+	private User user = null; // 사용자 정보를 저장하는 User 객체 선언
+	private DataManager dataManager = null;
+	private NetworkManager networkManager = null;
 	
-	Lecture lectureNow;
+	private ArrayList<Lecture> lectures = new ArrayList<Lecture>();
+	private ArrayList<RecommendedLecture> recommendedlectures  = new ArrayList<RecommendedLecture>();
+	private Vector<String[]> lectureTitles = new Vector<String[]>();
+	private ArrayList<Assignment> assigns = new ArrayList<Assignment>();
+	private ArrayList<Notification> notis = new ArrayList<Notification>();
+	private ArrayList<Grade> grades = new ArrayList<Grade>();
+	private ArrayList<Question> questions = new ArrayList<Question>();
+	
+	private Lecture lectureNow;
 	
 	//메인 패널의 좌우 정보를 저장하는 JPanel 선언
-	JPanel LeftPanel;
-	JPanel RightPanel;
+	private JPanel LeftPanel;
+	private JPanel RightPanel;
 	
 	//왼쪽 패널에 학생 정보를 저장하는 부분 구현을 위한 JPanel과 JLabel 선언
-	JPanel inform; // 정보를 저장하기 위한 JPanel
-	JLabel UserId;   // 학번 저장할 JLabel
-	JLabel UserName; // user 이름을 저장할 JLabel
-	JLabel UserMajor; // 학과를 저장할 JLabel
+	private JPanel inform; // 정보를 저장하기 위한 JPanel
+	private JLabel UserId;   // 학번 저장할 JLabel
+	private JLabel UserName; // user 이름을 저장할 JLabel
+	private JLabel UserMajor; // 학과를 저장할 JLabel
 
 	//왼쪽 패널의 메뉴 부분을 구현하기 위한 JPanel과 JButton 
-	JPanel MenuAll; // 버튼을 저장할 JPanel
-	JButton gotoMain; // 메인으로 돌아가는 버튼
-	JButton CheckAssign; // 과제 확인을 위한 버튼
-	JButton CheckNoti; // 공지사항 확인을 위한 버튼
-	JButton CheckGrade; // 성적 확인을 위한 버튼
+	private JPanel MenuAll; // 버튼을 저장할 JPanel
+	private JButton gotoMain; // 메인으로 돌아가는 버튼
+	private JButton CheckAssign; // 과제 확인을 위한 버튼
+	private JButton CheckNoti; // 공지사항 확인을 위한 버튼
+	private JButton CheckGrade; // 성적 확인을 위한 버튼
 	
 	//오른쪽 패널에 존재하는 수강중인 강의와 강의실 입장을 구현하기 위한 JPanel과 List, Button
-	JPanel SubjectPanel; // 강의실을 나타내는 JPanel
-	JList SubjectList; // 수강중인 강의를 저장하는 JList
-	JScrollPane scrollPane; // JList는  자체적으로 Scrollbar가 존재하지 않으므로 구현을 위해 필요함
-	JButton EnterSubject; // 강의실 입장을 위한 JButton
-	Vector<String> subject; // 수강중인 강의를 저장하도록하는 String형 Vector 배열
+	private JPanel SubjectPanel; // 강의실을 나타내는 JPanel
+	private JList SubjectList; // 수강중인 강의를 저장하는 JList
+	private JScrollPane scrollPane; // JList는  자체적으로 Scrollbar가 존재하지 않으므로 구현을 위해 필요함
+	private JButton EnterSubject; // 강의실 입장을 위한 JButton
+	private Vector<String> subject; // 수강중인 강의를 저장하도록하는 String형 Vector 배열
 	
 	//오른쪽 패널에 존재하는 추천 강의 구현을 위한 JTable, JPanel
-	JPanel RecSubjectPanel; // 추천 강의 구현을 위한 JPanel
-	JScrollPane RecscrollPane; // 위와 동일
-	JTable RecSubjectTable; // 추천 강의를 저장하는 JTable
+	private JPanel RecSubjectPanel; // 추천 강의 구현을 위한 JPanel
+	private JScrollPane RecscrollPane; // 위와 동일
+	private JTable RecSubjectTable; // 추천 강의를 저장하는 JTable
 	
-	JPanel AssignmentPanel;
-	JTable AssignmentTable;
-	JScrollPane AssignmentscrollPane;
-	JTextArea AssignmentTitle;
-	JTextArea AssignmentContent;
-	JButton ReadAssignmentButton;
+	private JPanel AssignmentPanel;
+	private JTable AssignmentTable;
+	private JScrollPane AssignmentscrollPane;
+	private JTextArea AssignmentTitle;
+	private JTextArea AssignmentContent;
+	private JButton ReadAssignmentButton;
 	
-	JPanel NotificationPanel;
-	JTable NotificationTable;
-	JScrollPane NotificationscrollPane;
-	JTextArea NotificationTitle;
-	JTextArea NotificationContent;
-	JButton ReadNotificationButton;
+	private JPanel NotificationPanel;
+	private JTable NotificationTable;
+	private JScrollPane NotificationscrollPane;
+	private JTextArea NotificationTitle;
+	private JTextArea NotificationContent;
+	private JButton ReadNotificationButton;
 	
-	JPanel GradePanel;
-	JTable GradeTable;
+	private JPanel GradePanel;
+	private JTable GradeTable;
 	
-	JPanel ClassPanel;
-	JPanel ClassNamePanel;
-	JLabel ClassName;
-	JLabel ClassProfessor;
-	JButton ClassNotification;
-	JButton ClassQuestion;
-	JButton ClassAssignment;
-	JButton ClassGrade;
+	private JPanel QuestionPanel;
+	private JTable QuestionTable;
+	private JScrollPane QuestionscrollPane;
+	private JTextArea QuestionTitle;
+	private JTextArea QuestionContent;
+	private JButton ReadQuestionButton;
+
+	private JPanel ClassPanel;
+	private JPanel ClassNamePanel;
+	private JLabel ClassName;
+	private JLabel ClassProfessor;
+	private JButton ClassNotification;
+	private JButton ClassQuestion;
+	private JButton ClassAssignment;
+	private JButton ClassGrade;
 	
-	JScrollPane GradescrollPane;
+	private JScrollPane GradescrollPane;
 	
 	public MainPage(){ // 생성자 구현
 		setTitle("Mini E-class"); // 객체의 제목 설정
@@ -158,6 +175,9 @@ public class MainPage extends JFrame{
 						break;
 					case "CheckGrade":
 						showGrade();
+						break;
+					case "CheckQuestion":
+						showQuestion();
 						break;
 					case "EnterSubject":
 						gotoClass();
@@ -235,7 +255,18 @@ public class MainPage extends JFrame{
 		setSubjectList(); // 수강중인 강의 목록 구현
 		setInform(); // user 정보 표시창을 구현
 		setMenu(); // 메뉴 표시창을 구현
-		setRecommendList(); // 추천 강의 목록 구현
+		if(user.getType() == 0)	setRecommendList(); // 추천 강의 목록 구현
+		else if(user.getType() == 1){
+			try{
+				img = ImageIO.read(new File("img/login.png"));
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null,"이미지 불러오기 실패!");
+				System.exit(0);
+			}
+			MyPanel logo = new MyPanel();
+	        logo.setBounds(340, 100, 230, 150);
+	        RightPanel.add(logo);
+		}
 		contentPane.add(LeftPanel); // 왼쪽 패널을 Main Panel에 추가
 		contentPane.add(RightPanel); // 오른쪽 패널을 Main Panel에 추가
 		contentPane.revalidate();
@@ -314,6 +345,10 @@ public class MainPage extends JFrame{
 		CheckGrade.setFont(new Font("맑은 고딕", Font.PLAIN, 16)); // 폰트와 크기 설정
 		CheckGrade.addActionListener(actionlistener);
 		CheckGrade.setActionCommand("CheckGrade"); // 클릭할 경우 ActionListener에 보낼 Command 설정
+		if(user.getType() == 1){
+			CheckGrade.setText("질문 확인");
+			CheckGrade.setActionCommand("CheckQuestion");
+		}
 		MenuAll.add(CheckGrade); // MenuAll 패널에 더함
 		
 		LeftPanel.add(MenuAll); // MenuAll패널을 왼쪽패널에 더함
@@ -699,6 +734,99 @@ public class MainPage extends JFrame{
 		contentPane.repaint();
 	}
 	
+	public void showQuestion(){
+		QuestionPanel = new JPanel();
+		QuestionPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "질문 확인", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		QuestionPanel.setBounds(10, 10, 630, 400); // 위치와 사이즈 설정
+		QuestionPanel.setLayout(null); // 레이아웃을 Absolute로 설정
+	
+		questions = new ArrayList<Question>();
+		dataManager.openDB();
+		for (int i = 0; i < lectures.size(); ++i) {
+			Lecture lecture = lectures.get(i);
+			if(!this.isVisible()) return;
+			if (networkManager.syncQuestion(null, lecture.getLectureId())) {
+				ArrayList<Question> localQuestion = dataManager.selectQuestionDB(null,lecture.getLectureId());
+				if (localQuestion != null && !localQuestion.isEmpty()) {
+					questions.addAll(localQuestion);
+				}
+			}
+		}
+		dataManager.closeDB();
+		
+		String[] columnNames = {"강의","내용"}; // Column을 설명하기 위함
+		
+		DefaultTableModel defaulttablemodel = new DefaultTableModel(questions.size(), columnNames.length)
+			{
+			    @Override
+			    public boolean isCellEditable(int row, int column){
+			       //all cells false
+			       return false;
+			    }
+		};
+		defaulttablemodel.setColumnIdentifiers(columnNames);
+		for (int i = 0; i < questions.size(); ++i) {
+			Question question = questions.get(i);
+			for (int j = 0; j < lectures.size(); ++j) {
+				String[] lectureTitle = lectureTitles.get(j);
+				if (question.getLectureId().equals(lectureTitle[1])) {
+					defaulttablemodel.setValueAt(lectureTitle[0], i, 0);
+					break;
+				}
+			}
+			defaulttablemodel.setValueAt(question.content, i, 1);
+		}
+		
+		QuestionTable = new JTable(defaulttablemodel);
+		QuestionTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
+		QuestionTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		QuestionTable.setBackground(SystemColor.control); // 색상 설정
+		QuestionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 하나만 선택받도록 함
+		QuestionTable.addMouseListener(mouseadapter_jtable);
+		
+		TableColumnModel columnmodel = QuestionTable.getColumnModel();
+		columnmodel.getColumn(0).setPreferredWidth(150); 
+		columnmodel.getColumn(1).setPreferredWidth(440);
+		columnmodel.getColumn(0).setResizable(false);
+		columnmodel.getColumn(1).setResizable(false);
+		
+		QuestionscrollPane = new JScrollPane(); // 스크롤바 설정을 위함
+		QuestionscrollPane.setBounds(10,20, 610, 180); // 위치와 크기 설정
+		QuestionscrollPane.setViewportView(QuestionTable);	//JTable 지정
+		QuestionscrollPane.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		QuestionscrollPane.setBackground(SystemColor.control); // 배경 색 설정
+		QuestionPanel.add(QuestionscrollPane);
+
+		QuestionTitle = new JTextArea();
+		QuestionTitle.setBounds(10, 205, 400, 20);
+		QuestionTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		QuestionTitle.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		QuestionTitle.setEditable(false);
+		QuestionTitle.setBackground(SystemColor.control); // 색상 설정
+		QuestionPanel.add(QuestionTitle);
+		
+		QuestionContent = new JTextArea();
+		QuestionContent.setBounds(10, 230, 600, 150);
+		QuestionContent.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		QuestionContent.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		QuestionContent.setEditable(false);
+		QuestionContent.setBackground(SystemColor.control); // 색상 설정
+		QuestionPanel.add(QuestionContent);
+		
+		ReadQuestionButton = new JButton("조회");
+		ReadQuestionButton.setBounds(450, 205, 120, 20);
+		ReadQuestionButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		ReadQuestionButton.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		ReadQuestionButton.addActionListener(actionlistener);
+		ReadQuestionButton.setActionCommand("ReadQuestion"); // 클릭할 경우 ActionListener에 보낼 Command 설정
+		QuestionPanel.add(ReadQuestionButton);
+		
+		RightPanel.removeAll();
+		RightPanel.add(QuestionPanel);
+		contentPane.revalidate();
+		contentPane.repaint();
+	}
+	
 	public void gotoClass(){
 		int lectureIdx = SubjectList.getSelectedIndex();
 		Lecture lecture = lectures.get(lectureIdx);
@@ -771,8 +899,25 @@ public class MainPage extends JFrame{
 	public void gotoMain(){
 		RightPanel.removeAll(); // 오른쪽 패널을 모두 삭제
 		setSubjectList(); // 수강중인 강의 목록을 띄움
-		setRecommendList(); // 추천 강의 목록을 띄움
+		if(user.getType() == 0)	setRecommendList(); // 추천 강의 목록 구현
+		else if(user.getType() == 1){
+			try{
+				img = ImageIO.read(new File("img/login.png"));
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null,"이미지 불러오기 실패!");
+				System.exit(0);
+			}
+			MyPanel logo = new MyPanel();
+	        logo.setBounds(340, 100, 230, 150);
+	        RightPanel.add(logo);
+		}
 		contentPane.revalidate(); 
 		contentPane.repaint(); //다시 Refresh해줌
 	}
+	
+	class MyPanel extends JPanel {
+        public void paint(Graphics g) {
+            g.drawImage(img, 20, 20, null);
+        }
+    }
 }
