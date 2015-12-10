@@ -43,6 +43,7 @@ public class ClassNotification extends JFrame{
 		setLayout(null); // 객체의 Layout을 Absolute로 설정
 		setResizable(false); // JFrame의 사이즈를 조정하지 못하도록함
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE); // X키를 누르면 프로그램이 종료하도록함
+
 		setVisible(true);
 		
 		contentPane = new JPanel(); // 생성

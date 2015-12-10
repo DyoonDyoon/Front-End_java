@@ -11,7 +11,5 @@ public class ClassAssignment extends JFrame{
 		setResizable(false); // JFrame의 사이즈를 조정하지 못하도록함
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE); // X키를 누르면 프로그램이 종료하도록함
 		setVisible(true);
-		
-		
 	}
 }
