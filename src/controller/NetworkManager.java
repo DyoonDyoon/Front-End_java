@@ -903,7 +903,7 @@ public class NetworkManager {
 			params = params + "&lectureId=" + lectureId;
 		}
 		if(stuId != null) {
-			params = params + "&stuId" + stuId;
+			params = params + "&stuId=" + stuId;
 		}
 		url = url + params;
 		
