@@ -88,5 +88,7 @@ public class ClassNotification extends JFrame{
 		NotificationscrollPane.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		NotificationscrollPane.setBackground(SystemColor.control); // 배경 색 설정
 		contentPane.add(NotificationscrollPane);
+		
+		
 	}
 }

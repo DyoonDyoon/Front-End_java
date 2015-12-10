@@ -60,6 +60,8 @@ public class MainPage extends JFrame{
 	ArrayList<Notification> notis = new ArrayList<Notification>();
 	ArrayList<Grade> grades = new ArrayList<Grade>();
 	
+	Lecture lectureNow;
+	
 	//메인 패널의 좌우 정보를 저장하는 JPanel 선언
 	JPanel LeftPanel;
 	JPanel RightPanel;
@@ -184,7 +186,7 @@ public class MainPage extends JFrame{
 						NotificationContent.setText(noti.description);
 						break;
 					case "ClassNoti":
-						new ClassNotification();
+						new ClassNotification(stu, dataManager, networkManager, lectureNow);
 						break;
 					case "ClassAssign":
 						new ClassAssignment();
@@ -193,7 +195,7 @@ public class MainPage extends JFrame{
 						new ClassQuestion();
 						break;
 					case "ClassGrade":
-						new ClassGrade();
+						new ClassGrade(stu, dataManager, networkManager, lectureNow);
 						break;
 					default:
 						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
@@ -708,6 +710,7 @@ public class MainPage extends JFrame{
 		dataManager.openDB();
 		LectureOutline lectureoutline = dataManager.selectLectureOutlineDB(lecture.getLectureId());
 		dataManager.closeDB();
+		lectureNow = lecture;
 		
 		ClassPanel = new JPanel();
 		ClassPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "강의실", TitledBorder.LEADING, TitledBorder.TOP, null, null));

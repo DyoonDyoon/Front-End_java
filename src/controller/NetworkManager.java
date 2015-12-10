@@ -929,9 +929,6 @@ public class NetworkManager {
 		}
 		JsonArray array = response.get("content").getAsJsonArray();
 		dataManager.openDB();
-		if (array.size() < dataManager.selectGradeDB(stuId, lectureId).size()) {
-			dataManager.deleteAllGradeDB();
-		}
 		for (JsonElement json : array) {
 			Grade grade = new Grade(json.getAsJsonObject());
 			if (!dataManager.existsRecordAtGradeDB(grade.getGradeId())) {
