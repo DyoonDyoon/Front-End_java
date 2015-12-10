@@ -47,16 +47,13 @@ public class ClassQuestion extends JFrame{
 		setContentPane(contentPane); // 메인 Panel을 설정
 		contentPane.setLayout(null); // 위의 레이아웃을 Absolute로 설정
 		
-		String[] columnNames = {"질의 번호","제목"}; // Column을 설명하기 위함
+		String[] columnNames = {"질문자","내용"}; // Column을 설명하기 위함
 		
-		//강의 목록 저장
-		Questions = new ArrayList<Question>();
-//		if (networkManager.syncQuestion(user.getId(), lecture.getLectureId())){
-//			dataManager.openDB();
-//			Questions = dataManager.selectQuestionDB(user.getId(), lecture.getLectureId());
-//			dataManager.closeDB();
-//		}
-//		
+		dataManager.openDB();
+		// DB에서 해당 강의의 질의를 가져와 저장
+		Questions = dataManager.selectQuestionDB(null, lecture.getLectureId());
+		dataManager.closeDB();
+			
 		DefaultTableModel defaulttablemodel = new DefaultTableModel(Questions.size(), columnNames.length)
 			{
 			    @Override
@@ -67,12 +64,11 @@ public class ClassQuestion extends JFrame{
 		};
 		
 		defaulttablemodel.setColumnIdentifiers(columnNames);
-//		for (int i = 0; i < Questions.size(); ++i) {
-//			Question Question = Questions.get(i);
-//			defaulttablemodel.setValueAt(Question.getQuestionId(), i, 0);
-//			defaulttablemodel.setValueAt(Question.getScore(), i, 1);
-//		}
-		
+		for (int i = 0; i < Questions.size(); ++i){
+			Question Question = Questions.get(i);
+			defaulttablemodel.setValueAt(Question.getStudentId(), i, 0);
+			defaulttablemodel.setValueAt(Question.content, i, 1);
+		}
 		
 		QuestionTable = new JTable(defaulttablemodel);
 		QuestionTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 크기가 자동적으로 바뀌지 않도록함
