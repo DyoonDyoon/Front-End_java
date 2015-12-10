@@ -13,6 +13,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,6 +28,8 @@ import model.Question;
 import model.Submit;
 import model.User;
 import model.Version;
+import view.LoginPage;
+import view.MainPage;
 
 public class NetworkManager {
 //	private static final String API_HOST = "http://localhost:3001";
@@ -47,15 +51,18 @@ public class NetworkManager {
 
 	private DataManager dataManager = new DataManager();
 	private String accessToken;
+	LoginPage loginpage;
+	MainPage mainpage;
 	
 	private static final String LECTURE_OUTLINE_URL(int version) {
 		return "https://rawgit.com/DyoonDyoon/Back-End/master/script/json/" + version + ".json";
 	}
 	
-	public NetworkManager() {
-//		accessToken = null;
-		accessToken = "2606c58fb87d82d9703750daa94304bb";
+	public NetworkManager(LoginPage loginpage, MainPage mainpage) {
+		accessToken = null;
 		dataManager = new DataManager();
+		this.loginpage = loginpage;
+		this.mainpage = mainpage;
 	}
 	
 	private void updateAccessToken(JsonObject response) {
@@ -159,7 +166,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return null;
 		}
 		updateAccessToken(response);
@@ -228,7 +242,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -264,7 +285,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 
@@ -311,7 +339,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -348,7 +383,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -381,8 +423,16 @@ public class NetworkManager {
 			return false;
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		int notiVer = response.get("notiVer").getAsInt();
@@ -451,7 +501,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -485,7 +542,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -533,7 +597,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 
@@ -568,7 +639,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		int assignVer = response.get("assignVer").getAsInt();
@@ -657,7 +735,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 
@@ -692,7 +777,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 
@@ -731,7 +823,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		if (syncReport(lectureId, assignId, stuId))
@@ -765,7 +864,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		JsonArray array = response.get("content").getAsJsonArray();
@@ -809,7 +915,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -842,7 +955,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -879,7 +999,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		if (syncGrade(stuId, lectureId))
@@ -924,7 +1051,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		JsonArray array = response.get("content").getAsJsonArray();
@@ -967,7 +1101,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -1000,7 +1141,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -1034,7 +1182,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		if (syncQuestion(stuId, lectureId))
@@ -1075,7 +1230,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		
@@ -1121,7 +1283,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -1154,7 +1323,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -1188,7 +1364,14 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		if (syncAnswer(questionId)) 
@@ -1220,7 +1403,14 @@ public class NetworkManager {
 		
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		JsonElement content = response.get("content");
@@ -1273,7 +1463,14 @@ public class NetworkManager {
 		
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		dataManager.openDB();
@@ -1307,7 +1504,14 @@ public class NetworkManager {
 		
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
-			System.out.println(response.get("message").toString());
+			int errorCode = 0;
+			if (!response.get("code").isJsonNull())
+				errorCode = response.get("code").getAsInt();
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
+				mainpage.setVisible(false);
+				loginpage.setVisible(true);
+			}
 			return false;
 		}
 		

@@ -23,7 +23,7 @@ import model.User;
 
 public class ClassGrade extends JFrame{
 	
-	User stu = null; // 학생 정보를 저장하는 Student 객체 선언
+	User user = null; // 학생 정보를 저장하는 Student 객체 선언
 	DataManager dataManager = null;
 	NetworkManager networkManager = null;
 	
@@ -51,12 +51,12 @@ public class ClassGrade extends JFrame{
 		
 		//강의 목록 저장
 		grades = new ArrayList<Grade>();
-		if (networkManager.syncGrade(stu.getId(), lecture.getLectureId())){
-			dataManager.openDB();
-			grades = dataManager.selectGradeDB(user.getId(), lecture.getLectureId());
-			dataManager.closeDB();
-		}
-		
+//		if (networkManager.syncGrade(user.getId(), lecture.getLectureId())){
+//			dataManager.openDB();
+//			grades = dataManager.selectGradeDB(user.getId(), lecture.getLectureId());
+//			dataManager.closeDB();
+//		}
+//		
 		DefaultTableModel defaulttablemodel = new DefaultTableModel(grades.size(), columnNames.length)
 			{
 			    @Override

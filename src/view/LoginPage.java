@@ -70,8 +70,6 @@ public class LoginPage extends JFrame{//����ȭ��
 		this.add(LoginButton);
 		
 		LoginButton.setActionCommand("login");
-		
-		this.setVisible(true);
 	}
 	
 	public void setActionListener(ActionListener e){

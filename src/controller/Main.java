@@ -17,7 +17,10 @@ public class Main {
 	public static String PW;
 	public static ActionListener e;
 	public static void main(String[] args) {
-		NetworkManager manager = new NetworkManager();
+		LoginPage loginpage = new LoginPage();
+		MainPage mainpage = new MainPage();
+		
+		NetworkManager manager = new NetworkManager(loginpage,mainpage);
 		DataManager dataManager = new DataManager();
 
 		Thread downloadThread = new Thread(new Runnable(){
@@ -42,9 +45,6 @@ public class Main {
 	          System.err.println("Look and feel not set.");
 	    }
 		
-		LoginPage loginpage = new LoginPage();
-		MainPage mainpage = new MainPage();
-		
 		e = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent event) {//ActionListener�� implements�� �Լ�
@@ -53,6 +53,7 @@ public class Main {
 					case "login"://������ ActionCommand
 					ID = loginpage.IDField.getText();
 					PW = loginpage.PWField.getText();
+					loginpage.PWField.setText("");
 					User stu = manager.login(ID, PW);
 					if (stu != null) {
 						JOptionPane.showMessageDialog(null, stu.name + "님 안녕하세요!");
@@ -71,5 +72,6 @@ public class Main {
 				}
 			};
 		loginpage.setActionListener(e);
+		loginpage.setVisible(true);
 	}
 }

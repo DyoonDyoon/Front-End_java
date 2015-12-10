@@ -151,28 +151,19 @@ public class MainPage extends JFrame{
 				switch(event.getActionCommand())// ActionCommand
 				{
 					case "CheckAssign":
-						JOptionPane.showMessageDialog(null, "과제확인이요!");
 						showAssign();
-						setVisible(true);
 						break;
 					case "CheckNoti":
-						JOptionPane.showMessageDialog(null, "공지확인이요!");
 						showNoti();
-						setVisible(true);
 						break;
 					case "CheckGrade":
-						JOptionPane.showMessageDialog(null, "성적확인이요!");
 						showGrade();
-						setVisible(true);
 						break;
 					case "EnterSubject":
-						JOptionPane.showMessageDialog(null,SubjectList.getSelectedIndex()+"번 강의실로 입장합니다.");
 						gotoClass();
-						setVisible(true);
 						break;
 					case "gotoMain":
 						gotoMain();
-						setVisible(true);
 						break;
 					case "ReadAssign":
 						Assignment assign = assigns.get(AssignmentTable.getSelectedRow());
@@ -186,16 +177,16 @@ public class MainPage extends JFrame{
 						NotificationContent.setText(noti.description);
 						break;
 					case "ClassNoti":
-						new ClassNotification(stu, dataManager, networkManager, lectureNow);
+						new ClassNotification(user, dataManager, networkManager, lectureNow);
 						break;
 					case "ClassAssign":
-						new ClassAssignment();
+						new ClassAssignment(user, dataManager, networkManager, lectureNow);
 						break;
 					case "ClassQuestion":
-						new ClassQuestion();
+						new ClassQuestion(user, dataManager, networkManager, lectureNow);
 						break;
 					case "ClassGrade":
-						new ClassGrade(stu, dataManager, networkManager, lectureNow);
+						new ClassGrade(user, dataManager, networkManager, lectureNow);
 						break;
 					default:
 						JOptionPane.showMessageDialog(null, "구현 ㄴㄴ");
@@ -240,6 +231,7 @@ public class MainPage extends JFrame{
 		this.networkManager = networkManager;
 		this.dataManager = dataManager;
 		this.user = user; // User 객체를 받아와 설정
+		RightPanel.removeAll(); // 오른쪽 패널을 모두 삭제
 		setSubjectList(); // 수강중인 강의 목록 구현
 		setInform(); // user 정보 표시창을 구현
 		setMenu(); // 메뉴 표시창을 구현
@@ -377,6 +369,8 @@ public class MainPage extends JFrame{
 		SubjectPanel.add(EnterSubject); // SubjectPanel에 더함
 		
 		RightPanel.add(SubjectPanel); // SubjectPanel을 오른쪽 패널에 더함
+		contentPane.revalidate();
+		contentPane.repaint();
 	}
 	
 	//추천 강의 목록을 띄우기 위한 함수
@@ -455,7 +449,7 @@ public class MainPage extends JFrame{
 			Version version = dataManager.selectVersionDB(lecture.getLectureId());
 			if (version == null)
 				continue;
-			
+			if(!this.isVisible()) return;
 			if (networkManager.syncAssignment(lecture.getLectureId(), version.assignVersion)) {
 				ArrayList<Assignment> localAssign = dataManager.selectAssignmentDB(lecture.getLectureId());
 				if (localAssign != null && !localAssign.isEmpty()) {
@@ -555,7 +549,7 @@ public class MainPage extends JFrame{
 			Version version = dataManager.selectVersionDB(lecture.getLectureId());
 			if (version == null)
 				continue;
-			
+			if(!this.isVisible()) return;
 			if (networkManager.syncNotification(lecture.getLectureId(), version.notiVersion)) {
 				ArrayList<Notification> localNoti = dataManager.selectNotificationDB(lecture.getLectureId());
 				if (localNoti != null && !localNoti.isEmpty()) {
