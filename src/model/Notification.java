@@ -6,7 +6,7 @@ public class Notification {
 	public String title;
 	public String description;
 		
-	public int getNotification(){
+	public int getNotificationId(){
 		return notificationId;
 	}
 	
