@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -360,13 +361,14 @@ public class NetworkManager {
 		int responseCode = 0;
 		String inputLine = "";
 		String url = API_HOST + NOTIFICATION;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&title="+title;
-		if (description != null) {
-			params = params + "&description=" + description;
-		}
-		url = url + params;
+		String params = "?token="+accessToken+"&lectureId="+lectureId;
 		
 		try {
+			params = params + "&title="+ URLEncoder.encode(title, "UTF-8");
+			if (description != null) {
+				params = params + "&description=" + URLEncoder.encode(description, "UTF-8");
+			}
+			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("POST");
@@ -476,15 +478,15 @@ public class NetworkManager {
 		String inputLine = "";
 		String url = API_HOST + NOTIFICATION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&notiId="+notiId;
-		if (title != null) {
-			params = params + "&title=" + title;
-		}
-		if (description != null) {
-			params = params + "&description=" + description;
-		}
-		url = url + params;
 		
 		try {
+			if (title != null) {
+				params = params + "&title=" + URLEncoder.encode(title, "UTF-8");
+			}
+			if (description != null) {
+				params = params + "&description=" + URLEncoder.encode(description, "UTF-8");
+			}
+			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("PUT");
@@ -565,22 +567,24 @@ public class NetworkManager {
 		int responseCode = 0;
 		String inputLine = "";
 		String url = API_HOST + ASSIGNMENT;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&title="+title;
-		if (description != null) {
-			params = params + "&description=" + description;
-		}
-		if (filePath != null) {
-			params = params + "&filePath=" + filePath;
-		}
-		if (startDate != null) {
-			params = params + "&startDate=" + startDate;
-		}
-		if (endDate != null) {
-			params = params + "&endDate=" + endDate;
-		}
-		url = url + params;
+		String params = "?token="+accessToken+"&lectureId="+lectureId;
 		
 		try {
+			params = params + "&title="+URLEncoder.encode(title, "UTF-8");
+			if (description != null) {
+				params = params + "&description=" + URLEncoder.encode(description, "UTF-8");
+			}
+			if (filePath != null) {
+				params = params + "&filePath=" + URLEncoder.encode(filePath, "UTF-8");
+			}
+			if (startDate != null) {
+				params = params + "&startDate=" + URLEncoder.encode(startDate, "UTF-8");
+			}
+			if (endDate != null) {
+				params = params + "&endDate=" + URLEncoder.encode(endDate, "UTF-8");
+			}
+			url = url + params;
+			
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("POST");
@@ -702,23 +706,23 @@ public class NetworkManager {
 		String inputLine = "";
 		String url = API_HOST + ASSIGNMENT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
-		if (title != null) {
-			params = params + "&title=" + title;
-		}
-		if (description != null) {
-			params = params + "&description=" + description;
-		}
-		if (filePath != null) {
-			params = params + "&filePath=" + filePath;
-		}
-		if (startDate != null) {
-			params = params + "&startDate=" + startDate;
-		}
-		if (endDate != null) {
-			params = params + "&endDate=" + endDate;
-		}
-		url = url + params;
 		try {
+			if (title != null) {
+				params = params + "&title=" + URLEncoder.encode(title, "UTF-8");
+			}
+			if (description != null) {
+				params = params + "&description=" + URLEncoder.encode(description, "UTF-8");
+			}
+			if (filePath != null) {
+				params = params + "&filePath=" + URLEncoder.encode(filePath, "UTF-8");
+			}
+			if (startDate != null) {
+				params = params + "&startDate=" + URLEncoder.encode(startDate, "UTF-8");
+			}
+			if (endDate != null) {
+				params = params + "&endDate=" + URLEncoder.encode(endDate, "UTF-8");
+			}
+			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("PUT");
@@ -801,12 +805,12 @@ public class NetworkManager {
 		String inputLine = "";
 		String url = API_HOST + SUBMIT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
-		if (filePath != null) {
-			params = params + "&filePath=" + filePath;
-		}
-		url = url + params;
 		
 		try {
+			if (filePath != null) {
+				params = params + "&filePath=" + URLEncoder.encode(filePath, "UTF-8");
+			}
+			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("POST");
@@ -897,10 +901,13 @@ public class NetworkManager {
 		int responseCode = 0;
 		String inputLine = "";
 		String url = API_HOST + SUBMIT;
-		String params = "?token="+accessToken+"&submitId="+submitId+"&filePath="+filePath;
-		url = url + params;
+		String params = "?token="+accessToken+"&submitId="+submitId;
+		
+		
 		
 		try {
+			params = params + "&filePath=" + URLEncoder.encode(filePath, "UTF-8");
+			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("PUT");
@@ -1162,10 +1169,11 @@ public class NetworkManager {
 		int responseCode = 0;
 		String inputLine = "";
 		String url = API_HOST + QUESTION;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&stuId="+stuId+"&content="+content;
-		url = url + params;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&stuId="+stuId;
 		
 		try {
+			params = params + "&content=" + URLEncoder.encode(content,"UTF-8");
+			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("POST");
@@ -1263,10 +1271,11 @@ public class NetworkManager {
 		int responseCode = 0;
 		String inputLine = "";
 		String url = API_HOST + QUESTION;
-		String params = "?token="+accessToken+"&questionId="+questionId+"&content="+content;
-		url = url + params;
+		String params = "?token="+accessToken+"&questionId="+questionId;
 		
 		try {
+			params = params + "&content=" + URLEncoder.encode(content, "UTF-8");
+			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("PUT");
@@ -1344,10 +1353,11 @@ public class NetworkManager {
 		int responseCode = 0;
 		String inputLine = "";
 		String url = API_HOST + ANSWER;
-		String params = "?token="+accessToken+"&questionId="+questionId+"&content="+content;
-		url = url + params;
+		String params = "?token="+accessToken+"&questionId="+questionId;
 		
 		try {
+			params = params +"&content="+URLEncoder.encode(content, "UTF-8");
+			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("POST");
@@ -1442,10 +1452,11 @@ public class NetworkManager {
 		int responseCode = 0;
 		String inputLine = "";
 		String url = API_HOST + ANSWER;
-		String params = "?token="+accessToken+"&answerId="+answerId+"&content="+content;
-		url = url + params;
+		String params = "?token="+accessToken+"&answerId="+answerId;
 		
 		try {
+			params = params +"&content="+URLEncoder.encode(content, "UTF-8");
+			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 			con.setRequestMethod("PUT");

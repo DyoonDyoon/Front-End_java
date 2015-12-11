@@ -17,12 +17,13 @@ import javax.swing.table.TableColumnModel;
 
 import controller.DataManager;
 import controller.NetworkManager;
-import model.Question;
+import controller.ReloadListener;
 import model.Lecture;
+import model.Question;
 import model.User;
+import view.DetailView.DetailViewType;
 
-public class ClassQuestion extends JFrame{
-	
+public class ClassQuestion extends JFrame implements ReloadListener{
 	User user = null; // 학생 정보를 저장하는 Student 객체 선언
 	DataManager dataManager = null;
 	NetworkManager networkManager = null;
@@ -88,5 +89,10 @@ public class ClassQuestion extends JFrame{
 		QuestionscrollPane.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		QuestionscrollPane.setBackground(SystemColor.control); // 배경 색 설정
 		contentPane.add(QuestionscrollPane);
+	}
+
+	@Override
+	public void needsReloadData(DetailViewType type) {
+		
 	}
 }
