@@ -162,6 +162,9 @@ public class ClassQuestion extends JFrame implements ReloadListener{
 			// DB에서 해당 강의의 질의를 가져와 저장
 			Questions = dataManager.selectQuestionDB(userId, lectureId);
 			dataManager.closeDB();
+		} else {
+			JOptionPane.showMessageDialog(null, "질문을 받아올 수 없습니다!");
+			return;
 		}
 		
 		String[] columnNames = {"질문자","내용"}; // Column을 설명하기 위함

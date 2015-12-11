@@ -847,7 +847,10 @@ public class NetworkManager {
 		int responseCode = 0;
 		String inputLine = "";
 		String url = API_HOST + SUBMIT;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId;
+		if (assignId != -1) {
+			params = params + "&assignId=" + assignId;
+		}
 		if (stuId != null) {
 			params = params + "&stuId=" + stuId;
 		}
@@ -983,7 +986,7 @@ public class NetworkManager {
 		int responseCode = 0;
 		String inputLine = "";
 		String url = API_HOST + GRADE;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&submitId"+submitId+"&stuId="+stuId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&submitId="+submitId+"&stuId="+stuId;
 		if(score != -1) {
 			params = params + "&score=" + score;
 		}

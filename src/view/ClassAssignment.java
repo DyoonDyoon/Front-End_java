@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -128,6 +129,10 @@ public class ClassAssignment extends JFrame implements ReloadListener{
 		if (networkManager.syncAssignment(lecture.getLectureId(), version.assignVersion)) {
 			// DB에서 해당 강의의 과제를 가져와 저장
 			Assignments = dataManager.selectAssignmentDB(lecture.getLectureId());
+		} else {
+			JOptionPane.showMessageDialog(null, "과제를 받아올 수 없습니다!");
+			dataManager.closeDB();
+			return;
 		}
 		dataManager.closeDB();
 

@@ -44,9 +44,9 @@ import model.LectureOutline;
 import model.Notification;
 import model.Question;
 import model.RecommendedLecture;
+import model.Submit;
 import model.User;
 import model.Version;
-import view.LoginPage.MyPanel;
 
 public class MainPage extends JFrame{
 	
@@ -714,7 +714,10 @@ public class MainPage extends JFrame{
 					break;
 				}
 			}
-			defaulttablemodel.setValueAt(grade.getSubmitId(), i, 1);
+			dataManager.openDB();
+			Submit submit = dataManager.selectSubmit(grade.getSubmitId());
+			dataManager.closeDB();
+			defaulttablemodel.setValueAt(submit.getAssignId(), i, 1);
 			defaulttablemodel.setValueAt(grade.getScore(), i, 2);
 		}
 		

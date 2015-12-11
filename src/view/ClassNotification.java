@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -118,6 +119,10 @@ public class ClassNotification extends JFrame implements ReloadListener{
 		if (networkManager.syncNotification(lecture.getLectureId(), version.notiVersion)) {
 			// DB에서 해당 강의의 공지사항을 가져와 저장
 			notifications = dataManager.selectNotificationDB(lecture.getLectureId());
+		} else {
+			JOptionPane.showMessageDialog(null, "공지사항을 받아올 수 없습니다!");
+			dataManager.closeDB();
+			return;
 		}
 		dataManager.closeDB();
 		

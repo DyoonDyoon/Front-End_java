@@ -433,10 +433,37 @@ public class DataManager {
 		return true;
 	}
 	
-	public ArrayList<Submit> selectSubmitDB(String lectureId, int submitId, String stuId){
+	public Submit selectSubmit(int submitId) {
+		Submit submit = null;
+		pstmt = null;	//동적 query문		
+		String sql = "select * from submit where submitId=\"" + submitId + "\"";
+		try{ 
+	        pstmt = conn.prepareStatement(sql);  
+	        ResultSet result = pstmt.executeQuery(sql);
+	        if (result.next()){
+	        	submit = new Submit();
+	        	submit.setSubmitId(result.getInt(1)); //primary key
+	        	submit.setLectureId(result.getString(2));
+	        	submit.setAssignId(result.getInt(3));
+	        	submit.setStudentId(result.getString(4));
+	        	submit.setFilePath(result.getString(5));
+	        }
+	    } catch (Exception e){            
+	        System.out.println(e.getMessage());
+	        e.printStackTrace();
+	    }
+		return submit;
+	}
+	
+	public ArrayList<Submit> selectSubmitDB(String lectureId, int assignId, String stuId){
 		ArrayList<Submit> submits =  new ArrayList<Submit>();
 		pstmt = null;	//동적 query문		
-		String sql = "select * from submit where lectureId=\"" + lectureId + "\" && submitId="+ submitId;
+		String sql = "select * from submit where lectureId=\"" + lectureId + "\"";
+		
+		if (assignId != -1) {
+			sql = sql + " && assignId=\"" + assignId + "\"";
+		}
+		
 		if (stuId != null) {
 			sql = sql + " && stuId=\"" + stuId + "\"";
 		}

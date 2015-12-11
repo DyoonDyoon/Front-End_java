@@ -20,10 +20,10 @@ import controller.NetworkManager;
 import controller.ReloadListener;
 import model.Answer;
 import model.Assignment;
-import model.Grade;
 import model.Lecture;
 import model.Notification;
 import model.Question;
+import model.Submit;
 import model.User;
 
 public class DetailView extends JFrame {
@@ -39,7 +39,7 @@ public class DetailView extends JFrame {
 	
 	private DetailViewType type;
 	private Assignment assignment;
-	private Grade grade;
+	private Submit submit;
 	private Answer answer;
 	private Question question;
 	private Notification notification;
@@ -62,7 +62,7 @@ public class DetailView extends JFrame {
 		
 		type = null;
 		assignment = null;
-		grade = null;
+		submit = null;
 		answer = null;
 		question = null;
 		notification = null;
@@ -131,11 +131,11 @@ public class DetailView extends JFrame {
 	}
 	
 	public void setContext(DetailViewType type, boolean writeMode,
-			Assignment assign, Grade grade, Question question, Answer answer, Notification noti) {
+			Assignment assign, Submit submit, Question question, Answer answer, Notification noti) {
 		this.writeMode = writeMode;
 		this.type = type;
 		this.assignment = assign;
-		this.grade = grade;
+		this.submit = submit;
 		this.answer = answer;
 		this.question = question;
 		this.notification = noti;
@@ -285,14 +285,13 @@ public class DetailView extends JFrame {
 			action = new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					/*
-					if (manager.giveGrade(lecture.getLectureId(), submitId, stuId, score)) {
+					if (manager.giveGrade(lecture.getLectureId(),
+							submit.getSubmitId(), submit.getStudentId(), Double.parseDouble(titleArea.getText()))) {
 						setVisible(false);
 						delegate.needsReloadData(type);
 					} else {
-						
+						JOptionPane.showMessageDialog(null, "성적 부여에 실패했습니다!");
 					}
-					*/
 				}
 			};
 			break;
