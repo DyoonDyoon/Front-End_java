@@ -74,12 +74,6 @@ public class ClassAssignment extends JFrame implements ReloadListener{
 
 		needsReloadData(null);
 		
-		TableColumnModel columnmodel = AssignmentTable.getColumnModel();
-		columnmodel.getColumn(0).setPreferredWidth(30); 
-		columnmodel.getColumn(1).setPreferredWidth(150); 
-		columnmodel.getColumn(0).setResizable(false);
-		columnmodel.getColumn(1).setResizable(false);
-		
 		AssignmentscrollPane = new JScrollPane(); // 스크롤바 설정을 위함
 		AssignmentscrollPane.setBounds(10,10, 300, 370); // 위치와 크기 설정
 		AssignmentscrollPane.setViewportView(AssignmentTable);	//JTable 지정
@@ -131,13 +125,13 @@ public class ClassAssignment extends JFrame implements ReloadListener{
 	public void needsReloadData(DetailViewType type) {
 		dataManager.openDB();
 		Version version = dataManager.selectVersionDB(lecture.getLectureId());
-		if (networkManager.syncNotification(lecture.getLectureId(), version.assignVersion)) {
+		if (networkManager.syncAssignment(lecture.getLectureId(), version.assignVersion)) {
 			// DB에서 해당 강의의 과제를 가져와 저장
 			Assignments = dataManager.selectAssignmentDB(lecture.getLectureId());
 		}
 		dataManager.closeDB();
 
-		String[] columnNames = {"과제 번호","제목"}; // Column을 설명하기 위함
+		String[] columnNames = {"과제번호","제목"}; // Column을 설명하기 위함
 		tableModel = new DefaultTableModel(Assignments.size(), columnNames.length) {
 			    @Override
 			    public boolean isCellEditable(int row, int column){
@@ -153,5 +147,11 @@ public class ClassAssignment extends JFrame implements ReloadListener{
 			tableModel.setValueAt(Assignment.title, i, 1);
 		}
 		AssignmentTable.setModel(tableModel);
+		
+		TableColumnModel columnmodel = AssignmentTable.getColumnModel();
+		columnmodel.getColumn(0).setPreferredWidth(60); 
+		columnmodel.getColumn(1).setPreferredWidth(230); 
+		columnmodel.getColumn(0).setResizable(false);
+		columnmodel.getColumn(1).setResizable(false);
 	}
 }

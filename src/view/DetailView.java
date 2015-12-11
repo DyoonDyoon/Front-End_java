@@ -113,7 +113,7 @@ public class DetailView extends JFrame {
 		// Layout 재설정
 		titleArea.setBounds(10, 10, 300, 20);
 		contentArea.setBounds(10, 40, 300, 330);
-		customButton.setBounds(130, 400, 100, 30);
+		customButton.setBounds(110, 390, 100, 30);
 		contentArea.setVisible(true);
 		
 		for (ActionListener action : customButton.getActionListeners()) {
@@ -124,12 +124,15 @@ public class DetailView extends JFrame {
 			setSize(this.getWidth(), 500);
 			customButton.setText("제출");
 			customButton.addActionListener(actionForType(type));
-			
+
 			titleArea.setText("");
 			contentArea.setText("");
 		} else {
 			setSize(this.getWidth(), 400);
 		}
+		
+		titleArea.setEditable(writeMode);
+		contentArea.setEditable(writeMode);
 		
 		switch(this.type) {
 		case ASSIGNMENT:
@@ -158,6 +161,9 @@ public class DetailView extends JFrame {
 			if(!writeMode) {
 				titleArea.setText(String.valueOf(this.answer.getQuestionId()));
 				contentArea.setText(this.answer.content);
+			} else {
+				titleArea.setEditable(false);
+				titleArea.setText(question.getStudentId() + "의 질문");
 			}
 			break;
 		case NOTIFICATION:
@@ -174,9 +180,7 @@ public class DetailView extends JFrame {
 		default:
 			break;
 		}
-
-		titleArea.setEditable(writeMode);
-		contentArea.setEditable(writeMode);
+		
 		customButton.setVisible(writeMode);
 		contentPane.revalidate();
 		contentPane.repaint();
@@ -219,10 +223,8 @@ public class DetailView extends JFrame {
 			action = new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (manager.postAssignment(lecture.getLectureId(),
-							titleArea.getText(),
-							contentArea.getText(),
-							null, null, null)) {
+					if (manager.makeQuestion(lecture.getLectureId(),
+							user.getId(), contentArea.getText())) {
 						setVisible(false);
 						delegate.needsReloadData(type);
 					} else {
@@ -235,10 +237,7 @@ public class DetailView extends JFrame {
 			action = new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (manager.postAssignment(lecture.getLectureId(),
-							titleArea.getText(),
-							contentArea.getText(),
-							null, null, null)) {
+					if (manager.makeAnswer(question.getQuestionId(), contentArea.getText())) {
 						setVisible(false);
 						delegate.needsReloadData(type);
 					} else {

@@ -1424,9 +1424,9 @@ public class NetworkManager {
 			return false;
 		}
 		JsonElement content = response.get("content");
-		if (content.getAsString().equals("No answer")) {
+		if (!content.isJsonObject()) {
 			System.out.println("get answer : no answer");
-			return true;
+			return false;
 		}
 		Answer answer = new Answer(content.getAsJsonObject());
 		dataManager.openDB();

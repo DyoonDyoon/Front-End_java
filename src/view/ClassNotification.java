@@ -72,12 +72,6 @@ public class ClassNotification extends JFrame implements ReloadListener{
 		
 		needsReloadData(null);
 		
-		TableColumnModel columnmodel = NotificationTable.getColumnModel();
-		columnmodel.getColumn(0).setPreferredWidth(100); 
-		columnmodel.getColumn(1).setPreferredWidth(200); 
-		columnmodel.getColumn(0).setResizable(false);
-		columnmodel.getColumn(1).setResizable(false);
-		
 		NotificationscrollPane = new JScrollPane(); // 스크롤바 설정을 위함
 		NotificationscrollPane.setBounds(10,10, 300, 370); // 위치와 크기 설정
 		NotificationscrollPane.setViewportView(NotificationTable);	//JTable 지정
@@ -144,8 +138,10 @@ public class ClassNotification extends JFrame implements ReloadListener{
 		}
 
 		NotificationTable.setModel(tableModel);
-		
-		contentPane.revalidate();
-		contentPane.repaint();
+		TableColumnModel columnmodel = NotificationTable.getColumnModel();
+		columnmodel.getColumn(0).setPreferredWidth(50); 
+		columnmodel.getColumn(1).setPreferredWidth(230); 
+		columnmodel.getColumn(0).setResizable(false);
+		columnmodel.getColumn(1).setResizable(false);
 	}
 }
