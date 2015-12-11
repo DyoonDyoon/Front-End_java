@@ -303,7 +303,6 @@ public class DataManager {
 			sql = sql + "assignVer=?";
 		}
 		sql = sql + " where lectureId=?";
-		System.out.println(sql);
 		try{	  
 			pstmt = conn.prepareStatement(sql);
 			if(notiVersion != -1){

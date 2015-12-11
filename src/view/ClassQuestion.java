@@ -155,8 +155,7 @@ public class ClassQuestion extends JFrame implements ReloadListener{
 		// 교수면 강의 ID로 질문 검색
 		if (user.getType() == 0)
 			userId = user.getId();
-		else
-			lectureId = lecture.getLectureId();
+		lectureId = lecture.getLectureId();
 		
 		if (networkManager.syncQuestion(userId, lectureId)) {
 			dataManager.openDB();

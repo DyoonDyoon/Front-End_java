@@ -5,8 +5,10 @@ import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -46,6 +48,8 @@ public class DetailView extends JFrame {
 	private JTextArea titleArea;
 	private JTextArea contentArea;
 	private JButton customButton;
+	private JFileChooser fileChooser;
+	private JButton uploadButton;
 	
 	private boolean writeMode;
 	
@@ -95,6 +99,35 @@ public class DetailView extends JFrame {
 		customButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
 		customButton.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
 		contentPane.add(customButton);
+		
+		uploadButton = new JButton("열기");
+		uploadButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		uploadButton.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		ActionListener e = null;
+		fileChooser = new JFileChooser();
+		uploadButton.addActionListener(e = new ActionListener(){
+			@Override
+		    public void actionPerformed(ActionEvent e) 
+		    {
+		        if(e.getSource() == uploadButton)
+		        {
+		            int returnVal = fileChooser.showOpenDialog(contentPane);
+		            if( returnVal == JFileChooser.APPROVE_OPTION)
+		            {
+		                //열기 버튼을 누르면
+		                File file = fileChooser.getSelectedFile();
+		                titleArea.setText(file.toString());
+		            }
+		            else
+		            {
+		                //취소 버튼을 누르면
+		            	titleArea.setText("");
+		            }
+		        }
+
+		}});
+		contentPane.add(uploadButton);
+		
 	}
 	
 	public void setContext(DetailViewType type, boolean writeMode,
@@ -114,6 +147,7 @@ public class DetailView extends JFrame {
 		titleArea.setBounds(10, 10, 300, 20);
 		contentArea.setBounds(10, 40, 300, 330);
 		customButton.setBounds(110, 390, 100, 30);
+		uploadButton.setVisible(false);
 		contentArea.setVisible(true);
 		
 		for (ActionListener action : customButton.getActionListeners()) {
@@ -124,7 +158,6 @@ public class DetailView extends JFrame {
 			setSize(this.getWidth(), 500);
 			customButton.setText("제출");
 			customButton.addActionListener(actionForType(type));
-
 			titleArea.setText("");
 			contentArea.setText("");
 		} else {
@@ -143,8 +176,10 @@ public class DetailView extends JFrame {
 				if (user.getType() == 0) {
 					// 레포트 제출하는 프레임은 파일 경로만 입력받음
 					contentArea.setVisible(false);
-					customButton.setBounds(110, 40, 100, 20);
-					setSize(this.getWidth(), 85);
+					customButton.setBounds(190, 40, 100, 20);
+					uploadButton.setBounds(30, 40, 100, 20);
+					uploadButton.setVisible(true);
+					setSize(this.getWidth(), 100);
 				}
 			}
 			break;
