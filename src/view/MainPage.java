@@ -192,9 +192,21 @@ public class MainPage extends JFrame{
 						break;
 					case "ReadNoti":
 						Notification noti = notis.get(NotificationTable.getSelectedRow());
-						System.out.println(noti);
 						NotificationTitle.setText(noti.title);
 						NotificationContent.setText(noti.description);
+						break;
+					case "ReadQuestion":
+						String lectureName = null;
+						Question question = questions.get(QuestionTable.getSelectedRow());
+						for (int j = 0; j < lectures.size(); ++j) {
+							String[] lectureTitle = lectureTitles.get(j);
+							if (question.getLectureId().equals(lectureTitle[1])) {
+								lectureName = lectureTitle[0];
+								break;
+							}
+						}
+						QuestionTitle.setText(lectureName + "\t\t" +question.getStudentId());
+						QuestionContent.setText(question.content);
 						break;
 					case "ClassNoti":
 						new ClassNotification(user, dataManager, networkManager, lectureNow);
@@ -754,7 +766,7 @@ public class MainPage extends JFrame{
 		}
 		dataManager.closeDB();
 		
-		String[] columnNames = {"강의","내용"}; // Column을 설명하기 위함
+		String[] columnNames = {"강의","질문자","내용"}; // Column을 설명하기 위함
 		
 		DefaultTableModel defaulttablemodel = new DefaultTableModel(questions.size(), columnNames.length)
 			{
@@ -774,7 +786,8 @@ public class MainPage extends JFrame{
 					break;
 				}
 			}
-			defaulttablemodel.setValueAt(question.content, i, 1);
+			defaulttablemodel.setValueAt(question.getStudentId(), i, 1);
+			defaulttablemodel.setValueAt(question.content, i, 2);
 		}
 		
 		QuestionTable = new JTable(defaulttablemodel);
@@ -786,9 +799,11 @@ public class MainPage extends JFrame{
 		
 		TableColumnModel columnmodel = QuestionTable.getColumnModel();
 		columnmodel.getColumn(0).setPreferredWidth(150); 
-		columnmodel.getColumn(1).setPreferredWidth(440);
+		columnmodel.getColumn(1).setPreferredWidth(140); 
+		columnmodel.getColumn(2).setPreferredWidth(300);
 		columnmodel.getColumn(0).setResizable(false);
 		columnmodel.getColumn(1).setResizable(false);
+		columnmodel.getColumn(2).setResizable(false);
 		
 		QuestionscrollPane = new JScrollPane(); // 스크롤바 설정을 위함
 		QuestionscrollPane.setBounds(10,20, 610, 180); // 위치와 크기 설정
