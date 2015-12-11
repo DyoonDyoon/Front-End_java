@@ -641,7 +641,7 @@ public class DataManager {
 		
 	public boolean deleteAssignmentDB(int assignId, String lectureId){
 		pstmt = null;	//동적 query문
-		String sql = "delete from assignment where assignId=? && lectureId";
+		String sql = "delete from assignment where assignId=? && lectureId=?";
 		try {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, assignId);

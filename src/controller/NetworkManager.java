@@ -781,6 +781,9 @@ public class NetworkManager {
 		}
 		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
 		if (responseCode != 200) {
+			if (!response.get("message").isJsonNull()) {
+				return false;
+			}
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();

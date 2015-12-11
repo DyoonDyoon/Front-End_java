@@ -50,6 +50,7 @@ public class DetailView extends JFrame {
 	private JButton customButton;
 	private JFileChooser fileChooser;
 	private JButton uploadButton;
+	private JButton deleteButton;
 	
 	private boolean writeMode;
 	
@@ -128,6 +129,12 @@ public class DetailView extends JFrame {
 		}});
 		contentPane.add(uploadButton);
 		
+		deleteButton = new JButton("삭제");
+		deleteButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 폰트와 폰트 크기 설정
+		deleteButton.setBorder(new LineBorder(new Color(0, 0, 0))); // 가장자리 설정
+		deleteButton.addActionListener(getDeleteActionListener());
+		deleteButton.setBounds(110, 390, 100, 30);
+		contentPane.add(deleteButton);
 	}
 	
 	public void setContext(DetailViewType type, boolean writeMode,
@@ -148,6 +155,7 @@ public class DetailView extends JFrame {
 		contentArea.setBounds(10, 40, 300, 330);
 		customButton.setBounds(110, 390, 100, 30);
 		uploadButton.setVisible(false);
+		deleteButton.setVisible(false);
 		contentArea.setVisible(true);
 		
 		for (ActionListener action : customButton.getActionListeners()) {
@@ -172,6 +180,10 @@ public class DetailView extends JFrame {
 			if(!writeMode) {
 				titleArea.setText(this.assignment.title);
 				contentArea.setText(this.assignment.description);
+				if (user.getType() == 1) {
+					setSize(this.getWidth(), 500);
+					deleteButton.setVisible(true);
+				}
 			} else {
 				if (user.getType() == 0) {
 					// 레포트 제출하는 프레임은 파일 경로만 입력받음
@@ -205,6 +217,10 @@ public class DetailView extends JFrame {
 			if(!writeMode) {
 				titleArea.setText(this.notification.title);
 				contentArea.setText(this.notification.description);
+				if (user.getType() == 1) {
+					setSize(this.getWidth(), 500);
+					deleteButton.setVisible(true);
+				}
 			}
 			break;
 		case GRADE:
@@ -219,6 +235,31 @@ public class DetailView extends JFrame {
 		customButton.setVisible(writeMode);
 		contentPane.revalidate();
 		contentPane.repaint();
+	}
+	
+	private ActionListener getDeleteActionListener() {
+		return new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (type == DetailViewType.ASSIGNMENT) {
+					// 과제 삭제
+					if (manager.cancelAssignment(lecture.getLectureId(), assignment.getAssignId())) {
+						setVisible(false);
+						delegate.needsReloadData(type);
+					} else {
+						JOptionPane.showMessageDialog(null, "과제 삭제에 실패했습니다!");
+					}
+				} else if (type == DetailViewType.NOTIFICATION) {
+					// 공지 삭제
+					if (manager.cancelNotification(lecture.getLectureId(), notification.getNotificationId())) {
+						setVisible(false);
+						delegate.needsReloadData(type);
+					} else {
+						JOptionPane.showMessageDialog(null, "공지 삭제에 실패했습니다!");
+					}
+				}
+			}
+		};
 	}
 	
 	private ActionListener actionForType(DetailViewType type) {
