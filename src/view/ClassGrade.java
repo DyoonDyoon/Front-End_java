@@ -1,3 +1,6 @@
+/**
+ *  Created by JeongDongMin on 2015. 12. 05..
+ */
 package view;
 
 import java.awt.Color;
@@ -35,26 +38,33 @@ public class ClassGrade extends JFrame implements ReloadListener{
 	DataManager dataManager = null;
 	NetworkManager networkManager = null;
 	
-	JPanel contentPane;
-	JTable GradeTable;
-	JScrollPane GradescrollPane;
-	private ArrayList<Grade> grades;
-	private ArrayList<Submit> submits;
-	private Lecture lecture;
-	private DefaultTableModel tableModel;
-	private DetailView detailView;
-	private JButton giveButton;
+	JPanel contentPane; // 메인 패널 선언
+	JTable GradeTable; // 성적 테이블 선언
+	JScrollPane GradescrollPane; // 성적 테이블의 스크롤 선언
+	private ArrayList<Grade> grades; // 성적 저장 리스트 선언
+	private ArrayList<Submit> submits; // 성적 부여를 위한 리스트 선언
+	private Lecture lecture; // 강의 정보 저장 객체 선언 
+	private DefaultTableModel tableModel; // 테이블 defalt 모델 선언
+	private DetailView detailView; // detailview 객체 선언
+	private JButton giveButton; // 성적 부여 버튼 선언
 	
+	/**
+	 * ClassGrade 객체 생성자
+	 * @param user
+	 * @param dataManager
+	 * @param networkManager
+	 * @param lecture
+	 */
 	public ClassGrade(User user, DataManager dataManager, NetworkManager networkManager, Lecture lecture){
-		this.user = user;
-		this.dataManager = dataManager;
-		this.networkManager = networkManager;
-		this.lecture = lecture;
-		this.detailView = new DetailView(networkManager, lecture, user, this);
+		this.user = user; // 유저 정보 설정
+		this.dataManager = dataManager; // 데이타 매니저 설정
+		this.networkManager = networkManager; //  네트워크 매니저 설정
+		this.lecture = lecture; // 강의 정보 설정
+		this.detailView = new DetailView(networkManager, lecture, user, this); // detailview 설정
 		
-		String titleString = "성적 확인";
+		String titleString = "성적 확인"; //학생일 경우 제목을 "성적 확인"으로 설정
 		if (user.getType() == 1) {
-			titleString = "제출 확인";
+			titleString = "제출 확인"; // 교수일 경우 제목을 "제출 확인"으로 설정
 		}
 		
 		setTitle(titleString); // 객체의 제목 설정
@@ -86,11 +96,12 @@ public class ClassGrade extends JFrame implements ReloadListener{
 		GradescrollPane.setBackground(SystemColor.control); // 배경 색 설정
 		contentPane.add(GradescrollPane);
 		
-		if (user.getType() == 1) {
+		if (user.getType() == 1) { // 교수일 경우 성적 부여를 위한 버튼을 구현
 			ActionListener giveAction = new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Submit submit = submits.get(GradeTable.getSelectedRow());
+					//버튼을 누르면 성적을 부여할 수 있도록 함
+					Submit submit = submits.get(GradeTable.getSelectedRow()); // 선택한 제출의 정보를 가져옴
 					detailView.setContext(DetailViewType.GRADE, true, null, submit, null, null, null);
 					detailView.setVisible(true);
 				}
@@ -104,7 +115,7 @@ public class ClassGrade extends JFrame implements ReloadListener{
 		}
 	}
 
-	@Override
+	@Override // 데이터를 가져올 때 실행되는 함수
 	public void needsReloadData(DetailViewType type) {
 		
 		if (user.getType() == 1) {
@@ -122,6 +133,7 @@ public class ClassGrade extends JFrame implements ReloadListener{
 				JOptionPane.showMessageDialog(null, "레포트를 받아올 수 없습니다!");
 				return;
 			}
+			//테이블 모델을 설정함
 			tableModel = new DefaultTableModel(submits.size(), submitColumnNames.length) {
 				    @Override
 				    public boolean isCellEditable(int row, int column) {
@@ -130,11 +142,12 @@ public class ClassGrade extends JFrame implements ReloadListener{
 				    }
 			};
 			
+			//가져온 정보를 통해 테이블을 구현
 			for (int i = 0; i < submits.size(); ++i) {
 				Submit submit = submits.get(i);
-				tableModel.setValueAt(submit.getAssignId(), i, 0);
-				tableModel.setValueAt(submit.getStudentId(), i, 1);
-				tableModel.setValueAt(submit.getFilePath(), i, 2);
+				tableModel.setValueAt(submit.getAssignId(), i, 0); // 과제 번호 설정
+				tableModel.setValueAt(submit.getStudentId(), i, 1); // 학번 설정
+				tableModel.setValueAt(submit.getFilePath(), i, 2); // 파일 경로 설정
 			}
 			tableModel.setColumnIdentifiers(submitColumnNames);
 		} else {
@@ -153,6 +166,7 @@ public class ClassGrade extends JFrame implements ReloadListener{
 				return;
 			}
 			
+			//가져온 정보를 통해 테이블 모델 설정
 			tableModel = new DefaultTableModel(grades.size(), gradeColumnNames.length) {
 				    @Override
 				    public boolean isCellEditable(int row, int column) {
@@ -166,10 +180,9 @@ public class ClassGrade extends JFrame implements ReloadListener{
 				dataManager.openDB();
 				// sumbitId로 assignId를 검색하기 위함
 				Submit submit = dataManager.selectSubmit(grade.getSubmitId());
-				System.out.println(submit);
 				dataManager.closeDB();
-				tableModel.setValueAt(submit.getAssignId(), i, 0);
-				tableModel.setValueAt(grade.getScore(), i, 1);
+				tableModel.setValueAt(submit.getAssignId(), i, 0); // 과제 번호 설정
+				tableModel.setValueAt(grade.getScore(), i, 1); // 받은 점수 설정
 			}
 			tableModel.setColumnIdentifiers(gradeColumnNames);
 		}
@@ -177,14 +190,14 @@ public class ClassGrade extends JFrame implements ReloadListener{
 		GradeTable.setModel(tableModel);
 
 		TableColumnModel columnmodel = GradeTable.getColumnModel();
-		if (user.getType() == 1) {
+		if (user.getType() == 1) { // 교수일 때에는 "과제 번호","학번","파일 경로"
 			columnmodel.getColumn(0).setPreferredWidth(60); 
 			columnmodel.getColumn(1).setPreferredWidth(100);
 			columnmodel.getColumn(2).setPreferredWidth(120); 
 			columnmodel.getColumn(0).setResizable(false);
 			columnmodel.getColumn(1).setResizable(false);
 			columnmodel.getColumn(2).setResizable(false);
-		} else {
+		} else { // 학생일 경우 "과제 번호", "성적"
 			columnmodel.getColumn(0).setPreferredWidth(60); 
 			columnmodel.getColumn(1).setPreferredWidth(230); 
 			columnmodel.getColumn(0).setResizable(false);
