@@ -24,17 +24,11 @@ import model.Version;
 public class DataManager {	
 	Connection conn = null; 		// DB 연결을 위한 객체
 	PreparedStatement pstmt = null; // 동적 query문을 위한 객체
-	
-	/**
-	 * DB에 접속하여 DB open
-	 * @param 
-	 * @return 
-	 */
-	public boolean openDB(){ 
-		String myUrl = "jdbc:mysql://localhost:3306/eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
+	public boolean openDB(){
+//		String myUrl = "jdbc:mysql://localhost:3306/eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 		String id = "root"; // 사용자 계정
-		String pw = "5721"; // 사용자 계정의 패스워드
-//		String myUrl = "jdbc:mysql:// localhost:3306/front_eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
+		String pw = "1234"; //사용자 계정의 패스워드
+		String myUrl = "jdbc:mysql://localhost:3306/front_eclass?useUnicode=true&characterEncoding=utf8"; // 사용하려는 데이터베이스명을 포함한 URL 기술
 //		String id = "root"; // 사용자 계정
 //		String pw = "1234"; // 사용자 계정의 패스워드
 		

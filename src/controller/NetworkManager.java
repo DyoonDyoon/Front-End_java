@@ -32,10 +32,13 @@ import model.Version;
 import view.LoginPage;
 import view.MainPage;
 
+/**
+ *
+ */
 public class NetworkManager {
-//	private static final String API_HOST = "http://localhost:3001";
-	
-	private static final String API_HOST = "http://www.feonfun.com:8808";
+	private static final String API_HOST = "http://localhost:3001";
+
+//	private static final String API_HOST = "http://www.feonfun.com:8808";
 	private static final String LOGIN = "/login";
 	private static final String JOIN = "/join";
 	private static final String LECTURE_OUTLINE = "/lecture_outline";
@@ -46,7 +49,6 @@ public class NetworkManager {
 	private static final String NOTIFICATION = "/notification";
 	private static final String QUESTION = "/question";
 	private static final String SUBMIT = "/submit";
-//	private static final String USER = "/user";
 	
 	private static final String CONFIG_FIlE = "./config.json";
 
@@ -54,22 +56,40 @@ public class NetworkManager {
 	private String accessToken;
 	LoginPage loginpage;
 	MainPage mainpage;
-	
+
+    /**
+     * 강의 정보를 가져올 URL 정보
+     * @param version 강의 정보 버전
+     * @return 강의 정보 버전에 따른 URL
+     */
 	private static final String LECTURE_OUTLINE_URL(int version) {
 		return "https://rawgit.com/DyoonDyoon/Back-End/master/script/json/" + version + ".json";
 	}
-	
+
+    /**
+     * 생성자. 오류를 출력하기 위한 Frame들을 받음
+     * @param loginpage 로그인 프레임
+     * @param mainpage 메인 프레임
+     */
 	public NetworkManager(LoginPage loginpage, MainPage mainpage) {
 		accessToken = null;
 		dataManager = new DataManager();
 		this.loginpage = loginpage;
 		this.mainpage = mainpage;
 	}
-	
+
+    /**
+     * accessToken을 다시 갱신하는 메소드
+     * @param response 갱신할 accessToken을 가진 JsonObject
+     */
 	private void updateAccessToken(JsonObject response) {
 		accessToken = response.get("accessToken").getAsJsonObject().get("token").getAsString();
 	}
-	
+
+    /**
+     * 강의 정보를 업데이트가 할 필요있는지 확인하는 메소드
+     * @return 필요하지 않다면 -1, 필요하다면 최신 version을 반환
+     */
 	public int needsUpdateLectureOutline() {
 		File textFile = new File(CONFIG_FIlE);
 		JsonObject config = null;
@@ -89,10 +109,10 @@ public class NetworkManager {
 			}
 	        config = new JsonParser().parse(fileString).getAsJsonObject();
 		}
-		JsonObject serverConfig = getLectureOutlineConfig();
+		JsonObject serverConfig = getLectureOutlineConfig();	// 서버에서 응답하는 최신버전 내용
 		boolean flag = false;
 		if (serverConfig != null) {
-			if(!textFile.exists()) {
+			if(!textFile.exists()) {	// 버전 파일이 없을 경우 (프로그램을 새로 설치했을 경우)
 				flag = true;
 	        } else {
 	        	boolean isUpToDate = config.get("version").getAsInt() != serverConfig.get("version").getAsInt();
@@ -100,7 +120,7 @@ public class NetworkManager {
 		        	flag = true;
 		        }
 	        }
-	        if (flag) {
+	        if (flag) {	// update가 필요
 	        	try {
 					FileOutputStream outputStream = new FileOutputStream(CONFIG_FIlE, false);	// if exist
 		            String serverConfigStr = serverConfig.toString();
@@ -108,29 +128,32 @@ public class NetworkManager {
 		            outputStream.close();
 	        	} catch (IOException e) {
 	        		e.printStackTrace();
-	        		return -1;
+	        		return -1;	// 파일을 쓰는 데 오류가 생겼을 경우 업데이트를 하지 않음
 	        	}
-	        	return serverConfig.get("version").getAsInt();
+	        	return serverConfig.get("version").getAsInt();	// 최신 version 내용
 	        }
         }
 		return -1;
 	}
-	
+
+    /**
+     * 서버로부터 최신정보를 불러오기
+     * @return 최신정보 JsonObject
+     */
 	private JsonObject getLectureOutlineConfig() {
-		int responseCode = 0;
-		String inputLine = "";
-		String url = API_HOST + LECTURE_OUTLINE;
+		int responseCode = 0; // 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
+		String url = API_HOST + LECTURE_OUTLINE;	// 접속할 URL
 		try {
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		// optional default is GET
-		con.setRequestMethod("GET");
-		responseCode = con.getResponseCode();
-		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		inputLine = in.readLine();
-		in.close();
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
+			responseCode = con.getResponseCode();
+
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(con.getInputStream()));
+			inputLine = in.readLine();	// 서버의 응답내용 읽기
+			in.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -139,21 +162,27 @@ public class NetworkManager {
 		if (responseCode != 200)
 			return null;
 		
-		JsonObject config = new JsonParser().parse(inputLine).getAsJsonObject();
+		JsonObject config = new JsonParser().parse(inputLine).getAsJsonObject();	// 읽은 내용을 JsonObject로 변환
 		return config;
 	}
-	
+
+    /**
+     * 로그인 메소드
+     * @param id 로그인할 아이디
+     * @param pw 로그인할 비밀번호
+     * @return 서버로부터 받은 User 객체
+     */
 	public User login(String id, String pw) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + LOGIN;
-		String params = "?userId=" + id + "&password=" + pw;
+		String params = "?userId=" + id + "&password=" + pw;	// 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("POST");
+			con.setRequestMethod("POST");	// POST 방식을 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -165,35 +194,44 @@ public class NetworkManager {
 			e.printStackTrace();
 			return null;
 		}
-		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+		JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();	// 받은 Response를 JsonObject로 변경
 		if (responseCode != 200) {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 에러코드가 3, 4, 5 일 경우 로그인 실패
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
 			}
 			return null;
 		}
-		updateAccessToken(response);
+		updateAccessToken(response);	// accessToken 갱신
 		JsonObject userJson = response.getAsJsonObject("user");
 		User user = new User(userJson);
-		return user;
+		return user;	// user 객체 반환
 	}
-	
+
+    /**
+     * 회원가입 메소드
+     * @param id 유저 아이디
+     * @param pw 비밀번호
+     * @param name 유저이름
+     * @param major 유저 전공
+     * @param type 유저 타입 (0: 학생, 1: 교수)
+     * @return 성공시 true 실패시 false
+     */
 	public boolean join(String id, String pw, String name, String major, int type) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + JOIN;
-		String params = "?userId="+id+"&password="+pw+"&name="+name+"&major="+major+"&type="+type;
+		String params = "?userId="+id+"&password="+pw+"&name="+name+"&major="+major+"&type="+type; // 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("POST");
+			con.setRequestMethod("POST");	// POST 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -206,30 +244,30 @@ public class NetworkManager {
 			return false;
 		}
 		if (responseCode != 200) {
-			JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();
+			JsonObject response = new JsonParser().parse(inputLine).getAsJsonObject();	// 실패했을 경우 에러코드를 위한 JSON
 			System.out.println(response.get("message").toString());
-			return false;
+			return false; // 실패
 		}
-		return true;
+		return true;	// 성공
 	}
-	
-	
-	public boolean updateUserInformation() {
-		// 미구현
-		return false;
-	}
-	
+
+    /**
+     * 수강신청 메소드
+     * @param userId 수강하는 학생
+     * @param lectureId 강의 학수번호
+     * @return 성공시 true, 실패시 false
+     */
 	public boolean applyLecture(String userId, String lectureId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + LECTURE;
-		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;
+		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;	// 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("POST");
+			con.setRequestMethod("POST");	// POST 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -257,22 +295,27 @@ public class NetworkManager {
 		if (!dataManager.existsRecordAtVersion(lectureId)) {	// 버전테이블이 없을 경우 생성
 			dataManager.insertVersionDB(lectureId);
 		}
-		dataManager.insertLectureDB(lectureId, userId);
+		dataManager.insertLectureDB(lectureId, userId);	// LectureDB에 저장
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 서버의 Lecture 정보로 동기화
+     * @param userId Lecture 정보를 가져올 유저 아이디
+     * @return 성공시 true
+     */
 	public boolean syncLectures(String userId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + LECTURE;
-		String params = "?token="+accessToken+"&userId="+userId;
+		String params = "?token="+accessToken+"&userId="+userId;	// 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("GET");
+			con.setRequestMethod("GET");	// GET 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -289,7 +332,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 에러코드 3, 4, 5의 경우 재로그인 요구 (세션)
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -299,8 +342,8 @@ public class NetworkManager {
 
 		JsonArray content = response.get("content").getAsJsonArray();
 		dataManager.openDB();
-		if (content.size() < dataManager.selectLectureDB(userId).size()) {
-			dataManager.deleteAllLectureDB();
+		if (content.size() < dataManager.selectLectureDB(userId).size()) {	// 삭제된 내용이 있을 경우
+			dataManager.deleteAllLectureDB();	// 다시 새로 레코드를 저장하기 위한 레코드 모두 삭제
 		}
 		for (JsonElement e : content) {
 			JsonObject lectureJson = e.getAsJsonObject();
@@ -309,16 +352,22 @@ public class NetworkManager {
 				if (!dataManager.existsRecordAtVersion(lecture.getLectureId())) {	// 버전테이블이 없을 경우 생성
 					dataManager.insertVersionDB(lecture.getLectureId());
 				}
-				dataManager.insertLectureDB(lecture.getLectureId(), lecture.getUserId());
+				dataManager.insertLectureDB(lecture.getLectureId(), lecture.getUserId());	// 강의 넣기
 			}
 		}
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 수강 포기 메소드
+     * @param userId 포기할 유저 아이디
+     * @param lectureId 강의 학수번호
+     * @return 성공시 true
+     */
 	public boolean dropLecture(String userId, String lectureId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + LECTURE;
 		String params = "?token="+accessToken+"&userId="+userId+"&lectureId="+lectureId;
 		url = url + params;
@@ -326,7 +375,7 @@ public class NetworkManager {
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("DELETE");
+			con.setRequestMethod("DELETE");	// DELETE 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -343,7 +392,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -351,27 +400,33 @@ public class NetworkManager {
 			return false;
 		}
 		dataManager.openDB();
-		dataManager.deleteLectureDB(lectureId, userId);
+		dataManager.deleteLectureDB(lectureId, userId);	// Local DB에서 삭제
 		dataManager.closeDB();
 		return true;
 	}
-	
-	// notification
+
+    /**
+     * 공지 올리기
+     * @param lectureId 강의 학수번호
+     * @param title 공지 제목
+     * @param description 공지 내용
+     * @return 성공시 true
+     */
 	public boolean postNotification(String lectureId, String title, String description) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + NOTIFICATION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId;
 		
 		try {
-			params = params + "&title="+ URLEncoder.encode(title, "UTF-8");
-			if (description != null) {
+			params = params + "&title="+ URLEncoder.encode(title, "UTF-8");	// UTF-8로 인코딩
+			if (description != null) {	// 내용이 있을 경우 파라미터에 추가
 				params = params + "&description=" + URLEncoder.encode(description, "UTF-8");
 			}
 			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("POST");
+			con.setRequestMethod("POST");	// POST 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -396,15 +451,21 @@ public class NetworkManager {
 			return false;
 		}
 		dataManager.openDB();
-		Version version = dataManager.selectVersionDB(lectureId);
+		Version version = dataManager.selectVersionDB(lectureId);	// 버전 초기화를 위한 Version 객체
 		dataManager.closeDB();
 		syncNotification(version.getLectureId(), version.notiVersion);
 		return true;
 	}
-	
+
+    /**
+     * 공지 동기화
+     * @param lectureId 동기화할 공지의 학수번호
+     * @param version 공지 버전
+     * @return 성공시 true
+     */
 	public boolean syncNotification(String lectureId, int version) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + NOTIFICATION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&version="+version;
 		url = url + params;
@@ -412,7 +473,7 @@ public class NetworkManager {
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("GET");
+			con.setRequestMethod("GET");	// GET 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -430,7 +491,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -473,23 +534,32 @@ public class NetworkManager {
 		return true;
 	}
 
+    /**
+     * 공지 변경
+     * @param lectureId 학수번호
+     * @param notiId 변경할 공지 아이디
+     * @param title 변경할 제목 (optional)
+     * @param description 변경할 내용 (optional)
+     * @return 성공시 true
+     */
 	public boolean updateNotification(String lectureId, int notiId, String title, String description) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + NOTIFICATION;
 		String params = "?token="+accessToken+"&lectureId="+lectureId+"&notiId="+notiId;
 		
 		try {
+			// 각 파라미터가 있을 경우 URL 파라미터에 추가
 			if (title != null) {
-				params = params + "&title=" + URLEncoder.encode(title, "UTF-8");
+				params = params + "&title=" + URLEncoder.encode(title, "UTF-8");	// UTF-8로 인코딩
 			}
 			if (description != null) {
-				params = params + "&description=" + URLEncoder.encode(description, "UTF-8");
+				params = params + "&description=" + URLEncoder.encode(description, "UTF-8");	// UTF-8로 인코딩
 			}
 			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("PUT");
+			con.setRequestMethod("PUT"); // PUT 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -506,7 +576,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -519,18 +589,24 @@ public class NetworkManager {
 		syncNotification(version.getLectureId(), version.notiVersion);
 		return true;
 	}
-	
+
+    /**
+     * 공지 삭제
+     * @param lectureId 삭제할 공지 강의 아이디
+     * @param notiId 삭제할 공지 아이디
+     * @return 성공시 true
+     */
 	public boolean cancelNotification(String lectureId, int notiId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + NOTIFICATION;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&notiId="+notiId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&notiId="+notiId;	// 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("DELETE");
+			con.setRequestMethod("DELETE"); // DELETE 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -547,7 +623,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -560,16 +636,26 @@ public class NetworkManager {
 		syncNotification(version.getLectureId(), version.notiVersion);
 		return true;
 	}
-	
 
-	// asssignment
-	public boolean postAssignment(String lectureId, String title, String description, String filePath, String startDate, String endDate) {
-		int responseCode = 0;
-		String inputLine = "";
+
+    /**
+     * 과제 생성
+     * @param lectureId 강의 학수번호
+     * @param title 과제 제목
+     * @param description 과제 내용
+     * @param filePath 첨부파일
+     * @param startDate 과제 시작일
+     * @param endDate 과제 마감일
+     * @return 성공시 true
+     */
+    public boolean postAssignment(String lectureId, String title, String description, String filePath, String startDate, String endDate) {
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + ASSIGNMENT;
-		String params = "?token="+accessToken+"&lectureId="+lectureId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId; // 파라미터
 		
 		try {
+			// 각 파라미터들의 내용을 옵셔널하게 추가
 			params = params + "&title="+URLEncoder.encode(title, "UTF-8");
 			if (description != null) {
 				params = params + "&description=" + URLEncoder.encode(description, "UTF-8");
@@ -587,7 +673,7 @@ public class NetworkManager {
 			
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("POST");
+			con.setRequestMethod("POST");	// POST 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -604,7 +690,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -618,18 +704,24 @@ public class NetworkManager {
 		syncAssignment(version.getLectureId(), version.assignVersion);
 		return true;
 	}
-	
+
+    /**
+     * 과제 동기화
+     * @param lectureId 동기화할 강의 학수번호
+     * @param version 동기화 버전
+     * @return 성공시 true
+     */
 	public boolean syncAssignment(String lectureId, int version) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + ASSIGNMENT;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&version="+version;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&version="+version;	// 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("GET");
+			con.setRequestMethod("GET"); // GET방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -646,7 +738,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -666,6 +758,8 @@ public class NetworkManager {
 			String filePath = null;
 			String startDate = null;
 			String endDate = null;
+
+			// 각 내용들 optional 하게 추가 없으면 null
 			if (!json.get("title").isJsonNull()) {
 				title = json.get("title").getAsString();
 			}
@@ -700,13 +794,26 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 과제 변경
+     * @param lectureId 학수번호
+     * @param assignId 과제 아이디
+     * @param title 과제 제목
+     * @param description 과제 내용
+     * @param filePath 과제 첨부파일
+     * @param startDate 과제 시작일
+     * @param endDate 과제 마감일
+     * @return 성공시 true
+     */
 	public boolean updateAssignment(String lectureId, int assignId, String title, String description, String filePath, String startDate, String endDate) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + ASSIGNMENT;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;	// 파라미터
 		try {
+			// 각 파라미터들은 optional 하다
+			// 개행과 같은 문자때문에 UTF-8로 인코딩
 			if (title != null) {
 				params = params + "&title=" + URLEncoder.encode(title, "UTF-8");
 			}
@@ -725,7 +832,7 @@ public class NetworkManager {
 			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("PUT");
+			con.setRequestMethod("PUT"); // PUT 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -742,7 +849,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	 // 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -756,18 +863,24 @@ public class NetworkManager {
 		syncAssignment(version.getLectureId(), version.assignVersion);
 		return true;
 	}
-	
+
+    /**
+     * 과제 삭제
+     * @param lectureId 학수번호
+     * @param assignId 과제 아이디
+     * @return 성공시 true
+     */
 	public boolean cancelAssignment(String lectureId, int assignId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + ASSIGNMENT;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId; 	// 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("DELETE");
+			con.setRequestMethod("DELETE");	// DELETE 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -787,7 +900,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -801,13 +914,20 @@ public class NetworkManager {
 		syncAssignment(version.getLectureId(), version.assignVersion);
 		return true;
 	}
-	
-	// submit
+
+    /**
+     * 레포트 제출
+     * @param lectureId 제출할 레포트의 과제를 가진 강의 학수번호
+     * @param assignId 과제아이디
+     * @param stuId 제출자 아이디
+     * @param filePath 첨부파일 (레포트)
+     * @return 성공시 true
+     */
 	public boolean submitReport(String lectureId, int assignId, String stuId, String filePath) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + SUBMIT;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId+"&stuId="+stuId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&assignId="+assignId+"&stuId="+stuId; // 파라미터
 		
 		try {
 			if (filePath != null) {
@@ -816,7 +936,7 @@ public class NetworkManager {
 			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("POST");
+			con.setRequestMethod("POST");	// POST 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -833,7 +953,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -844,11 +964,18 @@ public class NetworkManager {
 			return true;
 		return false;
 	}
-	
+
+    /**
+     * 레포트 가져오기
+     * @param lectureId 학수번호
+     * @param assignId 과제아이디
+     * @param stuId 가져올 학생 [optional]
+     * @return 성공시 true
+     */
 	public boolean syncReport(String lectureId, int assignId, String stuId) {
 //		stuId : (학생용) 학생 아이디 넘겨주어 학생의 것만 받아오기 [optional]
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + SUBMIT;
 		String params = "?token="+accessToken+"&lectureId="+lectureId;
 		if (assignId != -1) {
@@ -862,7 +989,7 @@ public class NetworkManager {
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("GET");
+			con.setRequestMethod("GET");	// GET 방식 사용
 			responseCode = con.getResponseCode();
 			BufferedReader in = new BufferedReader(
 			        new InputStreamReader(con.getInputStream()));
@@ -886,7 +1013,7 @@ public class NetworkManager {
 		}
 		JsonArray array = response.get("content").getAsJsonArray();
 		dataManager.openDB();
-		if (array.size() < dataManager.selectSubmitDB(lectureId, assignId, stuId).size()) {
+		if (array.size() < dataManager.selectSubmitDB(lectureId, assignId, stuId).size()) {	// 삭제된 내용이 있을 경우 초기화
 			dataManager.deleteAllLectureDB();
 		}
 		for (JsonElement e : array) {
@@ -902,17 +1029,21 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 레포트 수정
+     * @param submitId 제출한 레포트 아이디
+     * @param filePath 첨부파일
+     * @return 성공시 true
+     */
 	public boolean updateReport(int submitId, String filePath) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + SUBMIT;
-		String params = "?token="+accessToken+"&submitId="+submitId;
-		
-		
+		String params = "?token="+accessToken+"&submitId="+submitId;	// 파라미터
 		
 		try {
-			params = params + "&filePath=" + URLEncoder.encode(filePath, "UTF-8");
+			params = params + "&filePath=" + URLEncoder.encode(filePath, "UTF-8");	// UTF-8 인코딩
 			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -931,7 +1062,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -943,10 +1074,15 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 레포트 삭제
+     * @param submitId 삭제할 레포트
+     * @return 성공시 true
+     */
 	public boolean cancelReport(int submitId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + SUBMIT;
 		String params = "?token="+accessToken+"&submitId="+submitId;
 		url = url + params;
@@ -954,7 +1090,7 @@ public class NetworkManager {
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("DELETE");
+			con.setRequestMethod("DELETE");	// DELETE 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -971,7 +1107,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -983,13 +1119,20 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
-	// grade
+
+    /**
+     * 점수 부여
+     * @param lectureId 강의 아이디 (학수번호)
+     * @param submitId 레포트 아이디
+     * @param stuId 레포트를 낸 학생 아이디
+     * @param score 부여할 점수
+     * @return 성공시 true
+     */
 	public boolean giveGrade(String lectureId, int submitId, String stuId, double score) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + GRADE;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&submitId="+submitId+"&stuId="+stuId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&submitId="+submitId+"&stuId="+stuId;	// 파라미터
 		if(score != -1) {
 			params = params + "&score=" + score;
 		}
@@ -998,7 +1141,7 @@ public class NetworkManager {
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("POST");
+			con.setRequestMethod("POST");	// POST 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1015,7 +1158,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1026,7 +1169,14 @@ public class NetworkManager {
 			return true;
 		return false;
 	}
-	
+
+    /**
+     * 점수 동기화
+	 * 두 파라미터 중 양자 택일
+     * @param stuId 성적을 찾는 학생 아이디
+     * @param lectureId 성적을 가진 강의 아이디
+     * @return 성공시 true
+     */
 	public boolean syncGrade(String stuId, String lectureId) {
 //		양자택일
 //		stuId - 성적을 찾는 학생 아이디 [optional]
@@ -1035,10 +1185,11 @@ public class NetworkManager {
 			System.out.println("Get Grade : at least ONE parameter");
 			return false;
 		}
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + GRADE;
 		String params = "?token="+accessToken;
+		// 옵셔널하게 파라미터 추가
 		if (lectureId != null) {
 			params = params + "&lectureId=" + lectureId;
 		}
@@ -1050,7 +1201,7 @@ public class NetworkManager {
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("GET");
+			con.setRequestMethod("GET");	// GET 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1067,13 +1218,14 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
 			}
 			return false;
 		}
+		// 내용 저장
 		JsonArray array = response.get("content").getAsJsonArray();
 		dataManager.openDB();
 		for (JsonElement json : array) {
@@ -1089,18 +1241,24 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 성적 변경
+     * @param gradeId 변경할 성적 아이디
+     * @param score 변경할 점수
+     * @return 성공시 true
+     */
 	public boolean updateGrade(int gradeId, double score) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + GRADE;
-		String params = "?token="+accessToken+"&gradeId="+gradeId+"&score="+score;
+		String params = "?token="+accessToken+"&gradeId="+gradeId+"&score="+score; // 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("PUT");
+			con.setRequestMethod("PUT"); // PUT 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1117,7 +1275,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1129,18 +1287,23 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 성적 삭제
+     * @param gradeId 삭제할 성적 아이디
+     * @return 성공시 true
+     */
 	public boolean cancelGrade(int gradeId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + GRADE;
-		String params = "?token="+accessToken+"&gradeId="+gradeId;
+		String params = "?token="+accessToken+"&gradeId="+gradeId;	// 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("DELETE");
+			con.setRequestMethod("DELETE");	// DELETE 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1157,7 +1320,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1169,20 +1332,26 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
-	// question
-	public boolean makeQuestion(String lectureId, String stuId, String content) {
-		int responseCode = 0;
-		String inputLine = "";
+
+    /**
+     * 질문하기
+     * @param lectureId 질문할 강의 아이디
+     * @param stuId 질문자 아이디
+     * @param content 질문 내용
+     * @return 성공시 true
+     */
+    public boolean makeQuestion(String lectureId, String stuId, String content) {
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + QUESTION;
-		String params = "?token="+accessToken+"&lectureId="+lectureId+"&stuId="+stuId;
+		String params = "?token="+accessToken+"&lectureId="+lectureId+"&stuId="+stuId; // 파라미터
 		
 		try {
-			params = params + "&content=" + URLEncoder.encode(content,"UTF-8");
+			params = params + "&content=" + URLEncoder.encode(content,"UTF-8");	//  파라미터 인코딩해서 추가
 			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("POST");
+			con.setRequestMethod("POST"); // POST 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1199,7 +1368,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1210,13 +1379,20 @@ public class NetworkManager {
 			return true;
 		return false;
 	}
-	
+
+    /**
+     * 질문 동기화
+	 * 파라미터 양자 택일
+     * @param stuId 질문자 아이디 (학생) 질문자 아이디 (학생)
+     * @param lectureId 질문한 강의
+     * @return 성공시 true
+     */
 	public boolean syncQuestion(String stuId, String lectureId) {
 //		양자택일
 //		stuId - 질문자 아이디 (학생) [optional]
 //		lectureId - 질문한 강의 [optional]
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + QUESTION;
 		String params = "?token="+accessToken;
 		if (stuId != null) {
@@ -1230,7 +1406,7 @@ public class NetworkManager {
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("GET");
+			con.setRequestMethod("GET"); // GET 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1247,14 +1423,15 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
 			}
 			return false;
 		}
-		
+
+		// 내용 업데이트
 		JsonArray array = response.get("content").getAsJsonArray();
 		dataManager.openDB();
 		if (array.size() < dataManager.selectQuestionDB(stuId, lectureId).size()) {
@@ -1272,19 +1449,25 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 변경할 질문
+     * @param questionId 질문 아이디
+     * @param content 질문 내용
+     * @return 성공시 true
+     */
 	public boolean updateQuestion(int questionId, String content) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + QUESTION;
-		String params = "?token="+accessToken+"&questionId="+questionId;
+		String params = "?token="+accessToken+"&questionId="+questionId;	// 파라미터
 		
 		try {
 			params = params + "&content=" + URLEncoder.encode(content, "UTF-8");
 			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("PUT");
+			con.setRequestMethod("PUT"); // PUT 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1301,7 +1484,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1313,18 +1496,23 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 질문 삭제
+     * @param questionId 삭제할 질문 아이디
+     * @return 성공시 true
+     */
 	public boolean removeQuestion(int questionId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + QUESTION;
-		String params = "?token="+accessToken+"&questionId="+questionId;
+		String params = "?token="+accessToken+"&questionId="+questionId; // 파라미터
 		url = url + params;
 		
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("DELETE");
+			con.setRequestMethod("DELETE"); // DELETE 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1341,7 +1529,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {	// 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1353,20 +1541,25 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
-	// answer
+
+    /**
+     * 답변 달기
+     * @param questionId 답변 달 질문 아이디
+     * @param content 답변 내용
+     * @return 성공시 true
+     */
 	public boolean makeAnswer(int questionId, String content) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + ANSWER;
-		String params = "?token="+accessToken+"&questionId="+questionId;
+		String params = "?token="+accessToken+"&questionId="+questionId; // 파라미터
 		
 		try {
-			params = params +"&content="+URLEncoder.encode(content, "UTF-8");
+			params = params +"&content="+URLEncoder.encode(content, "UTF-8"); // 파라미터 인코딩
 			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("POST");
+			con.setRequestMethod("POST"); // POST 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1383,7 +1576,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1394,17 +1587,22 @@ public class NetworkManager {
 			return true;
 		return false;
 	}
-	
+
+    /**
+     * 답변 동기화
+     * @param questionId
+     * @return
+     */
 	public boolean syncAnswer(int questionId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + ANSWER;
-		String params = "?token="+accessToken+"&questionId="+questionId;
+		String params = "?token="+accessToken+"&questionId="+questionId; // 파라미터
 		url = url + params;
 		try {
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("GET");
+			con.setRequestMethod("GET"); // GET 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1422,7 +1620,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션 만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1430,7 +1628,7 @@ public class NetworkManager {
 			return false;
 		}
 		JsonElement content = response.get("content");
-		if (!content.isJsonObject()) {
+		if (!content.isJsonObject()) { // 답변이 없을 경우
 			System.out.println("get answer : no answer");
 			return false;
 		}
@@ -1442,7 +1640,7 @@ public class NetworkManager {
 					answer.content);
 		} else {
 			Answer localAnswer = dataManager.selectAnswerDB(questionId);
-			if (!localAnswer.isEqual(answer)) {
+			if (!localAnswer.isEqual(answer)) { // 답변이 다를 경우 갱신
 				if (dataManager.deleteAnswerDB(localAnswer.getAnswerId())) {
 					dataManager.insertAnswerDB(answer.getAnswerId(),
 							answer.getQuestionId(),
@@ -1453,19 +1651,25 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 답변 변경
+     * @param answerId 변경할 답변 아이디
+     * @param content 변경할 내용
+     * @return 성공시 true
+     */
 	public boolean updateAnswer(int answerId, String content) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + ANSWER;
-		String params = "?token="+accessToken+"&answerId="+answerId;
+		String params = "?token="+accessToken+"&answerId="+answerId; // 파라미터
 		
 		try {
-			params = params +"&content="+URLEncoder.encode(content, "UTF-8");
+			params = params +"&content="+URLEncoder.encode(content, "UTF-8"); // 파라미터 추가
 			url = url + params;
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("PUT");
+			con.setRequestMethod("PUT"); // PUT 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1483,7 +1687,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1495,18 +1699,23 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
+
+    /**
+     * 답변 삭제
+     * @param answerId 삭제할 답변
+     * @return 성공시 true
+     */
 	public boolean removeAnswer(int answerId) {
-		int responseCode = 0;
-		String inputLine = "";
+		int responseCode = 0;	// 서버로부터 응답받은 응답코드
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		String url = API_HOST + ANSWER;
-		String params = "?token="+accessToken+"&answerId="+answerId;
+		String params = "?token="+accessToken+"&answerId="+answerId; // 파라미터
 		url = url + params;
 		
 		try{
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			con.setRequestMethod("DELETE");
+			con.setRequestMethod("DELETE");	// DELETE 방식 사용
 			
 			responseCode = con.getResponseCode();
 			
@@ -1524,7 +1733,7 @@ public class NetworkManager {
 			int errorCode = 0;
 			if (!response.get("code").isJsonNull())
 				errorCode = response.get("code").getAsInt();
-			if (errorCode == 3 || errorCode == 4 || errorCode == 5) {
+			if (errorCode == 3 || errorCode == 4 || errorCode == 5) { // 세션만료
 				JOptionPane.showMessageDialog(null, "다시 로그인 해주세요");
 				mainpage.setVisible(false);
 				loginpage.setVisible(true);
@@ -1537,10 +1746,14 @@ public class NetworkManager {
 		dataManager.closeDB();
 		return true;
 	}
-	
-	// outline
+
+    /**
+     * 서버로부터 강의 정보 받아오기
+     * @param version 받아올 버전
+     * @return 받아온 LectureOutline 모델 어레이 반환
+     */
 	public ArrayList<LectureOutline> getLectureOutline(int version) {
-		String inputLine = "";
+		String inputLine = "";	// 서버로부터 응답받을 response를 읽어 저장할 String 객체
 		try {
 			URL obj = new URL(LECTURE_OUTLINE_URL(version));
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
